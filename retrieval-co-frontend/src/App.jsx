@@ -39,7 +39,7 @@ function AppLayout() {
     <>
       {!hideNavBar && <NavBar />}
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/hotspots" element={<HotspotsMapPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
