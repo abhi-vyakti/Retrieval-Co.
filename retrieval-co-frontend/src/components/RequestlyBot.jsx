@@ -41,7 +41,7 @@ export default function RequestlyBot() {
                 userKarma: user.karma
             } : null;
 
-            const res = await fetch('${API_BASE}/api/ai/chat', {
+            const res = await fetch(`${API_BASE}/api/ai/chat`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ messages: newMessages, context })

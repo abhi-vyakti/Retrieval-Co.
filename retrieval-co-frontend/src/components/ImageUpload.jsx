@@ -93,7 +93,7 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
         formData.append('image', file);
 
         try {
-            const res = await fetch('${API_BASE}/api/upload', {
+            const res = await fetch(`${API_BASE}/api/upload`, {
                 method: 'POST',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})

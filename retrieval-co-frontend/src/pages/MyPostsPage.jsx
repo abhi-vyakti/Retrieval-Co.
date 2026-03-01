@@ -30,7 +30,7 @@ export default function MyPostsPage() {
                 const token = localStorage.getItem('token');
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-                const res = await fetch('${API_BASE}/api/posts/my-posts', { headers });
+                const res = await fetch(`${API_BASE}/api/posts/my-posts`, { headers });
                 const data = await res.json();
 
                 if (res.ok) {

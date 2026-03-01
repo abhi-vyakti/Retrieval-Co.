@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const res = await fetch('${API_BASE}/api/karma/leaderboard');
+                const res = await fetch(`${API_BASE}/api/karma/leaderboard`);
                 const data = await res.json();
 
                 if (res.ok) {

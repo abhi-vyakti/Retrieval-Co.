@@ -62,7 +62,7 @@ export default function CreatePostPage() {
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            const res = await fetch('${API_BASE}/api/ai/parse-post', {
+            const res = await fetch(`${API_BASE}/api/ai/parse-post`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ text: aiPrompt })
@@ -120,7 +120,7 @@ export default function CreatePostPage() {
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
-                const res = await fetch('${API_BASE}/api/ai/analyze-image', {
+                const res = await fetch(`${API_BASE}/api/ai/analyze-image`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ imageUrl: uploadedUrl })
@@ -197,7 +197,7 @@ export default function CreatePostPage() {
             };
 
             if (!isReviewingMatches && type !== 'borrow') {
-                const matchRes = await fetch('${API_BASE}/api/ai/find-matches', {
+                const matchRes = await fetch(`${API_BASE}/api/ai/find-matches`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(payload)
@@ -262,7 +262,7 @@ export default function CreatePostPage() {
                 payload.category = 'Others';
             }
 
-            const res = await fetch('${API_BASE}/api/posts', {
+            const res = await fetch(`${API_BASE}/api/posts`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload)
