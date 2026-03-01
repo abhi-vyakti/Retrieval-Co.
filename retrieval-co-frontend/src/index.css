@@ -1,0 +1,321 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Core Dark Palette ─── */
+  --color-ink: #060d0f;
+  --color-surface: #0c1a1e;
+  --color-card: #102028;
+  --color-border: #1a3040;
+
+  /* ─── Accent Colors ─── */
+  --color-amber: #00c9c8;
+  --color-amber-dim: #008f8e;
+  --color-green: #3dd68c;
+  --color-red: #f05252;
+  --color-blue: #60a5fa;
+
+  /* ─── Text ─── */
+  --color-text: #e0f0f2;
+  --color-text-muted: #507080;
+
+  /* ─── Semantic (kept for backward compat) ─── */
+  --color-danger: #f05252;
+  --color-danger-bg: rgba(240, 82, 82, 0.12);
+  --color-urgent-bg: rgba(240, 82, 82, 0.12);
+  --color-urgent-text: #f05252;
+  --color-urgent-border: rgba(240, 82, 82, 0.3);
+  --color-warning-bg: rgba(96, 165, 250, 0.08);
+  --color-warning-text: #60a5fa;
+  --color-warning-border: rgba(96, 165, 250, 0.2);
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+  /* ─── Radii ─── */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* ─── Fonts ─── */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* ─── Compat aliases ─── */
+  --color-green-light: rgba(61, 214, 140, 0.12);
+  --color-green-dark: #3dd68c;
+  --color-blue-pale: rgba(96, 165, 250, 0.12);
+  --color-blue-light: rgba(96, 165, 250, 0.2);
+  --color-blue-deep: #4d94f0;
+  --color-grey-50: #060d0f;
+  --color-grey-100: #0c1a1e;
+  --color-grey-200: #1a3040;
+  --color-grey-300: #253d50;
+  --color-grey-400: #507080;
+  --color-grey-600: #7a9aab;
+  --color-grey-800: #c0d8e0;
+  --color-surface-alt: #0a1418;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #060d0f;
+    color: #e0f0f2;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: #e0f0f2;
+  }
+}
+
+@layer components {
+
+  /* ─── BUTTONS ─── */
+  .btn-primary {
+    background: #00c9c8;
+    color: #060d0f;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #00e5e4;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 201, 200, 0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #e0f0f2;
+    border: 1px solid #1a3040;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover {
+    border-color: #507080;
+    transform: translateY(-2px);
+  }
+
+  .btn-blue {
+    background: rgba(0, 201, 200, 0.12);
+    color: #00c9c8;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-blue:hover {
+    background: rgba(0, 201, 200, 0.2);
+  }
+
+  .btn-hero {
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  /* ─── BADGES ─── */
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    padding: 3px 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badge-open {
+    background: rgba(112, 112, 160, 0.2);
+    color: #507080;
+  }
+
+  .badge-claimed {
+    background: rgba(0, 201, 200, 0.15);
+    color: #00c9c8;
+  }
+
+  .badge-returned {
+    background: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+  }
+
+  .badge-expired {
+    background: rgba(80, 112, 128, 0.2);
+    color: #507080;
+  }
+
+  .badge-urgent {
+    background: rgba(240, 82, 82, 0.2);
+    color: #f05252;
+    border: 1px solid rgba(240, 82, 82, 0.3);
+    animation: urgentPulse 2s infinite;
+  }
+
+  .badge-lost {
+    background: rgba(240, 82, 82, 0.15);
+    color: #f05252;
+  }
+
+  .badge-found {
+    background: rgba(61, 214, 140, 0.15);
+    color: #3dd68c;
+  }
+
+  .badge-borrow {
+    background: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+  }
+
+  .badge-aimatch {
+    background: rgba(96, 165, 250, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+  }
+
+  @keyframes urgentPulse {
+
+    0%,
+    100% {
+      opacity: 1
+    }
+
+    50% {
+      opacity: 0.6
+    }
+  }
+
+  /* ─── FORM INPUTS ─── */
+  .form-input {
+    width: 100%;
+    background: #0c1a1e;
+    border: 1px solid #1a3040;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #e0f0f2;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    border-color: #00c9c8;
+  }
+
+  .form-input::placeholder {
+    color: #507080;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #507080;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0c1a1e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a3040;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #253d50;
+}
