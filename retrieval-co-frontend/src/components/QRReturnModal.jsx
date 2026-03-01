@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrCode, X, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config/api';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSuccessCallback }) {
@@ -52,7 +53,7 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
         setLoading(true);
         setError('');
         try {
-            const res = await fetch(`http://localhost:5000/api/return/${post._id}/generate-qr`, {
+            const res = await fetch(`${API_BASE}/api/return/${post._id}/generate-qr`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -81,7 +82,7 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
                 throw new Error("Invalid QR code format. Missing required data.");
             }
 
-            const res = await fetch(`http://localhost:5000/api/return/confirm-qr`, {
+            const res = await fetch(`${API_BASE}/api/return/confirm-qr`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

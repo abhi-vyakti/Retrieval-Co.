@@ -4,6 +4,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config/api';
 
 export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, label = 'Attach Photo', iconOnly = false }) {
     const { token } = useAuth();
@@ -92,7 +93,7 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
         formData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:5000/api/upload', {
+            const res = await fetch('${API_BASE}/api/upload', {
                 method: 'POST',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})

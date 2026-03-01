@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Medal, Star, Zap } from 'lucide-react';
+import { API_BASE } from '../config/api';
 
 export default function LeaderboardPage() {
     const [leaders, setLeaders] = useState([]);
@@ -8,7 +9,7 @@ export default function LeaderboardPage() {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/karma/leaderboard');
+                const res = await fetch('${API_BASE}/api/karma/leaderboard');
                 const data = await res.json();
 
                 if (res.ok) {

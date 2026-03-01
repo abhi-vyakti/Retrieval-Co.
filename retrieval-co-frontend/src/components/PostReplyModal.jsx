@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Minimize2, MapPin, Clock, PackageSearch, PackageCheck, Repeat, MessageSquare, User } from 'lucide-react';
 import Badge from './Badge';
+import { API_BASE } from '../config/api';
 
 export default function PostReplyModal({ post, isOpen, onClose, isMinimized, onToggleMinimize }) {
     const [replyText, setReplyText] = useState('');
@@ -55,7 +56,7 @@ export default function PostReplyModal({ post, isOpen, onClose, isMinimized, onT
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/posts/${post._id}/replies`, {
+            const res = await fetch(`${API_BASE}/api/posts/${post._id}/replies`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

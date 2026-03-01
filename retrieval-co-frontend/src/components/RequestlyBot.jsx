@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config/api';
 
 export default function RequestlyBot() {
     const { token, user } = useAuth();
@@ -40,7 +41,7 @@ export default function RequestlyBot() {
                 userKarma: user.karma
             } : null;
 
-            const res = await fetch('http://localhost:5000/api/ai/chat', {
+            const res = await fetch('${API_BASE}/api/ai/chat', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ messages: newMessages, context })
@@ -91,8 +92,8 @@ export default function RequestlyBot() {
                             <div
                                 key={idx}
                                 className={`max-w-[80%] text-[0.875rem] leading-[1.5] px-3.5 py-2.5 ${msg.role === 'user'
-                                        ? 'bg-[rgba(0,201,200,0.15)] rounded-[14px_4px_14px_14px] self-end text-amber'
-                                        : 'bg-surface rounded-[4px_14px_14px_14px] self-start text-text'
+                                    ? 'bg-[rgba(0,201,200,0.15)] rounded-[14px_4px_14px_14px] self-end text-amber'
+                                    : 'bg-surface rounded-[4px_14px_14px_14px] self-start text-text'
                                     }`}
                             >
                                 {msg.content.split('**').map((text, i) => i % 2 === 1 ? <strong key={i}>{text}</strong> : text)}

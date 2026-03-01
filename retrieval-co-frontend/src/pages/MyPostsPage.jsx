@@ -7,6 +7,7 @@ import QRReturnModal from '../components/QRReturnModal';
 import { Award, Target, Flame, PackageSearch, LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../config/api';
 
 export default function MyPostsPage() {
     const { user, logout } = useAuth();
@@ -29,7 +30,7 @@ export default function MyPostsPage() {
                 const token = localStorage.getItem('token');
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-                const res = await fetch('http://localhost:5000/api/posts/my-posts', { headers });
+                const res = await fetch('${API_BASE}/api/posts/my-posts', { headers });
                 const data = await res.json();
 
                 if (res.ok) {
@@ -60,7 +61,7 @@ export default function MyPostsPage() {
             if (status) payload.status = status;
             if (isUrgent !== undefined) payload.isUrgent = isUrgent;
 
-            const res = await fetch(`http://localhost:5000/api/posts/${postId}/status`, {
+            const res = await fetch(`${API_BASE}/api/posts/${postId}/status`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify(payload)

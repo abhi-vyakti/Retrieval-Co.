@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import QRReturnModal from '../components/QRReturnModal';
 import { Search, Filter, AlertCircle, PackageSearch, Plus, UserSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../config/api';
 
 export default function DashboardPage() {
     const [posts, setPosts] = useState([]);
@@ -40,7 +41,7 @@ export default function DashboardPage() {
             const token = localStorage.getItem('token');
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-            let url = `http://localhost:5000/api/posts?`;
+            let url = `${API_BASE}/api/posts?`;
 
             if (activeTab === 'borrow') {
                 url += `type=borrow&`;
