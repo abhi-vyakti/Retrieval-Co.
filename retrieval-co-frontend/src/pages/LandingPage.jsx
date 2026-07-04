@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Zap, Calendar, QrCode, Star, MapPin } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const statsData = [
     { label: "Items Recovered", value: 847 },
@@ -74,6 +75,9 @@ function AnimatedCounter({ endValue, duration = 2000 }) {
 }
 
 export default function LandingPage() {
+    const { user } = useAuth();
+    const dashboardLink = user ? '/dashboard' : '/login';
+
     return (
         <div className="min-h-screen bg-ink">
             {/* ─── HERO ─── */}
@@ -127,7 +131,7 @@ export default function LandingPage() {
                     style={{ animation: 'fadeUp 0.7s ease 0.3s both' }}
                 >
                     <Link
-                        to="/login"
+                        to={dashboardLink}
                         className="bg-amber text-ink border-none rounded-[10px] px-8 py-3.5 font-display font-bold text-base cursor-pointer transition-all hover:bg-[#00e5e4] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,201,200,0.3)] no-underline"
                     >
                         Launch Dashboard →
