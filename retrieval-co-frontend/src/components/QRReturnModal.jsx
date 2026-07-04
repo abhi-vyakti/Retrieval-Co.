@@ -174,6 +174,43 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
                                             Do not share this code online. Only show it in-person during the handoff.
                                         </p>
                                     </div>
+                                    {localStorage.getItem('demo_mode') === 'true' && (
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                setLoading(true);
+                                                setError('');
+                                                try {
+                                                    const mockData = JSON.parse(qrPayload || '{}');
+                                                    const res = await fetch(`${API_BASE}/api/return/confirm-qr`, {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'Authorization': `Bearer ${token}`
+                                                        },
+                                                        body: JSON.stringify(mockData)
+                                                    });
+                                                    if (res.ok) {
+                                                        setScanned(true);
+                                                        setScanResult('success');
+                                                        if (onSuccessCallback) {
+                                                            setTimeout(() => onSuccessCallback(), 2000);
+                                                        }
+                                                    } else {
+                                                        const errData = await res.json();
+                                                        throw new Error(errData.error || 'Failed to simulate');
+                                                    }
+                                                } catch (err) {
+                                                    setError(err.message);
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }}
+                                            className="w-full bg-[rgba(61,214,140,0.12)] text-green border border-[rgba(61,214,140,0.25)] rounded-[8px] py-2.5 px-4 font-bold text-[0.85rem] cursor-pointer hover:bg-[rgba(61,214,140,0.2)] transition-colors mt-2"
+                                        >
+                                            ⚡ Simulate Receiver Scanning (Demo)
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="space-y-5">
@@ -191,6 +228,23 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
                                         <div className="mx-auto w-full max-w-sm rounded-[var(--radius-lg)] bg-grey-50 border-2 border-dashed border-grey-200 overflow-hidden">
                                             <div id="qr-reader" className="w-full"></div>
                                         </div>
+                                    )}
+
+                                    {localStorage.getItem('demo_mode') === 'true' && post && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const mockPayload = {
+                                                    postId: post._id,
+                                                    ownerId: post.author?._id || post.author,
+                                                    token: 'mock_secure_qr_token_for_' + post._id
+                                                };
+                                                handleRealScan(JSON.stringify(mockPayload));
+                                            }}
+                                            className="w-full bg-[rgba(0,201,200,0.12)] text-amber border border-[rgba(0,201,200,0.25)] rounded-[8px] py-2.5 px-4 font-bold text-[0.85rem] cursor-pointer hover:bg-[rgba(0,201,200,0.2)] transition-colors mt-2"
+                                        >
+                                            ⚡ Simulate QR Scan (Demo)
+                                        </button>
                                     )}
 
                                     {error && (

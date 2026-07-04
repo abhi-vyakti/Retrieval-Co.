@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -8,11 +8,30 @@ import { API_BASE } from '../config/api';
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { user, login } = useAuth();
     const [code, setCode] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Auto-redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
+    const handleDemoLogin = (e) => {
+        e.preventDefault();
+        localStorage.setItem('demo_mode', 'true');
+        login({
+            id: 'user_kiransharma',
+            code: '22BCE1234',
+            name: 'Kiran Sharma',
+            role: 'student',
+            karma: 312
+        }, 'mock_jwt_token');
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -34,6 +53,8 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (res.ok) {
+                // Set demo mode to false if they log in with real credentials
+                localStorage.setItem('demo_mode', 'false');
                 login(data.user, data.token);
             } else {
                 setError(data.error || 'Login failed');
@@ -45,6 +66,7 @@ export default function LoginPage() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-ink flex items-center justify-center relative overflow-hidden">
@@ -110,9 +132,20 @@ export default function LoginPage() {
                     </Button>
                 </form>
 
-                <div className="text-center text-text-muted text-[0.85rem] mt-4">
-                    Demo mode — any credentials work
+                <div className="relative flex py-3 items-center">
+                    <div className="flex-grow border-t border-border"></div>
+                    <span className="flex-shrink mx-4 text-text-muted text-xs uppercase font-bold tracking-wider">Or</span>
+                    <div className="flex-grow border-t border-border"></div>
                 </div>
+
+                <Button type="button" variant="blue" className="w-full cursor-pointer" onClick={handleDemoLogin}>
+                    ⚡ Continue as Demo User
+                </Button>
+
+                <div className="text-center text-text-muted text-[0.8rem] mt-5">
+                    Demo Mode allows recruiters to explore all features offline without backend setup.
+                </div>
+
             </div>
         </div>
     );
