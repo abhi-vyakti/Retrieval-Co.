@@ -144,30 +144,42 @@ Return ONLY a raw JSON array of objects with this exact structure:
 ]
 Only include items with score above 60.`;
 
-        const response = await genai.models.generateContent({
-            model: MODEL,
-            contents: prompt,
-            config: {
-                systemInstruction: 'You are a matching engine. Return only valid JSON arrays. No markdown, no explanation.',
-                temperature: 0.1,
-                maxOutputTokens: 1024,
-                responseMimeType: 'application/json',
-            },
-        });
-
-        const rawText = response.text || '[]';
-        const cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        let scoredItems;
+        let scoredItems = null;
         try {
-            scoredItems = JSON.parse(cleanJsonStr);
-        } catch (jsonErr) {
-            console.error('LLM matching output was not valid JSON:', rawText);
-            return res.status(500).json({ error: 'Failed to process AI Match response.' });
-        }
+            const response = await genai.models.generateContent({
+                model: MODEL,
+                contents: prompt,
+                config: {
+                    systemInstruction: 'You are a matching engine. Return only valid JSON arrays. No markdown, no explanation.',
+                    temperature: 0.1,
+                    maxOutputTokens: 1024,
+                    responseMimeType: 'application/json',
+                },
+            });
 
-        if (!Array.isArray(scoredItems)) {
-            scoredItems = scoredItems.matches || [];
+            const rawText = response.text || '[]';
+            const cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            scoredItems = JSON.parse(cleanJsonStr);
+            if (!Array.isArray(scoredItems)) {
+                scoredItems = scoredItems.matches || [];
+            }
+        } catch (err) {
+            console.warn('[AI Service] findMatches Gemini failed, using heuristic matching:', err.message);
+            scoredItems = candidates.map(c => {
+                let score = 65;
+                const searchWords = (title + ' ' + description).toLowerCase().split(/\s+/);
+                const cText = (c.title + ' ' + (c.description || '')).toLowerCase();
+                let overlap = 0;
+                searchWords.forEach(w => {
+                    if (w.length > 2 && cText.includes(w)) overlap++;
+                });
+                if (overlap > 0) score += Math.min(overlap * 8, 30);
+                return {
+                    id: c._id.toString(),
+                    confidenceScore: score,
+                    reason: `Matched via category "${category}" with some keyword overlap.`
+                };
+            });
         }
 
         const highConfidenceIds = scoredItems
@@ -251,8 +263,10 @@ Tone: Friendly, concise, helpful, and slightly academic. Keep responses to 1-3 s
         });
 
     } catch (error) {
-        console.error('Error in chatWithBot:', error);
-        res.status(500).json({ error: 'Server Error during AI Chat' });
+        console.warn('[AI Service] Chatbot Gemini failed, using offline response. Error:', error.message);
+        res.json({
+            reply: "Hello! I'm currently running in safe mode. You can report lost items by creating a 'Lost' post, report found items by creating a 'Found' post (requires photo), or request to borrow tools using 'Borrow' posts. Earning Karma Points by returning items helps build our campus community!"
+        });
     }
 };
 

@@ -1,8 +1,19 @@
+// Intercept require('mongoose') to use our local JSON file mock database
+const Module = require('module');
+const originalRequire = Module.prototype.require;
+const path = require('path');
+Module.prototype.require = function (id) {
+    if (id === 'mongoose') {
+        return originalRequire.call(this, path.join(__dirname, 'mongoose-mock.js'));
+    }
+    return originalRequire.apply(this, arguments);
+};
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');
 const Post = require('./models/Post');
-require('dns').setServers(['8.8.8.8']);
+
 
 dotenv.config();
 
