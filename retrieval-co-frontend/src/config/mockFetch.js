@@ -66,7 +66,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Casio_fx-991ES_PLUS.jpg/800px-Casio_fx-991ES_PLUS.jpg",
         author: {
             _id: "user_rahulverma",
             name: "Rahul Verma",
@@ -129,7 +129,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=500&h=500&fit=crop",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/AirPods.jpg/800px-AirPods.jpg",
         author: {
             _id: "user_ananyasingh",
             name: "Ananya Singh",
