@@ -373,6 +373,7 @@ export default function ImageUpload({
                 <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
                     <div className="absolute top-4 left-4 z-[110]">
                         <button
+                            type="button"
                             onClick={() => setIsMirrored(!isMirrored)}
                             className={`rounded-full p-2 transition ${isMirrored ? 'bg-blue text-white' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}
                             title="Mirror Camera"
@@ -383,6 +384,7 @@ export default function ImageUpload({
                     
                     <div className="absolute top-4 right-4 z-[110]">
                         <button
+                            type="button"
                             onClick={stopCamera}
                             className="bg-neutral-800 text-white rounded-full p-2 hover:bg-neutral-700 transition"
                         >
@@ -400,6 +402,7 @@ export default function ImageUpload({
 
                         <div className="absolute bottom-8 left-0 w-full flex justify-center">
                             <button
+                                type="button"
                                 onClick={capturePhoto}
                                 className="w-16 h-16 bg-white rounded-full border-4 border-neutral-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
                             >
@@ -422,6 +425,7 @@ export default function ImageUpload({
                             </h3>
                         </div>
                         <button
+                            type="button"
                             onClick={handleCropCancel}
                             className="bg-neutral-800 text-white rounded-full p-2 hover:bg-neutral-700 transition"
                         >
