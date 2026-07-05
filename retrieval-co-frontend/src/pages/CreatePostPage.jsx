@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { PackageSearch, PackageCheck, Repeat, AlertCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import { PackageSearch, PackageCheck, Repeat, AlertCircle, ArrowLeft, Sparkles, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ImageUpload from '../components/ImageUpload';
 import { API_BASE } from '../config/api';
 
 export default function CreatePostPage() {
     const navigate = useNavigate();
-    const [type, setType] = useState('lost');
+    const [searchParams] = useSearchParams();
+    const [type, setType] = useState(() => {
+        const t = searchParams.get('type');
+        if (t === 'borrow' || t === 'found' || t === 'lost') return t;
+        return 'lost';
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -28,6 +33,11 @@ export default function CreatePostPage() {
     // Image AI Analysis State
     const [analyzingImage, setAnalyzingImage] = useState(false);
     const [imageAnalysis, setImageAnalysis] = useState(null);
+    const [showAdvanced, setShowAdvanced] = useState(false);
+
+    // Timetable Matcher State
+    const [matchingTimetable, setMatchingTimetable] = useState(false);
+    const [matchedClass, setMatchedClass] = useState('');
 
     const [formData, setFormData] = useState({
         title: '',
@@ -52,6 +62,30 @@ export default function CreatePostPage() {
             [name]: type === 'checkbox' ? checked : value
         }));
     };
+
+    const handleClassChange = (e) => {
+        const val = e.target.value;
+        setFormData(prev => ({ ...prev, selectedClass: val }));
+        
+        if (!val) {
+            setMatchedClass('');
+            setMatchingTimetable(false);
+            return;
+        }
+
+        setMatchingTimetable(true);
+        setMatchedClass('');
+
+        setTimeout(() => {
+            setMatchingTimetable(false);
+            setMatchedClass(val);
+        }, 1500);
+    };
+
+    React.useEffect(() => {
+        setMatchedClass('');
+        setMatchingTimetable(false);
+    }, [type]);
 
     const handleAiParse = async () => {
         if (!aiPrompt.trim()) return;
@@ -137,7 +171,8 @@ export default function CreatePostPage() {
                     setImageAnalysis({
                         isAIGenerated: Boolean(data.analysis.isAIGenerated),
                         confidence: Number(data.analysis.confidence) || 0,
-                        reason: String(data.analysis.reason || '')
+                        reason: String(data.analysis.reason || ''),
+                        matches: data.analysis.matches || []
                     });
                 }
             } catch (err) {
@@ -425,7 +460,7 @@ export default function CreatePostPage() {
                             </div>
 
                             <Input
-                                label={`Location ${type === 'lost' ? 'Lost' : 'Found'} *`}
+                                label={`Location ${type === 'lost' ? 'Lost' : 'Found'}`}
                                 name="location"
                                 value={formData.location}
                                 onChange={handleChange}
@@ -439,7 +474,7 @@ export default function CreatePostPage() {
                         <div className="grid grid-cols-2 gap-5">
                             <Input
                                 type="date"
-                                label={`Date ${type === 'lost' ? 'Lost' : type === 'found' ? 'Found' : 'Needed'} *`}
+                                label={`Date ${type === 'lost' ? 'Lost' : type === 'found' ? 'Found' : 'Needed'}`}
                                 name="date"
                                 value={formData.date}
                                 onChange={handleChange}
@@ -447,7 +482,7 @@ export default function CreatePostPage() {
                             />
                             <Input
                                 type="time"
-                                label="Time"
+                                label={type === 'lost' ? 'Time Lost' : type === 'found' ? 'Time Found' : 'Time'}
                                 name="time"
                                 value={formData.time}
                                 onChange={handleChange}
@@ -457,11 +492,11 @@ export default function CreatePostPage() {
 
                     {type === 'borrow' && (
                         <div>
-                            <label className="form-label">Upcoming Class Session *</label>
+                            <label className="form-label">Upcoming Class Session <span className="text-primary">*</span></label>
                             <select
                                 name="selectedClass"
                                 value={formData.selectedClass}
-                                onChange={handleChange}
+                                onChange={handleClassChange}
                                 className="form-input"
                                 required
                             >
@@ -473,13 +508,20 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type === 'borrow' && formData.selectedClass && (
-                        <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.2)] rounded-[var(--radius)] p-4">
+                    {type === 'borrow' && matchingTimetable && (
+                        <div className="bg-[rgba(96,165,250,0.04)] border border-[rgba(96,165,250,0.15)] rounded-[var(--radius)] p-4 flex items-center gap-3">
+                            <Loader2 className="animate-spin text-primary shrink-0" size={15} />
+                            <span className="text-[13px] text-text-muted font-medium">Checking timetable database matching...</span>
+                        </div>
+                    )}
+
+                    {type === 'borrow' && matchedClass && (
+                        <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.2)] rounded-[var(--radius)] p-4 animate-in fade-in slide-in-from-top-1 duration-200">
                             <h4 className="text-blue font-medium text-[13px] flex items-center gap-2 mb-2">
                                 <Sparkles size={15} /> Smart Timetable Matcher
                             </h4>
                             <p className="text-[13px] text-text mb-1">
-                                🎯 Found Match: <strong className="text-blue">Section F</strong> had {formData.selectedClass} pre-lunch.
+                                🎯 Found Match: <strong className="text-blue">Section F</strong> had {matchedClass} pre-lunch.
                             </p>
                             <p className="text-[11px] text-text-muted">
                                 This section just finished using the item you need. Do you want to send a targeted request to them?
@@ -504,7 +546,7 @@ export default function CreatePostPage() {
 
                     {type !== 'borrow' && (
                         <div>
-                            <label className="form-label">Photo (Optional)</label>
+                            <label className="form-label">Photo {type === 'found' ? <span className="text-primary">*</span> : '(Optional)'}</label>
 
                             <ImageUpload
                                 currentImage={formData.imageUrl}
@@ -531,20 +573,55 @@ export default function CreatePostPage() {
 
                             {/* Image AI Results Banner */}
                             {imageAnalysis && !imageAnalysis.error && imageAnalysis.isAIGenerated !== undefined && (
-                                <div className={`mt-3 p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? 'bg-danger-bg border-danger/20 text-danger' : 'bg-green-light border-green/20 text-green-dark'}`}>
-                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                                    <div>
-                                        <span className="font-bold">AI Image Detection</span>
-                                        <p className="mt-1 opacity-80 text-[12px]">
-                                            {imageAnalysis.isAIGenerated
-                                                ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
-                                                : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
-                                        </p>
+                                <div className="space-y-3 mt-3">
+                                    <div className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? 'bg-danger-bg border-danger/20 text-danger' : 'bg-green-light border-green/20 text-green-dark'}`}>
+                                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                        <div>
+                                            <span className="font-bold">AI Image Detection</span>
+                                            <p className="mt-1 opacity-80 text-[12px]">
+                                                {imageAnalysis.isAIGenerated
+                                                    ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
+                                                    : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
+                                            </p>
+                                        </div>
                                     </div>
+
+                                    {/* Image Match Detection Results */}
+                                    {imageAnalysis.matches && imageAnalysis.matches.length > 0 && (
+                                        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-text flex flex-col gap-3">
+                                            <h4 className="text-[12px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                                                <Sparkles size={14} /> Potential Matches Found on Campus
+                                            </h4>
+                                            <div className="space-y-2">
+                                                {imageAnalysis.matches.map((m) => (
+                                                    <div key={m._id} className="p-3 rounded-lg bg-surface border border-border flex justify-between items-start gap-2 hover:border-primary/40 transition-colors">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${m.type === 'found' ? 'bg-green/10 text-green border border-green/15' : 'bg-danger/10 text-red border border-danger/15'}`}>
+                                                                    {m.type}
+                                                                </span>
+                                                                <span className="font-semibold text-[13px] text-text">{m.title}</span>
+                                                            </div>
+                                                            <p className="text-[11px] text-text-muted leading-relaxed">"{m.reason}"</p>
+                                                            {m.location && (
+                                                                <span className="text-[10px] text-text-muted">📍 {m.location}</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-[11px] font-bold text-primary bg-primary/10 border border-primary/15 px-2 py-0.5 rounded">
+                                                            {m.confidenceScore}% Match
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             {analyzingImage && (
-                                <p className="text-[11px] text-green-dark mt-2 animate-pulse flex items-center gap-2">🔍 Running AI forensic vision analysis...</p>
+                                <p className="text-[11px] text-green-dark mt-2 flex items-center gap-2">
+                                    <Loader2 className="animate-spin text-green" size={13} />
+                                    Running AI forensic vision analysis...
+                                </p>
                             )}
                             {imageAnalysis && imageAnalysis.error && (
                                 <div className="mt-3 p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 bg-danger-bg border-danger/20 text-danger">
@@ -558,33 +635,53 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    <div className="flex flex-col gap-3 py-4 border-t border-grey-100">
-                        <div className="flex items-center justify-between">
-                            <span className="text-text text-[13px] font-medium">Post Anonymously (Hide my name)</span>
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-checked={formData.isAnonymous}
-                                onClick={() => setFormData(prev => ({ ...prev, isAnonymous: !prev.isAnonymous }))}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isAnonymous ? 'bg-green' : 'bg-grey-200'}`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform shadow-sm ${formData.isAnonymous ? 'translate-x-6' : 'translate-x-1'}`}
-                                />
-                            </button>
-                        </div>
+                    {/* Advanced Options Accordion */}
+                    <div className="py-4">
+                        <button
+                            type="button"
+                            onClick={() => setShowAdvanced(!showAdvanced)}
+                            className="flex items-center justify-between w-full text-left text-text text-[13.5px] font-semibold hover:text-primary transition-colors cursor-pointer focus:outline-none"
+                        >
+                            <span className="flex items-center gap-2">
+                                Advanced Options
+                            </span>
+                            {showAdvanced ? <ChevronUp size={16} className="text-text-muted" /> : <ChevronDown size={16} className="text-text-muted" />}
+                        </button>
 
-                        {type !== 'found' && (
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    name="isUrgent"
-                                    checked={formData.isUrgent}
-                                    onChange={handleChange}
-                                    className="w-4 h-4 rounded border-grey-300 text-urgent-text focus:ring-urgent-text"
-                                />
-                                <span className="text-urgent-text font-medium text-[13px] flex items-center gap-1">Mark as URGENT</span>
-                            </label>
+                        {showAdvanced && (
+                            <div className="mt-4 pl-1 flex flex-col gap-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-text-muted text-[13px] font-medium">Post Anonymously (Hide my name)</span>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={formData.isAnonymous}
+                                        onClick={() => setFormData(prev => ({ ...prev, isAnonymous: !prev.isAnonymous }))}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isAnonymous ? 'bg-success' : 'bg-border'}`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isAnonymous ? 'translate-x-6' : 'translate-x-1'}`}
+                                        />
+                                    </button>
+                                </div>
+
+                                {type === 'borrow' && (
+                                    <div className="flex items-center justify-between pt-2 border-t border-border/10">
+                                        <span className="text-text-muted text-[13px] font-medium">Mark as Urgent</span>
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            aria-checked={formData.isUrgent}
+                                            onClick={() => setFormData(prev => ({ ...prev, isUrgent: !prev.isUrgent }))}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isUrgent ? 'bg-success' : 'bg-border'}`}
+                                        >
+                                            <span
+                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isUrgent ? 'translate-x-6' : 'translate-x-1'}`}
+                                            />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -641,7 +738,7 @@ export default function CreatePostPage() {
 
                     {!isReviewingMatches && (
                         <Button type="submit" variant="primary" className="w-full py-3 text-[14px]" disabled={loading || checkingMatches}>
-                            {checkingMatches ? 'Scanning for Matches...' : loading ? 'Submitting...' : type === 'borrow' ? (formData.selectedClass ? 'Send Request to Section F' : 'Select a Class to Send Request') : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
+                            {checkingMatches ? 'Scanning for Matches...' : loading ? 'Submitting...' : type === 'borrow' ? 'Send request' : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
                         </Button>
                     )}
                 </div>

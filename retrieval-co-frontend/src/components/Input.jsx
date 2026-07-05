@@ -3,7 +3,7 @@ export default function Input({ label, error, icon: Icon, required, className = 
         <div className={`flex flex-col w-full ${containerClassName}`}>
             {label && (
                 <label className="form-label">
-                    {label} {required && <span className="text-amber">*</span>}
+                    {label} {required && <span className="text-primary">*</span>}
                 </label>
             )}
             <div className="relative w-full">

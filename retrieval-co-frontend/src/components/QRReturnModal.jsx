@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrCode, X, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -7,11 +7,16 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 
 export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSuccessCallback }) {
     const { token } = useAuth();
+    const modalBodyRef = useRef(null);
     const [qrPayload, setQrPayload] = useState(null);
     const [loading, setLoading] = useState(false);
     const [scanResult, setScanResult] = useState(null);
     const [scanned, setScanned] = useState(false);
     const [error, setError] = useState('');
+    const [selectedFinder, setSelectedFinder] = useState('');
+    const [manualLoading, setManualLoading] = useState(false);
+    const [manualError, setManualError] = useState('');
+    const [showManual, setShowManual] = useState(false);
 
     useEffect(() => {
         if (isOpen && isOwner && post) {
@@ -21,15 +26,40 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
             setScanResult(null);
             setError('');
             setQrPayload(null);
+            setShowManual(false);
         }
+
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
     }, [isOpen, isOwner, post]);
+
+    useEffect(() => {
+        if (showManual) {
+            // Small timeout to allow layout animation/paint before scroll height calculation
+            setTimeout(() => {
+                if (modalBodyRef.current) {
+                    modalBodyRef.current.scrollTop = modalBodyRef.current.scrollHeight;
+                }
+            }, 80);
+        }
+    }, [showManual]);
 
     useEffect(() => {
         let scanner = null;
         if (isOpen && !isOwner && !scanned) {
             scanner = new Html5QrcodeScanner(
                 "qr-reader",
-                { fps: 10, qrbox: { width: 250, height: 250 } },
+                { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 },
+                    supportedScanTypes: [0] // Camera scan only to open camera option directly
+                },
                 false
             );
 
@@ -106,28 +136,76 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
         }
     };
 
+    const handleManualReturnConfirm = async () => {
+        if (!selectedFinder) {
+            setManualError('Please select a student to award Karma.');
+            return;
+        }
+
+        setManualLoading(true);
+        setManualError('');
+        try {
+            const res = await fetch(`${API_BASE}/api/return/confirm-manual`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    postId: post._id,
+                    finderId: selectedFinder
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to confirm return manually');
+
+            setScanned(true);
+            setScanResult('success');
+            if (onSuccessCallback) {
+                setTimeout(() => onSuccessCallback(), 2000);
+            }
+        } catch (err) {
+            setManualError(err.message || 'Error confirming manual return.');
+        } finally {
+            setManualLoading(false);
+        }
+    };
+
+    const uniqueRepliers = [];
+    if (post && post.replies) {
+        const seenUserIds = new Set();
+        post.replies.forEach(reply => {
+            const replier = reply.user;
+            if (replier && typeof replier === 'object' && replier._id && !seenUserIds.has(replier._id)) {
+                seenUserIds.add(replier._id);
+                uniqueRepliers.push(replier);
+            }
+        });
+    }
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <div className="bg-surface border border-grey-200 w-full max-w-md rounded-[var(--radius-xl)] overflow-hidden shadow-lg">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/20">
+            <div className="bg-surface border border-grey-200 w-full max-w-md max-h-[90vh] flex flex-col rounded-[var(--radius-xl)] overflow-hidden shadow-lg">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-grey-100">
+                <div className="flex items-center justify-between p-5 border-b border-grey-100 shrink-0">
                     <h3 className="text-[16px] font-display font-bold text-text flex items-center gap-2">
                         <QrCode className="text-green" size={20} />
                         Secure QR Return
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-grey-400 hover:text-danger transition-colors p-1 cursor-pointer"
+                        className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer border-none bg-transparent"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-6 text-center">
+                <div ref={modalBodyRef} className="p-6 text-center flex-1 overflow-y-auto">
                     {scanned ? (
                         <div className="py-8">
                             <div className="w-16 h-16 bg-green-light rounded-full flex items-center justify-center mx-auto mb-5">
@@ -211,6 +289,70 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
                                             ⚡ Simulate Receiver Scanning (Demo)
                                         </button>
                                     )}
+
+                                    {/* Manual return fallback */}
+                                    <div className="border-t border-border/10 pt-4 mt-4 text-left">
+                                        {!showManual ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowManual(true)}
+                                                className="text-[11.5px] text-text-muted hover:text-primary transition-all flex items-center gap-1.5 cursor-pointer underline bg-transparent border-none p-0 focus:outline-none"
+                                            >
+                                                No QR Code? Verify manually
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="text-[13px] font-display font-bold text-text">No QR Code? Verify manually</h4>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowManual(false)}
+                                                        className="text-[10px] text-text-muted hover:text-text cursor-pointer bg-transparent border-none p-0"
+                                                    >
+                                                        Hide
+                                                    </button>
+                                                </div>
+                                                <p className="text-text-muted text-[11px] mb-3">
+                                                    Confirm the return manually and award 50 Karma to the returning student:
+                                                </p>
+
+                                                {manualError && (
+                                                    <div className="mb-3 p-2 bg-danger-bg border border-danger/20 rounded-md text-[11px] text-danger flex items-center gap-1.5">
+                                                        <AlertCircle size={13} /> {manualError}
+                                                    </div>
+                                                )}
+
+                                                {uniqueRepliers.length > 0 ? (
+                                                    <div className="flex flex-col sm:flex-row gap-2">
+                                                        <select
+                                                            value={selectedFinder}
+                                                            onChange={(e) => setSelectedFinder(e.target.value)}
+                                                            className="form-input text-[12px] flex-1 py-1.5 bg-zinc-900/60 border border-border"
+                                                        >
+                                                            <option value="">Select student...</option>
+                                                            {uniqueRepliers.map(user => (
+                                                                <option key={user._id} value={user._id}>
+                                                                    {user.name} ({user.collegeId})
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <button
+                                                            type="button"
+                                                            disabled={manualLoading || !selectedFinder}
+                                                            onClick={handleManualReturnConfirm}
+                                                            className="bg-primary hover:bg-primary-dim text-ink font-bold text-[12px] px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border border-transparent shadow-md"
+                                                        >
+                                                            {manualLoading ? 'Confirming...' : 'Confirm Return'}
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-3 bg-zinc-900/30 border border-border rounded-lg text-center text-text-muted text-[11px]">
+                                                        No replies received yet. The finder must reply to your post first to be selected for manual confirmation.
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-5">

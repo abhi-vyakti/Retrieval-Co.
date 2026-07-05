@@ -1,11 +1,35 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-    // Dark-only theme — no toggle needed
+    const [isDark, setIsDark] = useState(() => {
+        const saved = localStorage.getItem('theme');
+        if (saved) {
+            return saved === 'dark';
+        }
+        return true; // default is dark
+    });
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (isDark) {
+            root.classList.remove('light');
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            root.classList.add('light');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [isDark]);
+
+    const toggleTheme = () => {
+        setIsDark(prev => !prev);
+    };
+
     return (
-        <ThemeContext.Provider value={{ isDark: true, toggleTheme: () => { } }}>
+        <ThemeContext.Provider value={{ isDark, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );
@@ -18,3 +42,4 @@ export function useTheme() {
     }
     return context;
 }
+

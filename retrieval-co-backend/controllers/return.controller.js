@@ -103,7 +103,51 @@ const confirmQRReturn = async (req, res) => {
     }
 };
 
+const confirmManualReturn = async (req, res) => {
+    try {
+        const { postId, finderId } = req.body;
+
+        if (!postId || !finderId) {
+            return res.status(400).json({ error: 'Post ID and Finder ID are required.' });
+        }
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found.' });
+        }
+
+        // Only the original post owner should be confirming a return manually
+        if (post.author.toString() !== req.user.id.toString()) {
+            return res.status(403).json({ error: 'Not authorized: Only the post owner can confirm returns.' });
+        }
+
+        if (post.returnConfirmedAt || post.status === 'returned') {
+            return res.status(400).json({ error: 'This item has already been marked as returned.' });
+        }
+
+        // Mark Post as Returned
+        post.status = 'returned';
+        post.returnConfirmedAt = new Date();
+        post.returnMethod = 'manual';
+
+        await post.save();
+
+        // Award Karma to Finder
+        const finder = await User.findById(finderId);
+        if (finder) {
+            finder.karma = (finder.karma || 0) + 50; // Award 50 points
+            await finder.save();
+        }
+
+        res.json({ message: 'Return confirmed manually and Karma awarded!' });
+    } catch (error) {
+        console.error('Error in confirmManualReturn:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+};
+
 module.exports = {
     generateQRSession,
-    confirmQRReturn
+    confirmQRReturn,
+    confirmManualReturn
 };

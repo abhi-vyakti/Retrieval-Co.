@@ -57,31 +57,262 @@ const parsePostText = async (req, res) => {
 // @desc    Analyze an image URL to detect if AI-generated (using Gemini vision)
 // @route   POST /api/ai/analyze-image
 // @access  Private
+const IMAGE_ANALYSIS_SCHEMA = {
+    type: 'object',
+    properties: {
+        verdict: { type: 'string', enum: ['real', 'ai_generated', 'uncertain'] },
+        confidence: { type: 'integer', minimum: 0, maximum: 100 },
+        reason: { type: 'string' },
+        indicators: {
+            type: 'array',
+            items: { type: 'string' },
+            maxItems: 5
+        },
+        description: { type: 'string' }
+    },
+    required: ['verdict', 'confidence', 'reason', 'indicators', 'description'],
+    additionalProperties: false
+};
+
+const parseOpenRouterJson = (content) => {
+    const text = Array.isArray(content)
+        ? content.map(part => part?.text || '').join('')
+        : content;
+    return JSON.parse(String(text || '').replace(/```json|```/g, '').trim());
+};
+
 const analyzeImage = async (req, res) => {
     try {
-        if (!genai) {
-            return res.status(503).json({ error: 'AI Services not configured on this environment.' });
+        const openRouterKey = process.env.OPENROUTER_API_KEY;
+        if (!openRouterKey) {
+            return res.status(503).json({ error: 'OpenRouter image analysis is not configured.' });
         }
 
-        const { imageUrl } = req.body;
-        if (!imageUrl) {
-            return res.status(400).json({ error: 'Please provide an image URL to analyze.' });
+        const { imageUrl, imageDataUrl } = req.body;
+        const imageSource = imageDataUrl || imageUrl;
+        if (!imageSource) {
+            return res.status(400).json({ error: 'Please provide an image to analyze.' });
         }
 
-        // Gemini has vision capabilities — but for URL-based analysis we do a text-based heuristic
-        // since direct URL image input requires downloading the image first.
-        // Return a safe default for now.
+        const isSupportedDataUrl = /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(imageSource);
+        const isRemoteImage = /^https?:\/\//i.test(imageSource);
+        if (!isSupportedDataUrl && !isRemoteImage) {
+            return res.status(400).json({ error: 'Unsupported image source. Use PNG, JPEG, WebP, or GIF.' });
+        }
+        if (isSupportedDataUrl && imageSource.length > 15 * 1024 * 1024) {
+            return res.status(413).json({ error: 'Image is too large for AI analysis. Please upload a smaller image.' });
+        }
+
+        const prompt = `Classify whether this uploaded lost-and-found image is most likely a real camera photograph, AI-generated, or uncertain. Also, provide a short, highly-specific 3-5 word description of the main object in the image (e.g. "red water bottle", "black leather wallet", "blue backpack").
+
+Inspect visible evidence such as impossible geometry, malformed text or logos, repeated textures, inconsistent reflections or shadows, merged object boundaries, and physically implausible details.
+
+Important:
+- Visual inspection cannot prove provenance. Use "uncertain" when the evidence is weak or conflicting.
+- Do not label an image AI-generated merely because it is polished, compressed, cropped, edited, or lacks metadata.
+- "confidence" is confidence in your verdict, not an authenticity score.
+- Keep the reason under 240 characters and list only concrete visible indicators.
+- "description" should describe only the item/object in the photo (e.g., "silver key chain", "Casio calculator").`;
+
+        const configuredModel = process.env.OPENROUTER_VISION_MODEL || 'google/gemini-2.5-flash-lite';
+        const models = [...new Set([configuredModel, 'openrouter/free'])];
+        let analysis = null;
+        let usedModel = null;
+        let lastError = null;
+
+        for (const model of models) {
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${openRouterKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': process.env.APP_URL || 'https://retrieval-co.vercel.app',
+                        'X-Title': 'Retrieval Co.'
+                    },
+                    body: JSON.stringify({
+                        model,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: prompt },
+                                { type: 'image_url', image_url: { url: imageSource } }
+                            ]
+                        }],
+                        response_format: {
+                            type: 'json_schema',
+                            json_schema: {
+                                name: 'image_authenticity_analysis',
+                                strict: true,
+                                schema: IMAGE_ANALYSIS_SCHEMA
+                            }
+                        },
+                        provider: { require_parameters: true },
+                        plugins: [{ id: 'response-healing' }],
+                        temperature: 0.1,
+                        max_tokens: 350
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `OpenRouter request failed (${response.status})`);
+                }
+
+                const rawContent = data.choices?.[0]?.message?.content;
+                console.log('[Image Analysis] Raw response from OpenRouter:', rawContent);
+                analysis = parseOpenRouterJson(rawContent);
+                console.log('[Image Analysis] Parsed response:', analysis);
+                if (!['real', 'ai_generated', 'uncertain'].includes(analysis.verdict)) {
+                    throw new Error('OpenRouter returned an invalid image verdict');
+                }
+                usedModel = data.model || model;
+                break;
+            } catch (error) {
+                lastError = error;
+                console.warn(`[Image Analysis] ${model} failed:`, error.message);
+            }
+        }
+
+        if (!analysis) {
+            throw lastError || new Error('No OpenRouter vision model returned an analysis');
+        }
+
+        const confidence = Math.max(0, Math.min(100, Math.round(Number(analysis.confidence) || 0)));
+
+        // Find duplicate/matching items reported on the platform
+        let imageMatches = [];
+        if (analysis.description && genai) {
+            try {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                const candidates = await Post.find({
+                    status: 'open',
+                    createdAt: { $gte: thirtyDaysAgo }
+                }).limit(30).lean();
+
+                if (candidates.length > 0) {
+                    const candidateDocs = candidates.map(c => ({
+                        id: c._id.toString(),
+                        title: c.title,
+                        description: c.description,
+                        location: c.location,
+                        type: c.type
+                    }));
+
+                    const matchPrompt = `The user uploaded an image described as "${analysis.description}".
+Below is a JSON list of recent posts on our campus lost-and-found platform.
+Analyze if any of these posts describe the exact same item as the uploaded image.
+Score the matching probability from 0 (completely different items) to 100 (almost certainly the exact same item).
+
+Candidates:
+${JSON.stringify(candidateDocs, null, 2)}
+
+Return ONLY a raw JSON array of objects:
+[
+    { "id": "candidate_id", "confidenceScore": 85, "reason": "brief 1-sentence reason" }
+]
+Only include candidates with a confidenceScore above 60.`;
+
+                    const matchResponse = await genai.models.generateContent({
+                        model: MODEL,
+                        contents: matchPrompt,
+                        config: {
+                            systemInstruction: 'You are a matching engine. Return only valid JSON arrays. No markdown, no explanation.',
+                            temperature: 0.1,
+                            maxOutputTokens: 1024,
+                            responseMimeType: 'application/json',
+                        },
+                    });
+
+                    const rawText = matchResponse.text || '[]';
+                    const cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    let scoredItems = JSON.parse(cleanJsonStr);
+                    if (!Array.isArray(scoredItems)) {
+                        scoredItems = scoredItems.matches || [];
+                    }
+
+                    const bestMatches = scoredItems
+                        .filter(item => item.confidenceScore >= 60)
+                        .sort((a, b) => b.confidenceScore - a.confidenceScore)
+                        .slice(0, 3);
+
+                    for (const matchMeta of bestMatches) {
+                        const fullPost = candidates.find(c => c._id.toString() === matchMeta.id);
+                        if (fullPost) {
+                            imageMatches.push({
+                                _id: fullPost._id,
+                                title: fullPost.title,
+                                type: fullPost.type,
+                                location: fullPost.location,
+                                confidenceScore: matchMeta.confidenceScore,
+                                reason: matchMeta.reason
+                            });
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('[Image Match Detection] Failed to run semantic matches:', err.message);
+            }
+        }
+
+        if (imageMatches.length === 0 && analysis.description) {
+            // Heuristic fallback
+            try {
+                const words = analysis.description.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                if (words.length > 0) {
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    const candidates = await Post.find({
+                        status: 'open',
+                        createdAt: { $gte: thirtyDaysAgo }
+                    }).limit(30).lean();
+
+                    for (const c of candidates) {
+                        const cText = (c.title + ' ' + (c.description || '')).toLowerCase();
+                        let matchesCount = 0;
+                        words.forEach(w => {
+                            if (cText.includes(w)) matchesCount++;
+                        });
+                        if (matchesCount > 0) {
+                            imageMatches.push({
+                                _id: c._id,
+                                title: c.title,
+                                type: c.type,
+                                location: c.location,
+                                confidenceScore: 60 + Math.min(matchesCount * 10, 30),
+                                reason: `Matched via keyword overlap with description "${analysis.description}"`
+                            });
+                        }
+                    }
+                    imageMatches.sort((a, b) => b.confidenceScore - a.confidenceScore);
+                    imageMatches = imageMatches.slice(0, 3);
+                }
+            } catch (err) {
+                console.warn('[Image Match Detection] Heuristic fallback failed:', err.message);
+            }
+        }
+
         res.json({
             message: 'Image analysis completed',
             analysis: {
-                isAIGenerated: false,
-                confidence: 0,
-                reason: 'Image accepted. For best results, ensure the photo is clear and shows the actual item.'
+                verdict: analysis.verdict,
+                isAIGenerated: analysis.verdict === 'ai_generated',
+                isAuthentic: analysis.verdict === 'real',
+                confidence,
+                reason: String(analysis.reason || ''),
+                indicators: Array.isArray(analysis.indicators) ? analysis.indicators.slice(0, 5) : [],
+                description: String(analysis.description || ''),
+                provider: 'OpenRouter',
+                model: usedModel,
+                matches: imageMatches
             }
         });
     } catch (error) {
-        console.error('Error in analyzeImage:', error);
-        res.status(500).json({ error: 'Server Error: ' + error.message });
+        console.error('Error in analyzeImage:', error.message);
+        const status = /429|rate limit|quota/i.test(error.message) ? 429 : 502;
+        res.status(status).json({ error: 'The photo could not be analyzed right now. Please try again.' });
     }
 };
 

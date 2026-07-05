@@ -11,6 +11,11 @@ function readStoredAuth() {
         const storedUser = localStorage.getItem('user');
         if (!storedToken || !storedUser) return { user: null, token: null };
 
+        // Handle demo/mock token
+        if (storedToken === 'mock_jwt_token' || !storedToken.includes('.')) {
+            return { user: JSON.parse(storedUser), token: storedToken };
+        }
+
         const base64Url = storedToken.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(
@@ -53,9 +58,12 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('demo_mode');
+        localStorage.removeItem('mock_posts');
+        localStorage.removeItem('mock_users');
         setUser(null);
         setToken(null);
-        navigate('/login');
+        navigate('/?login=1');
     };
 
     return (

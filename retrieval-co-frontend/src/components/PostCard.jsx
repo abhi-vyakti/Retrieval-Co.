@@ -1,121 +1,129 @@
 import React from 'react';
-import { MapPin, Clock, MessageSquare, AlertCircle, PackageSearch, PackageCheck, Repeat, QrCode } from 'lucide-react';
+import { MapPin, Clock, MessageSquare, AlertCircle, PackageSearch, PackageCheck, Repeat, QrCode, Sparkles } from 'lucide-react';
 import Badge from './Badge';
 import Button from './Button';
 
 export default function PostCard({ post, onReply, isAuthor = false, onStatusUpdate, onQRReturn }) {
     if (!post) return null;
 
-    const getTypeIcon = () => {
-        switch (post.type) {
-            case 'lost': return <PackageSearch size={15} className="text-red" />;
-            case 'found': return <PackageCheck size={15} className="text-green" />;
-            case 'borrow': return <Repeat size={15} className="text-blue" />;
-            default: return <PackageSearch size={15} />;
-        }
-    };
-
     const timeAgo = new Date(post.createdAt || post.datetime).toLocaleDateString('en-US', {
         month: 'short', day: 'numeric'
     });
 
-    return (
-        <div className={`bg-card border ${post.isUrgent ? 'border-l-[3px] border-l-red border-border' : 'border-border'} rounded-[var(--radius)] p-[22px] transition-all duration-200 hover:border-[rgba(0,201,200,0.3)] hover:-translate-y-0.5 flex flex-col h-full relative overflow-hidden group`}>
+    // Unread replies tracking logic via localStorage
+    const readKey = `read_replies_${post._id}`;
+    const readCount = Number(localStorage.getItem(readKey) || 0);
+    const repliesLength = post.replies?.length || 0;
+    const hasUnread = repliesLength > readCount;
 
-            {/* Header */}
-            <div className="flex justify-between items-start mb-3.5">
-                <div className="flex gap-1.5 flex-wrap">
-                    <Badge type={post.type} />
+    const handleReplyClick = () => {
+        if (post.replies) {
+            localStorage.setItem(readKey, repliesLength.toString());
+        }
+        onReply?.(post);
+    };
+
+    // Solid badge class based on type
+    const getTypeBadge = () => {
+        switch (post.type) {
+            case 'lost':
+                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-danger text-white">Lost</span>;
+            case 'found':
+                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-success text-white">Found</span>;
+            case 'borrow':
+                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-primary-dim text-white">Borrow</span>;
+            default:
+                return null;
+        }
+    };
+
+    // Author Initials
+    const authorInitials = post.author?.name
+        ? post.author.name.split(' ').map(n => n[0]).join('').toUpperCase()
+        : 'U';
+
+    return (
+        <div 
+            onClick={handleReplyClick}
+            className={`glass-panel rounded-lg p-5 flex flex-col h-full relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-hover group cursor-pointer ${
+                post.isUrgent && post.status === 'open' && post.type === 'borrow' ? 'border-l-[3px] border-l-danger' : ''
+            }`}
+        >
+            {/* Top Status & Badge Line */}
+            <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                    {getTypeBadge()}
                     <Badge type={post.status || 'open'} />
-                    {post.isUrgent && <Badge type="urgent" />}
+                    {post.isUrgent && post.type === 'borrow' && <Badge type="urgent" />}
                 </div>
+
+                {/* Unread dot notification badge */}
+                {hasUnread && !isAuthor && (
+                    <span className="flex h-2.5 w-2.5 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                    </span>
+                )}
             </div>
 
             {/* Title */}
-            <h3 className="text-[1.05rem] font-bold mb-1.5 line-clamp-1">{post.title}</h3>
+            <h3 className="text-[1.08rem] font-display font-bold text-text mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                {post.title}
+            </h3>
 
-            {/* Meta */}
-            <div className="flex gap-3.5 text-text-muted text-[0.82rem] mb-3">
-                <span className="flex items-center gap-1">📍 {post.location}</span>
-                <span className="flex items-center gap-1">🕐 {timeAgo}</span>
-                <span className="flex items-center gap-1">💬 {post.replies?.length || 0}</span>
-            </div>
-
-            {/* Image */}
+            {/* Image (if present) */}
             {post.imageUrl && (
-                <div className="w-full h-36 mb-3 rounded-lg overflow-hidden bg-surface">
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="w-full h-40 mb-3.5 rounded-lg overflow-hidden bg-surface border border-border">
+                    <img 
+                        src={post.imageUrl} 
+                        alt={post.title} 
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200" 
+                    />
                 </div>
             )}
 
             {/* Description */}
-            <p className="text-text-muted text-[0.88rem] line-clamp-2 mb-4 flex-grow leading-[1.6]">
+            <p className="text-text-muted text-[0.88rem] leading-relaxed line-clamp-2 mb-4 flex-grow">
                 {post.description}
             </p>
 
-            {/* AI Match Banner */}
+            {/* Meta details footer: Location • Time ago */}
+            <div className="flex items-center gap-2 text-[11px] text-text-muted mb-4 border-t border-border/40 pt-3 flex-wrap">
+                <span className="flex items-center gap-1"><MapPin size={11} /> {post.location}</span>
+                <span>•</span>
+                <span className="flex items-center gap-1"><Clock size={11} /> {timeAgo}</span>
+                {post.replies?.length > 0 && (
+                    <>
+                        <span>•</span>
+                        <span className="flex items-center gap-1 font-semibold text-primary-dim"><MessageSquare size={11} /> {repliesLength} replies</span>
+                    </>
+                )}
+            </div>
+
+            {/* Author Profile section */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div 
+                        className="w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-[0.68rem] text-white" 
+                        style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dim))' }}
+                    >
+                        {authorInitials}
+                    </div>
+                    <span className="text-[11px] text-text-muted font-medium">
+                        {post.isAnonymous ? 'Anonymous Student' : (post.author?.name || 'Unknown User')}
+                    </span>
+                </div>
+            </div>
+
+            {/* AI Match Banner (if present) */}
             {post.aiMatch && (
-                <div className="bg-[rgba(96,165,250,0.1)] border border-[rgba(96,165,250,0.2)] rounded-[8px] px-3 py-2 text-[0.8rem] text-blue mb-3.5 flex items-center gap-2">
-                    🤖 AI found a potential match — <strong>view match</strong>
-                </div>
-            )}
-
-            {/* Default User Actions */}
-            {!isAuthor && (
-                <div className="flex gap-2 mt-auto">
-                    <button
-                        className="flex-1 py-[9px] rounded-[8px] text-[0.85rem] font-semibold cursor-pointer border-none transition-all bg-[rgba(0,201,200,0.12)] text-amber hover:bg-[rgba(0,201,200,0.2)]"
-                        onClick={() => onReply?.(post)}
-                    >
-                        Reply
-                    </button>
-                    {onQRReturn && (
-                        <button
-                            className="flex-1 py-[9px] rounded-[8px] text-[0.85rem] font-semibold cursor-pointer transition-all bg-surface text-text border border-border hover:border-text-muted"
-                            onClick={() => onQRReturn(post)}
-                        >
-                            <QrCode size={14} className="inline mr-1" /> QR
-                        </button>
-                    )}
-                    <button
-                        className="flex-1 py-[9px] rounded-[8px] text-[0.85rem] font-semibold cursor-pointer transition-all bg-surface text-text border border-border hover:border-text-muted"
-                        onClick={() => { }}
-                    >
-                        Contact
-                    </button>
-                </div>
-            )}
-
-            {/* Author Lifecycle Actions */}
-            {isAuthor && post.status !== 'closed' && post.status !== 'returned' && post.status !== 'expired' && (
-                <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border">
-                    {onQRReturn && (
-                        <Button variant="ghost" onClick={() => onQRReturn(post)} className="flex-1 !text-[11px] !px-2 !py-1.5">
-                            <QrCode size={13} className="mr-1 inline" /> Secure QR
-                        </Button>
-                    )}
-                    <Button variant="primary" onClick={() => onStatusUpdate?.(post._id, 'returned')} className="flex-1 !text-[11px] !px-2 !py-1.5">
-                        Manual Mark
-                    </Button>
-                    <Button variant="ghost" onClick={() => onStatusUpdate?.(post._id, 'closed')} className="flex-1 !text-[11px] !px-2 !py-1.5 !text-red hover:!border-red">
-                        Close Post
-                    </Button>
-                    {!post.isUrgent && post.type !== 'found' && (
-                        <Button variant="ghost" onClick={() => onStatusUpdate?.(post._id, post.status, true)} className="w-full mt-1 !text-[11px] !px-2 !py-1.5 !text-red !border-[rgba(240,82,82,0.3)]">
-                            <AlertCircle size={13} className="mr-1 inline" /> Re-mark as URGENT
-                        </Button>
-                    )}
-                </div>
-            )}
-
-            {/* View Replies for closed posts */}
-            {isAuthor && ['closed', 'returned', 'expired'].includes(post.status) && (
-                <div className="flex justify-end mt-3 pt-3 border-t border-border">
-                    <Button variant="ghost" onClick={() => onReply?.(post)} className="!px-3 !py-1.5 text-[11px]">
-                        <MessageSquare size={13} className="mr-1" /> View Replies
-                    </Button>
+                <div className="bg-primary-dim/5 border border-primary-dim/15 rounded-lg px-3 py-2 text-[0.8rem] text-primary-dim mt-4 flex items-center gap-1.5 animate-pulse">
+                    <Sparkles size={11} className="text-primary-dim shrink-0" />
+                    <span>Potential match found — <strong>View Match</strong></span>
                 </div>
             )}
         </div>
     );
 }
+

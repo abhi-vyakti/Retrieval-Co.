@@ -11,15 +11,49 @@ export default function RequestlyBot() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [posts, setPosts] = useState([]);
     const messagesEndRef = useRef(null);
+    const messagesContainerRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            const isDemo = localStorage.getItem('demo_mode') === 'true';
+            if (isDemo) {
+                try {
+                    const stored = localStorage.getItem('mock_posts');
+                    if (stored) setPosts(JSON.parse(stored));
+                } catch (e) {}
+            } else {
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                fetch(`${API_BASE}/api/posts`, { headers })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.posts) setPosts(data.posts);
+                    })
+                    .catch(() => {});
+            }
+        }
+    }, [isOpen]);
+
+    const parseMessageContent = (content) => {
+        const match = content.match(/\[\[postId:([a-zA-Z0-9_-]+)\]\]/);
+        let cleanText = content.replace(/\[\[postId:[a-zA-Z0-9_-]+\]\]/g, '').trim();
+        let postId = match ? match[1] : null;
+        return { cleanText, postId };
+    };
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
+        // Small timeout to allow content layout sizing to complete before scrolling
+        const timer = setTimeout(scrollToBottom, 50);
+        return () => clearTimeout(timer);
+    }, [messages, isOpen, isLoading]);
 
     const handleSend = async (e) => {
         e?.preventDefault();
@@ -36,10 +70,25 @@ export default function RequestlyBot() {
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            const context = user ? {
-                userName: user.name,
-                userKarma: user.karma
-            } : null;
+            const isDemo = localStorage.getItem('demo_mode') === 'true';
+            let demoPosts = [];
+            if (isDemo) {
+                try {
+                    const storedPosts = localStorage.getItem('mock_posts');
+                    if (storedPosts) {
+                        demoPosts = JSON.parse(storedPosts);
+                    }
+                } catch (e) {
+                    console.error('Failed to parse mock_posts', e);
+                }
+            }
+
+            const context = {
+                userName: user?.name || 'Guest',
+                userKarma: user?.karma || 0,
+                isDemoMode: isDemo,
+                demoPosts: demoPosts
+            };
 
             const res = await fetch(`${API_BASE}/api/ai/chat`, {
                 method: 'POST',
@@ -49,12 +98,58 @@ export default function RequestlyBot() {
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Failed to get response');
-            setMessages(prev => [...prev, { role: 'model', content: data.reply }]);
+
+            let replyText = data.reply || '';
+            const createMatch = replyText.match(/\[\[CREATE_POST:(\{.*?\})\]\]/);
+            if (createMatch) {
+                try {
+                    const postParams = JSON.parse(createMatch[1]);
+                    // Normalize fields
+                    if (!postParams.datetime) postParams.datetime = new Date().toISOString();
+                    if (!postParams.location) postParams.location = 'Campus Canteen';
+                    if (!postParams.description) postParams.description = 'Created via AI Assistant';
+                    if (!postParams.category) postParams.category = 'Others';
+                    
+                    if (postParams.type === 'found' && !postParams.imageUrl) {
+                        postParams.imageUrl = 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop';
+                    }
+
+                    const postHeaders = {
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                    };
+
+                    const postRes = await fetch(`${API_BASE}/api/posts`, {
+                        method: 'POST',
+                        headers: postHeaders,
+                        body: JSON.stringify(postParams)
+                    });
+                    const postData = await postRes.json();
+
+                    if (postRes.ok && (postData.post || postData.newPost)) {
+                        const newPost = postData.post || postData.newPost;
+                        const createdId = newPost._id || newPost.id;
+                        replyText = replyText.replace(/\[\[CREATE_POST:\{.*?\}\]\]/g, `[[postId:${createdId}]]`);
+                        // Update local posts array so the details button can find the post and render its title
+                        setPosts(prev => [...prev, newPost]);
+                        // Dispatch event to refresh posts lists dynamically
+                        window.dispatchEvent(new CustomEvent('post-created', { detail: newPost }));
+                    } else {
+                        replyText = replyText.replace(/\[\[CREATE_POST:\{.*?\}\]\]/g, '').trim();
+                        console.error('Failed to auto-create post:', postData.error);
+                    }
+                } catch (e) {
+                    replyText = replyText.replace(/\[\[CREATE_POST:\{.*?\}\]\]/g, '').trim();
+                    console.error('Error auto-creating post from chat:', e);
+                }
+            }
+
+            setMessages(prev => [...prev, { role: 'model', content: replyText }]);
         } catch (error) {
             console.error('Chat error:', error);
             setMessages(prev => [...prev, {
                 role: 'model',
-                content: "I'm having trouble connecting right now. Please try again later."
+                content: error.message || "I'm having trouble connecting right now. Please try again in a moment."
             }]);
         } finally {
             setIsLoading(false);
@@ -66,17 +161,12 @@ export default function RequestlyBot() {
             {/* Chat Window */}
             {isOpen && (
                 <div
-                    className="w-[360px] bg-card border border-border rounded-[18px] overflow-hidden mb-4 flex flex-col"
+                    className="w-[360px] h-[500px] bg-surface border border-border rounded-[18px] overflow-hidden mb-4 flex flex-col"
                     style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'fadeUp 0.3s ease' }}
                 >
                     {/* Header */}
                     <div className="px-5 py-4 bg-surface border-b border-border flex items-center gap-3">
-                        <div
-                            className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-base"
-                            style={{ background: 'linear-gradient(135deg, #00c9c8, #008f8e)' }}
-                        >
-                            🤖
-                        </div>
+                        <img src="/bot-icon.png" alt="AI Bot" className="w-[34px] h-[34px] rounded-full object-cover" />
                         <div className="flex-1">
                             <h4 className="text-[0.9rem] font-bold">Retrieval Assistant</h4>
                             <p className="text-[0.75rem] text-green">● Online</p>
@@ -87,20 +177,39 @@ export default function RequestlyBot() {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 p-4 flex flex-col gap-3 h-[260px] overflow-y-auto">
-                        {messages.map((msg, idx) => (
-                            <div
-                                key={idx}
-                                className={`max-w-[80%] text-[0.875rem] leading-[1.5] px-3.5 py-2.5 ${msg.role === 'user'
-                                    ? 'bg-[rgba(0,201,200,0.15)] rounded-[14px_4px_14px_14px] self-end text-amber'
-                                    : 'bg-surface rounded-[4px_14px_14px_14px] self-start text-text'
-                                    }`}
-                            >
-                                {msg.content.split('**').map((text, i) => i % 2 === 1 ? <strong key={i}>{text}</strong> : text)}
-                            </div>
-                        ))}
+                    <div ref={messagesContainerRef} className="flex-1 min-h-0 p-4 flex flex-col gap-3 overflow-y-auto">
+                        {messages.map((msg, idx) => {
+                            const isUser = msg.role === 'user';
+                            const { cleanText, postId } = parseMessageContent(msg.content);
+                            const matchedPost = postId ? posts.find(p => p._id === postId) : null;
+                            return (
+                                <div key={idx} className={`flex flex-col gap-1.5 w-full ${isUser ? 'items-end' : 'items-start'}`}>
+                                    <div
+                                        className={`max-w-[80%] text-[0.875rem] leading-[1.5] px-3.5 py-2.5 ${isUser
+                                            ? 'bg-[rgba(0,201,200,0.15)] rounded-[14px_4px_14px_14px] text-amber'
+                                            : 'bg-background rounded-[4px_14px_14px_14px] text-text'
+                                            }`}
+                                    >
+                                        {cleanText.split('**').map((text, i) => i % 2 === 1 ? <strong key={i}>{text}</strong> : text)}
+                                    </div>
+                                    {(matchedPost || postId) && (
+                                        <button
+                                            onClick={() => {
+                                                window.dispatchEvent(new CustomEvent('open-post-reply', {
+                                                    detail: { postId, post: matchedPost }
+                                                }));
+                                            }}
+                                            className="px-3 py-1.5 rounded-lg border border-primary/30 hover:border-primary bg-primary/5 text-primary text-[11px] font-bold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-start gap-1.5 ml-1 self-start max-w-[95%] text-left whitespace-normal break-words"
+                                        >
+                                            <span className="mt-0.5 shrink-0">📂</span>
+                                            <span>Open Post: {matchedPost ? matchedPost.title : 'Details'}</span>
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })}
                         {isLoading && (
-                            <div className="bg-surface rounded-[4px_14px_14px_14px] self-start px-3.5 py-2.5 flex items-center gap-2">
+                            <div className="bg-background rounded-[4px_14px_14px_14px] self-start px-3.5 py-2.5 flex items-center gap-2">
                                 <Loader2 size={14} className="animate-spin text-amber" />
                                 <span className="text-xs text-text-muted">Typing...</span>
                             </div>
@@ -116,7 +225,7 @@ export default function RequestlyBot() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend(e)}
                             placeholder="Ask me anything…"
-                            className="flex-1 bg-surface border border-border rounded-[8px] px-3 py-2.5 text-text font-body text-[0.88rem] outline-none"
+                            className="flex-1 bg-background border border-border rounded-[8px] px-3 py-2.5 text-text font-body text-[0.88rem] outline-none"
                         />
                         <button
                             onClick={handleSend}
@@ -130,13 +239,24 @@ export default function RequestlyBot() {
             )}
 
             {/* FAB */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-[58px] h-[58px] rounded-full bg-amber border-none flex items-center justify-center cursor-pointer text-[1.4rem] transition-all hover:scale-[1.08]"
-                style={{ boxShadow: '0 4px 24px rgba(0,201,200,0.4)' }}
-            >
-                {isOpen ? <X size={24} className="text-ink" /> : '🤖'}
-            </button>
+            <div className="group flex items-center gap-2">
+                <span className="bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none select-none font-bold">
+                    AI Assistant
+                </span>
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`w-[58px] h-[58px] rounded-full border-none flex items-center justify-center cursor-pointer transition-all hover:scale-[1.08] shrink-0 p-0 relative ${
+                        isOpen ? 'bg-primary text-white shadow-lg' : 'bg-transparent'
+                    }`}
+                    style={{ boxShadow: isOpen ? '0 4px 24px var(--primary)' : '0 4px 24px rgba(168,85,247,0.35)' }}
+                >
+                    {isOpen ? (
+                        <X size={24} />
+                    ) : (
+                        <img src="/bot-icon.png" alt="AI Assistant" className="w-full h-full object-cover rounded-full" />
+                    )}
+                </button>
+            </div>
         </div>
     );
 }

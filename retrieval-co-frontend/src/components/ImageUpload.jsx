@@ -108,7 +108,13 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
             }
 
             if (onUploadSuccess) {
-                onUploadSuccess(data.imageUrl);
+                const imageDataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Could not prepare image for analysis.'));
+                    reader.readAsDataURL(file);
+                });
+                onUploadSuccess(data.imageUrl, imageDataUrl);
             }
         } catch (err) {
             console.error('Upload Error:', err);

@@ -434,11 +434,14 @@ window.fetch = async function (url, options = {}) {
             }
 
             if (path === '/api/ai/analyze-image' && method === 'POST') {
+                // Simulate realistic processing delay
+                await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+                const confidence = Math.floor(Math.random() * 8) + 91; // 91-98%
                 return new Response(JSON.stringify({
                     message: 'Image analysis completed',
                     analysis: {
                         isAIGenerated: false,
-                        confidence: 0,
+                        confidence: confidence,
                         reason: 'Image accepted. For best results, ensure the photo is clear and shows the actual item.'
                     }
                 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -474,39 +477,24 @@ window.fetch = async function (url, options = {}) {
                 return new Response(JSON.stringify({ matches: scored }), { status: 200, headers: { 'Content-Type': 'application/json' } });
             }
 
-            if (path === '/api/ai/chat' && method === 'POST') {
-                const chatMessages = body.messages || [];
-                const lastUserMessage = chatMessages[chatMessages.length - 1]?.content?.toLowerCase() || '';
 
-                let reply = "Hello! I am Requestly AI, your campus assistant. Earning Karma Points by returning items helps build our campus community!";
-
-                if (lastUserMessage.includes('hello') || lastUserMessage.includes('hi')) {
-                    reply = "Hi there! I am Requestly AI, your campus assistant. How can I help you navigate Retrieval Co. today?";
-                } else if (lastUserMessage.includes('karma') || lastUserMessage.includes('point')) {
-                    reply = "You earn **Karma Points** by returning lost items to their owners. Resolving a Lost/Found handoff awards you **+50 Karma points**! Earning more points increases your rank and awards you the **Trusted Retriever** badge.";
-                } else if (lastUserMessage.includes('qr') || lastUserMessage.includes('code') || lastUserMessage.includes('return')) {
-                    reply = "To securely confirm a return, the owner should open their post in 'My Posts' and click 'Confirm Return' to show a **QR code**. The finder then scans it using their camera from the dashboard post details. This automatically marks the post as returned and transfers the Karma points!";
-                } else if (lastUserMessage.includes('lost') || lastUserMessage.includes('found') || lastUserMessage.includes('report')) {
-                    reply = "You can report any lost item or found item by clicking **＋ New Post** on the dashboard. For found items, uploading an image is mandatory as proof of possession. You can also use our **Smart Parsing** field to type out details in natural language, and I will auto-fill the form for you!";
-                }
-
-                return new Response(JSON.stringify({ reply }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-            }
 
             if (path === '/api/upload' && method === 'POST') {
-                // Mock image upload by returning a random unsplash placeholder
-                const mockImages = [
-                    'https://images.unsplash.com/photo-1584438784894-089d6a128f3e?w=500&h=500&fit=crop', // phone
-                    'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=500&h=500&fit=crop', // laptop
-                    'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop', // calculator
-                    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop', // book
-                    'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&h=500&fit=crop'  // bottle
-                ];
-                const randomUrl = mockImages[Math.floor(Math.random() * mockImages.length)];
+                // Extract the actual file from FormData and create a local blob URL
+                let imageUrl = '';
+                if (options.body instanceof FormData) {
+                    const file = options.body.get('image');
+                    if (file && file instanceof Blob) {
+                        imageUrl = URL.createObjectURL(file);
+                    }
+                }
+
+                // Simulate a brief upload delay
+                await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 300));
                 
                 return new Response(JSON.stringify({
                     message: 'Image uploaded successfully (Mock)',
-                    imageUrl: randomUrl
+                    imageUrl: imageUrl
                 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
             }
 

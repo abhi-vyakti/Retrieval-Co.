@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import PostCardSkeleton from '../components/PostCardSkeleton';
+import PostReplyModal from '../components/PostReplyModal';
 import Badge from '../components/Badge';
 import QRReturnModal from '../components/QRReturnModal';
 import { Award, Target, Flame, PackageSearch, LogOut, ArrowLeft } from 'lucide-react';
@@ -18,9 +19,19 @@ export default function MyPostsPage() {
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
     const [selectedQRPost, setSelectedQRPost] = useState(null);
 
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false);
+
     const handleQRReturn = (post) => {
         setSelectedQRPost(post);
         setIsQRModalOpen(true);
+    };
+
+    const handleReply = (post) => {
+        setSelectedPost(post);
+        setIsReplyModalOpen(true);
+        setIsMinimized(false);
     };
 
     useEffect(() => {
@@ -47,7 +58,57 @@ export default function MyPostsPage() {
         };
 
         fetchMyPosts();
+
+        // Listen for creations from chatbot to refresh list instantly
+        window.addEventListener('post-created', fetchMyPosts);
+        return () => window.removeEventListener('post-created', fetchMyPosts);
     }, []);
+
+    useEffect(() => {
+        const handleOpenPostReply = async (e) => {
+            const { postId, post } = e.detail || {};
+            let postToReply = post;
+            
+            // 1. Try finding in current local feed posts
+            if (!postToReply && postId && posts.length > 0) {
+                postToReply = posts.find(p => p._id === postId || p.id === postId);
+            }
+            
+            // 2. Try finding in client-side mock database (demo mode)
+            if (!postToReply && postId && localStorage.getItem('demo_mode') === 'true') {
+                try {
+                    const mockPosts = JSON.parse(localStorage.getItem('mock_posts') || '[]');
+                    postToReply = mockPosts.find(p => p._id === postId || p.id === postId);
+                } catch (err) {
+                    console.error('Failed to parse mock posts', err);
+                }
+            }
+            
+            // 3. Try finding by fetching all posts from the API (real mode)
+            if (!postToReply && postId) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                    const res = await fetch(`${API_BASE}/api/posts`, { headers });
+                    const data = await res.json();
+                    if (res.ok && data.posts) {
+                        postToReply = data.posts.find(p => p._id === postId || p.id === postId);
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch posts fallback', err);
+                }
+            }
+
+            if (postToReply) {
+                handleReply(postToReply);
+            } else if (postId) {
+                toast.error('Post details could not be found.');
+            }
+        };
+
+        window.addEventListener('open-post-reply', handleOpenPostReply);
+        return () => window.removeEventListener('open-post-reply', handleOpenPostReply);
+    }, [posts]);
 
     const handleStatusUpdate = async (postId, status, isUrgent = undefined) => {
         try {
@@ -92,12 +153,12 @@ export default function MyPostsPage() {
     const activePosts = posts.filter(p => !['closed', 'returned', 'expired'].includes(p.status));
     const historyPosts = posts.filter(p => ['closed', 'returned', 'expired'].includes(p.status));
 
-    const userKarma = user?.karma || 145;
+    const userKarma = user?.karma ?? 0;
     const isTrusted = userKarma > 100;
 
     const getInitials = () => {
         if (!user) return 'U';
-        if (user.name) return user.name.substring(0, 2).toUpperCase();
+        if (user.name) return user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         if (user.code) return user.code.substring(0, 2).toUpperCase();
         return 'U';
     };
@@ -229,7 +290,7 @@ export default function MyPostsPage() {
                                         <PostCard
                                             key={post._id}
                                             post={post}
-                                            onReply={() => { }}
+                                            onReply={handleReply}
                                             isAuthor={true}
                                             onStatusUpdate={handleStatusUpdate}
                                             onQRReturn={handleQRReturn}
@@ -260,6 +321,21 @@ export default function MyPostsPage() {
                         return p;
                     }));
                 }}
+            />
+
+            {/* Post Reply Modal */}
+            <PostReplyModal
+                post={selectedPost}
+                isOpen={isReplyModalOpen}
+                onClose={() => {
+                    setIsReplyModalOpen(false);
+                    setSelectedPost(null);
+                    setIsMinimized(false);
+                }}
+                isMinimized={isMinimized}
+                onToggleMinimize={() => setIsMinimized(prev => !prev)}
+                onQRReturn={handleQRReturn}
+                onStatusUpdate={handleStatusUpdate}
             />
         </div>
     );

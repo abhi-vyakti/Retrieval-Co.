@@ -157,6 +157,7 @@ const updatePostStatus = async (req, res) => {
 const getMyPosts = async (req, res) => {
     try {
         const posts = await Post.find({ author: req.user.id })
+            .populate('replies.user', 'name collegeId')
             .sort({ createdAt: -1 });
 
         res.json({ message: 'User posts fetched', posts });
