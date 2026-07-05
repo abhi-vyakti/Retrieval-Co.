@@ -815,6 +815,22 @@ export default function CreatePostPage() {
                                                                 </div>
                                                             ),
                                                         )}
+                                                        <div className="flex gap-3 mt-4 pt-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => navigate(`/post/${imageAnalysis.matches[0]._id}`)}
+                                                                className="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors text-[13px]"
+                                                            >
+                                                                View Matched Item
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setImageAnalysis(null)}
+                                                                className="flex-1 bg-white border border-border text-text-light py-2 rounded-lg font-medium hover:bg-bg transition-colors text-[13px]"
+                                                            >
+                                                                Not Mine, Continue
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

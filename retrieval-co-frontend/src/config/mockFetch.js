@@ -726,10 +726,24 @@ window.fetch = async function (url, options = {}) {
                 let foundPosts = posts.filter(p => p.type === "found" && p.status === "open");
                 
                 // Demo Magic: Prioritize the Earpods if they exist in the DB, to make the live demo look perfect
-                const earpodMatch = foundPosts.find(p => p.title.toLowerCase().includes("earpod"));
-                if (earpodMatch) {
-                    foundPosts = [earpodMatch, ...foundPosts.filter(p => p._id !== earpodMatch._id)];
+                let earpodMatch = foundPosts.find(p => p.title.toLowerCase().includes("earpod"));
+                if (!earpodMatch) {
+                    // Inject a mock earpod match in case the user's local storage hasn't been cleared
+                    earpodMatch = {
+                        _id: "mock_earpod_demo",
+                        type: "found",
+                        title: "OnePlus Earpods (White)",
+                        category: "Electronics",
+                        description: "Found a pair of white OnePlus earpods on a table in the Canteen.",
+                        location: "Canteen",
+                        datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+                        status: "open",
+                        imageUrl: "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=500&h=500&fit=crop",
+                        author: { name: "Ananya Singh", karma: 134 }
+                    };
                 }
+                
+                foundPosts = [earpodMatch, ...foundPosts.filter(p => p._id !== earpodMatch._id)];
 
                 // Return the top 1 or 2 visual matches
                 const matches = foundPosts.slice(0, 1).map(c => ({
