@@ -299,12 +299,12 @@ export default function DashboardPage() {
     // Quick Chips Filters (Clean without emojis)
     const quickChips = [
         { label: "All Items", value: "all" },
+        { label: "Lost", value: "lost" },
+        { label: "Found", value: "found" },
         { label: "Today's", value: "today" },
         { label: "Urgent", value: "urgent" },
         { label: "My Posts", value: "my_posts" },
         { label: "Borrow", value: "borrow" },
-        { label: "Lost", value: "lost" },
-        { label: "Found", value: "found" },
     ];
 
     // Local filter mapping on fetched list
