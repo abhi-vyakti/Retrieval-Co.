@@ -43,6 +43,7 @@ export default function CreatePostPage() {
     // Image AI Analysis State
     const [analyzingImage, setAnalyzingImage] = useState(false);
     const [imageAnalysis, setImageAnalysis] = useState(null);
+    const [isSuspended, setIsSuspended] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
     // Timetable Matcher State
@@ -167,57 +168,84 @@ export default function CreatePostPage() {
         }
     };
 
-    const handleAnalyzeImage = (uploadedUrl) => {
-        const runAnalysis = async () => {
-            if (!uploadedUrl || !uploadedUrl.trim()) return;
+    const handleAnalyzeFoundImage = async (uploadedUrl) => {
+        if (!uploadedUrl || !uploadedUrl.trim()) return;
 
-            setAnalyzingImage(true);
-            setImageAnalysis(null);
+        setAnalyzingImage(true);
+        setImageAnalysis(null);
 
-            try {
-                const headers = { "Content-Type": "application/json" };
-                if (token) headers["Authorization"] = `Bearer ${token}`;
+        try {
+            const headers = { "Content-Type": "application/json" };
+            if (token) headers["Authorization"] = `Bearer ${token}`;
 
-                const res = await fetch(`${API_BASE}/api/ai/analyze-image`, {
-                    method: "POST",
-                    headers,
-                    body: JSON.stringify({ imageUrl: uploadedUrl }),
-                });
+            const res = await fetch(`${API_BASE}/api/ai/analyze-image`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ imageUrl: uploadedUrl, type: "found" }),
+            });
 
-                const data = await res.json();
+            const data = await res.json();
 
-                if (!res.ok) {
-                    setImageAnalysis({
-                        error:
-                            data.error ||
-                            "AI analysis failed. Please try again.",
-                    });
-                    return;
-                }
-
-                if (
-                    data.analysis &&
-                    data.analysis.isAIGenerated !== undefined
-                ) {
-                    setImageAnalysis({
-                        isAIGenerated: Boolean(data.analysis.isAIGenerated),
-                        confidence: Number(data.analysis.confidence) || 0,
-                        reason: String(data.analysis.reason || ""),
-                        matches: data.analysis.matches || [],
-                    });
-                }
-            } catch (err) {
-                setImageAnalysis({
-                    error: "Could not connect to AI service. Proceed manually.",
-                });
-            } finally {
+            if (data.isSuspended) {
+                setIsSuspended(true);
                 setAnalyzingImage(false);
+                return;
             }
-        };
 
-        runAnalysis().catch(() => {
+            if (!res.ok) {
+                setImageAnalysis({
+                    error:
+                        data.error ||
+                        "AI analysis failed. Please try again.",
+                });
+                return;
+            }
+
+            if (data.analysis && data.analysis.isAIGenerated !== undefined) {
+                setImageAnalysis({
+                    isAIGenerated: Boolean(data.analysis.isAIGenerated),
+                    confidence: Number(data.analysis.confidence) || 0,
+                    reason: String(data.analysis.reason || ""),
+                    matches: data.analysis.matches || [],
+                });
+            }
+        } catch (err) {
+            setImageAnalysis({
+                error: "Could not connect to AI service. Proceed manually.",
+            });
+        } finally {
             setAnalyzingImage(false);
-        });
+        }
+    };
+
+    const handleAnalyzeLostImage = async (uploadedUrl) => {
+        if (!uploadedUrl || !uploadedUrl.trim()) return;
+
+        setAnalyzingImage(true);
+        setImageAnalysis(null);
+
+        try {
+            const headers = { "Content-Type": "application/json" };
+            if (token) headers["Authorization"] = `Bearer ${token}`;
+
+            const res = await fetch(`${API_BASE}/api/ai/find-image-matches`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ imageUrl: uploadedUrl }),
+            });
+
+            const data = await res.json();
+
+            if (data.matches && data.matches.length > 0) {
+                setImageAnalysis({
+                    matches: data.matches,
+                });
+            }
+        } catch (err) {
+            console.error("Failed to find image matches:", err);
+        } finally {
+            setAnalyzingImage(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -228,6 +256,11 @@ export default function CreatePostPage() {
             setError(msg);
             window.scrollTo({ top: 0, behavior: "smooth" });
         };
+
+        if (isSuspended) {
+            showError("Your account is currently suspended from making posts due to repeated terms of service violations (AI image spam).");
+            return;
+        }
 
         if (!formData.title) {
             showError("Please fill the Item Name.");
@@ -468,6 +501,12 @@ export default function CreatePostPage() {
                     <ImageUpload
                         onUploadSuccess={(url) => {
                             setFormData((prev) => ({ ...prev, imageUrl: url }));
+                            setImageAnalysis(null);
+                            if (type === "found") {
+                                handleAnalyzeFoundImage(url);
+                            } else if (type === "lost") {
+                                handleAnalyzeLostImage(url);
+                            }
                         }}
                         label="Attach Media"
                     />
@@ -504,6 +543,18 @@ export default function CreatePostPage() {
                     <div className="mb-5 p-3 bg-[rgba(240,82,82,0.1)] border border-[rgba(240,82,82,0.3)] rounded-[var(--radius)] flex items-center gap-2 text-red text-[13px]">
                         <AlertCircle size={16} />
                         {error}
+                    </div>
+                )}
+
+                {isSuspended && (
+                    <div className="mb-5 p-5 bg-danger-bg border border-danger/40 rounded-xl flex flex-col items-center justify-center text-center text-danger text-[14px]">
+                        <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center mb-3">
+                            <AlertCircle size={24} />
+                        </div>
+                        <h3 className="font-bold text-[16px] mb-1">Account Suspended</h3>
+                        <p className="opacity-90">
+                            Your account has been temporarily suspended from making posts due to repeated uploads of AI-generated fake images.
+                        </p>
                     </div>
                 )}
 
@@ -666,6 +717,11 @@ export default function CreatePostPage() {
                                         imageUrl: url,
                                     }));
                                     setImageAnalysis(null);
+                                    if (type === "found") {
+                                        handleAnalyzeFoundImage(url);
+                                    } else if (type === "lost") {
+                                        handleAnalyzeLostImage(url);
+                                    }
                                 }}
                                 onRemove={() => {
                                     setFormData((prev) => ({
@@ -675,24 +731,6 @@ export default function CreatePostPage() {
                                     setImageAnalysis(null);
                                 }}
                             />
-
-                            {/* Manual AI Detection Button */}
-                            {formData.imageUrl &&
-                                !analyzingImage &&
-                                !imageAnalysis && (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleAnalyzeImage(
-                                                formData.imageUrl,
-                                            )
-                                        }
-                                        className="mt-2 text-[11px] text-green-dark hover:text-green border border-green/30 hover:border-green rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer"
-                                    >
-                                        <Sparkles size={11} /> Check if
-                                        AI-Generated
-                                    </button>
-                                )}
 
                             {/* Image AI Results Banner */}
                             {imageAnalysis &&
