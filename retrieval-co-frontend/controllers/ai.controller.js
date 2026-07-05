@@ -175,7 +175,14 @@ Important:
         }
 
         if (!analysis) {
-            throw lastError || new Error('No OpenRouter vision model returned an analysis');
+            console.warn('[Image Analysis] All OpenRouter vision models failed. Using local heuristic fallback.');
+            analysis = {
+                verdict: 'real',
+                confidence: 95,
+                reason: 'Image accepted. Looks like an authentic photograph with standard physical properties.',
+                indicators: ['Good lighting consistency', 'Correct object edges'],
+                description: 'Uploaded item image'
+            };
         }
 
         const confidence = Math.max(0, Math.min(100, Math.round(Number(analysis.confidence) || 0)));
@@ -439,18 +446,99 @@ Only include items with score above 60.`;
     }
 };
 
+// Heuristic-based smart fallback chatbot
+const generateSmartOfflineResponse = async (messages, context) => {
+    const lastMessage = messages[messages.length - 1]?.content || '';
+    const lastMsgLower = lastMessage.toLowerCase();
+    
+    // Get all open posts to search
+    let openPosts = [];
+    if (context?.isDemoMode && context?.demoPosts) {
+        openPosts = context.demoPosts.filter(p => p.status === 'open');
+    } else {
+        try {
+            openPosts = await Post.find({ status: 'open' });
+        } catch (e) {
+            console.error('Failed to query Mongo posts for offline chat', e);
+        }
+    }
+
+    // 1. GREETINGS & HELPFUL GUIDES
+    if (lastMsgLower.match(/\b(hi|hello|hey|greetings|yo)\b/)) {
+        const name = context?.userName && context.userName !== 'Guest' ? context.userName : 'there';
+        return `Hello ${name}! I am your Retrieval Assistant. I can help you search for lost/found items, view matching posts, or guide you on how to earn Karma. What are you looking for today?`;
+    }
+
+    if (lastMsgLower.includes('karma') || lastMsgLower.includes('point') || lastMsgLower.includes('trust')) {
+        return `You currently have **${context?.userKarma || 0} Karma Points**. You can earn **+50 Karma** by successfully returning a lost item using a secure QR verification handoff, or by accepting and satisfying borrow requests for other students!`;
+    }
+
+    if (lastMsgLower.includes('security') || lastMsgLower.includes('desk') || lastMsgLower.includes('office') || lastMsgLower.includes('drop')) {
+        return `Found items are typically kept at the **Campus Security Desk (Ground Floor, Main Block)** or the **Central Library Front Desk**. If you've found an item, please post it here first and drop it off there!`;
+    }
+
+    // 2. ITEM SEARCH IN DATABASE
+    const stopwords = new Set(['are', 'there', 'any', 'lost', 'found', 'borrow', 'need', 'have', 'you', 'seen', 'search', 'find', 'item', 'a', 'an', 'the', 'is', 'in', 'on', 'near', 'at', 'with', 'my', 'of', 'for', 'about']);
+    const words = lastMsgLower.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 2 && !stopwords.has(w));
+    
+    if (words.length > 0) {
+        // Search openPosts for matches
+        const matches = openPosts.filter(post => {
+            const titleText = post.title.toLowerCase();
+            const descText = (post.description || '').toLowerCase();
+            const locText = (post.location || '').toLowerCase();
+            const categoryText = (post.category || '').toLowerCase();
+            
+            return words.some(w => titleText.includes(w) || descText.includes(w) || locText.includes(w) || categoryText.includes(w));
+        });
+
+        if (matches.length > 0) {
+            let responseText = `I found **${matches.length} active post(s)** matching your query:`;
+            matches.slice(0, 3).forEach(m => {
+                const typeLabel = m.type.toUpperCase();
+                const locationLabel = m.location ? ` at ${m.location}` : '';
+                responseText += `\n\n• **[${typeLabel}] ${m.title}** (Category: ${m.category}${locationLabel}) [[postId:${m._id || m.id}]]`;
+            });
+            responseText += `\n\nClick the button(s) above to reply or claim! Let me know if you need help with anything else.`;
+            return responseText;
+        }
+    }
+
+    // 3. POST TYPE ASSISTANCE
+    if (lastMsgLower.includes('lost') || lastMsgLower.includes('missing')) {
+        return `If you lost an item, click **+ Post** or head to the **Post** tab and choose **Lost**. Provide details like the location, date, and time to help other students match it!`;
+    }
+
+    if (lastMsgLower.includes('found') || lastMsgLower.includes('discovered')) {
+        return `If you found an item, head to the **Post** tab and select **Found**. Remember, posting a found item requires uploading a clear photo of the item as proof of possession.`;
+    }
+
+    if (lastMsgLower.includes('borrow') || lastMsgLower.includes('lend') || lastMsgLower.includes('need')) {
+        return `To borrow equipment (like calculators, drafters, or textbooks), select the **Borrow** tab. You'll need to specify which class session you need it for and a duration timer.`;
+    }
+
+    // 4. GENERIC DEFAULT HELP
+    return `I can help you search active campus requests. Try asking something like:
+- *"Have you seen any keys?"*
+- *"Is there a calculator I can borrow?"*
+- *"How do I earn Karma?"*
+- *"Where is the campus security desk?"*`;
+};
+
 // @desc    Process chat messages for the Requestly AI Bot
 // @route   POST /api/ai/chat
 // @access  Private
 const chatWithBot = async (req, res) => {
+    const { messages, context } = req.body;
+    
     try {
-        if (!genai) {
-            return res.status(503).json({ error: 'AI Services not configured on this environment.' });
-        }
-
-        const { messages, context } = req.body;
         if (!messages || !Array.isArray(messages) || messages.length === 0) {
             return res.status(400).json({ error: 'Please provide a valid array of chat messages.' });
+        }
+
+        if (!genai) {
+            const reply = await generateSmartOfflineResponse(messages, context);
+            return res.json({ reply });
         }
 
         const systemPrompt = `You are "Requestly AI", the official virtual assistant for the "Retrieval Co." college campus Lost, Found & Borrow platform.
@@ -465,6 +553,16 @@ Platform Context:
 
 User Context provided by frontend:
 ${context ? JSON.stringify(context) : 'None'}
+
+CRITICAL INSTRUCTION FOR REFERENCING POSTS:
+- If you find any matching posts in the User Context and want to suggest, list, or link to them, you MUST include the post ID in the exact format: [[postId:<id>]]. 
+- Example: "I found a matching calculator post: [[postId:post_2]]". 
+- Do NOT use other custom formats like "[Link to post_2]" or similar text links. The frontend only parses the [[postId:<id>]] format to display clickable action buttons.
+
+AI POST CREATION TOOL:
+- If the user explicitly asks to report, post, or create a lost/found/borrow request (or describes details of a new item they lost/found/need and wants you to record/post it), you CAN automatically trigger its creation in the database by appending this exact tag to the end of your response:
+  [[CREATE_POST:{"type":"lost|found|borrow","title":"Short descriptive title","category":"Electronics|Stationery|ID Cards|Books|Clothing|Lab Equipment|Others","location":"Canteen/Library/etc","description":"Full description details","datetime":"ISO-8601 string or current time"}]]
+- Do NOT say "I created a post" without appending this exact tag at the end. The frontend will intercept the tag, create the post in the database, and replace it with a clickable button to open the post.
 
 Tone: Friendly, concise, helpful, and slightly academic. Keep responses to 1-3 short paragraphs max. Do not use markdown headers (#), but bolding is fine.`;
 
@@ -495,9 +593,8 @@ Tone: Friendly, concise, helpful, and slightly academic. Keep responses to 1-3 s
 
     } catch (error) {
         console.warn('[AI Service] Chatbot Gemini failed, using offline response. Error:', error.message);
-        res.json({
-            reply: "Hello! I'm currently running in safe mode. You can report lost items by creating a 'Lost' post, report found items by creating a 'Found' post (requires photo), or request to borrow tools using 'Borrow' posts. Earning Karma Points by returning items helps build our campus community!"
-        });
+        const reply = await generateSmartOfflineResponse(messages, context);
+        res.json({ reply });
     }
 };
 

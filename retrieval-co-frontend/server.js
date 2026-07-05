@@ -1,4 +1,4 @@
-// Intercept require('mongoose') to use our local JSON file/in-memory mock database
+// Intercept require('mongoose') to use our local JSON file mock database
 const Module = require('module');
 const originalRequire = Module.prototype.require;
 const path = require('path');
@@ -13,6 +13,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+
 
 dotenv.config();
 
@@ -61,11 +62,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong on the server.' });
 });
 
-// Export the app for Vercel Serverless Functions
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
-module.exports = app;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

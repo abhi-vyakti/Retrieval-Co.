@@ -1,10 +1,59 @@
-const { GoogleGenAI } = require('@google/genai');
+// OpenRouter client wrapper mock behaving like GoogleGenAI SDK
+const genai = {
+    models: {
+        generateContent: async ({ model, contents, config }) => {
+            const openRouterKey = process.env.OPENROUTER_API_KEY;
+            if (!openRouterKey) {
+                throw new Error("OpenRouter API key is missing. Configure OPENROUTER_API_KEY in .env");
+            }
 
-const genai = process.env.GEMINI_API_KEY
-    ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-    : null;
+            // Construct messages array for OpenRouter chat completions
+            const messages = [];
+            
+            if (config?.systemInstruction) {
+                messages.push({
+                    role: 'system',
+                    content: config.systemInstruction
+                });
+            }
 
-const MODEL = 'gemini-2.0-flash';
+            messages.push({
+                role: 'user',
+                content: typeof contents === 'string' ? contents : JSON.stringify(contents)
+            });
+
+            const openRouterModel = process.env.OPENROUTER_CHAT_MODEL || 'google/gemini-2.5-flash-lite';
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${openRouterKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': process.env.APP_URL || 'https://retrieval-co.vercel.app',
+                    'X-Title': 'Retrieval Co.'
+                },
+                body: JSON.stringify({
+                    model: openRouterModel,
+                    messages: messages,
+                    temperature: config?.temperature ?? 0.3,
+                    max_tokens: config?.maxOutputTokens ?? 1024,
+                    response_format: config?.responseMimeType === 'application/json' ? { type: 'json_object' } : undefined
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || `OpenRouter request failed (${response.status})`);
+            }
+
+            const text = data.choices?.[0]?.message?.content || '';
+            return { text };
+        }
+    }
+};
+
+const MODEL = process.env.OPENROUTER_CHAT_MODEL || 'google/gemini-2.5-flash-lite';
 
 /**
  * Parse natural language text into structured post fields using Gemini.
@@ -45,8 +94,12 @@ Return ONLY valid JSON. No explanation, no commentary.`;
             const rawText = response.text || '{}';
             const cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
             parsedData = JSON.parse(cleanJsonStr);
-        } catch (err) {
-            console.warn('[AI Service] Gemini API call failed or quota exceeded. Falling back to local parser. Error:', err.message);
+        } catch (error) {
+            console.error('[AI Chatbot] Error:', error.message);
+            const isQuota = error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('429');
+            if (isQuota) {
+                console.warn('[AI Service] Quota exhausted.');
+            }
         }
     }
 
