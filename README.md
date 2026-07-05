@@ -1,111 +1,61 @@
-# Retrieval Co. — Campus Lost & Found and Borrowing Platform
-
-> [!IMPORTANT]
-> ### 🚧 Current Status
-> Demo Mode is provided to allow recruiters and reviewers to explore all functionality without requiring backend configuration. The original authentication implementation remains available in the codebase.
-
----
-
-## 📖 The Project Story
-
-**Retrieval Co.** was built during a campus hackathon to solve the fragmented Lost & Found and temporary equipment borrowing process on college campuses. Previously, students had to dig through messy, noisy WhatsApp groups, Slack channels, and notices to find lost keys, misplaced IDs, or request an engineering drafter. 
-
-This application centralizes reporting, searching, and borrowing under a single, unified campus portal. It introduces **AI-assisted post creation** (using smart NLP parsing), **loss hotspot maps**, **dual-scan secure QR handoffs**, and gamifies community participation using student **Karma points** to establish trust.
+<div align="center">
+  <h1>Retrieval Co.</h1>
+  <p><b>The smart campus platform for recovering lost items and borrowing resources.</b></p>
+  
+  <p>
+    <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+    <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" /></a>
+    <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" /></a>
+  </p>
+</div>
 
 ---
 
-## ⚡ 30-Second Quick Summary
+## ⚡ Overview
 
-* **❓ What problem does this solve?** Centralizes and secures the chaotic campus Lost & Found and temporary equipment borrowing processes.
-* **❓ What technologies were used?** React, Vite, Tailwind CSS, Node.js, Express.js, MongoDB (Mongoose), and Vercel.
-* **❓ How do I run it?** Run `npm install` and `npm run dev` in `retrieval-co-frontend/`.
-* **❓ Can I try it without setting up a backend?** Yes! Launch the app, navigate to `/login`, and click **⚡ Continue as Demo User** to explore all features instantly in serverless/offline mode.
-* **❓ What features does it have?** Lost & Found listings, equipment borrow requests, AI NLP post auto-fills, loss hotspot heatmaps, secure QR return confirmation, and student Karma leaderboards.
-* **❓ What did the developers learn?** Structuring a single-deployment monorepo on Vercel, intercepting fetch requests at the client level, and managing transient state effectively.
+**Retrieval Co.** centralizes the chaotic process of reporting lost items and borrowing campus equipment. It replaces noisy WhatsApp groups with a sleek, gamified portal.
 
----
+- 🤖 **AI Matching**: Automatically parses descriptions and links lost & found reports.
+- 🗺️ **Loss Hotspots**: Visual heatmap of where items are frequently lost.
+- 📱 **QR Handoffs**: Secure dual-scan QR system for verifying item returns.
+- 🏆 **Karma System**: Gamified trust-building through a student leaderboard.
 
-## 🏗️ System Architecture
+## 🚀 Quick Start
 
-```mermaid
-graph TD
-    A[React SPA Client] -->|API Request| B[Express REST API]
-    B -->|Query/Update| C[(MongoDB Database)]
-    B -->|Vercel Host| D[Vercel Serverless]
-    A -->|Demo Interceptor| E[Demo Mode - Offline LocalStorage]
-```
+### Play in Demo Mode (No backend required)
 
-To learn more about request routing and deployment configurations, see [Architecture.md](file:///docs/Architecture.md) and [SYSTEM_DESIGN.md](file:///docs/SYSTEM_DESIGN.md).
+Want to see the UI immediately?
+1. `cd retrieval-co-frontend`
+2. `npm install && npm run dev`
+3. Click **Continue as Demo User** on the login screen to explore fully offline.
 
----
+### Full Stack Setup (MongoDB + Express)
 
-## 🛠️ Engineering Highlights
-
-* **Offline-Ready Recruiter Demo Mode**: Designed a client-side API mock interceptor that wraps `window.fetch` to support full app functionality (post creation, updates, replies, QR confirmation) database-free.
-* **Unified Serverless Monorepo**: Deployed Express backend routes as Vercel serverless functions directly alongside the React static client, serving both from the same origin.
-* **Secure Verification System**: Implemented a dual-scan QR handoff system using time-limited JWT session tokens to prevent double karma claims.
-* **Structured UI Design**: Crafted a dark, responsive dashboard using custom color mappings and micro-animations to enhance visual consistency and usability.
-
----
-
-## 📁 Repository Layout
-
-To view the complete folder layout and file descriptions, see [PROJECT_STRUCTURE.md](file:///PROJECT_STRUCTURE.md).
-
-* [retrieval-co-frontend/](file:///retrieval-co-frontend/) — Unified React Client & Vercel serverless Express API.
-* [retrieval-co-backend/](file:///retrieval-co-backend/) — Decoupled Express API reference for standalone development.
-* [docs/](file:///docs/) — Comprehensive architectural and API documentation.
-* [tests/](file:///tests/) — Automated integration test scripts.
-
----
-
-## 💻 Local Setup & Installation
-
-### Option A: Running with Demo Mode (Offline / Database-free)
-1. Navigate to the frontend directory:
-   ```bash
-   cd retrieval-co-frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open `http://localhost:5173/` in your browser. Click **Launch Dashboard**, then click **⚡ Continue as Demo User**.
-
-### Option B: Running with a Live Backend (MongoDB)
-1. Open a terminal and run the Express API:
+1. **Backend**:
    ```bash
    cd retrieval-co-backend
+   cp .env.example .env # Add your MONGO_URI
+   npm install && npm run seed && npm start
    ```
-2. Set up your `.env` variables:
+2. **Frontend**:
    ```bash
-   cp .env.example .env
-   # Edit .env and supply your MONGO_URI and JWT_SECRET keys
+   cd retrieval-co-frontend
+   npm install && npm run dev
    ```
-3. Install dependencies and seed the database:
-   ```bash
-   npm install
-   npm run seed
-   ```
-4. Run the backend:
-   ```bash
-   npm start
-   ```
-5. In another terminal, boot the frontend and make sure `demo_mode` is set to `false` in LoginPage.
 
----
+## 📚 Documentation
 
-## 🚀 Releases & Versions
+Detailed documentation and planning specs have been neatly organized in the [`docs/`](./docs) folder:
 
-* **v1.1.0 (Portfolio Edition)**: Current release. Added Demo Mode, client-side persistence, handoff simulations, global Footer, and thorough system design documents.
-* **v1.0.0 (Hackathon Submission)**: Original prototype code submitted during the campus hackathon.
+- 🏛️ [System Architecture & API Specs](./docs/Architecture.md)
+- 🏗️ [Project Structure](./docs/PROJECT_STRUCTURE.md)
+- 📝 [Product Requirements (PRD)](./docs/Retrieval_Co_PRD.md)
+- 🎨 [Design Specifications](./docs/RetrievalCo_Design_Spec.md)
+- ⚙️ [Technology Stack](./docs/RetrievalCo_Tech_Stack.md)
 
----
+## 🤝 Contributing & License
 
-## 👥 Contributors
-
-* **Abhijit** (Lead Full Stack Developer & GitHub Maintainer)
+- Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+- See [CHANGELOG.md](./CHANGELOG.md) for recent updates.
+- This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
