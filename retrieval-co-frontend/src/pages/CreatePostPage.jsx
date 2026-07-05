@@ -567,7 +567,7 @@ export default function CreatePostPage() {
                                 type="time"
                                 label={
                                     type === "lost"
-                                        ? "Time Lost"
+                                        ? "Time Lost (Approx.)"
                                         : type === "found"
                                           ? "Time Found"
                                           : "Time"
