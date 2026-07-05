@@ -746,30 +746,30 @@ export default function CreatePostPage() {
                                     <div className="space-y-3 mt-3">
                                         {imageAnalysis.isAIGenerated !== undefined && (
                                             <div className={`rounded-xl border overflow-hidden shadow-sm transition-all duration-300 ${imageAnalysis.isAIGenerated ? 'border-danger/30 shadow-[0_4px_20px_-10px_rgba(240,82,82,0.3)]' : 'border-green/30 shadow-[0_4px_20px_-10px_rgba(34,197,94,0.3)]'}`}>
-                                                <div className={`px-4 py-3 border-b flex items-center justify-between ${imageAnalysis.isAIGenerated ? "bg-[linear-gradient(90deg,var(--color-danger-bg),transparent)] border-danger/20" : "bg-[linear-gradient(90deg,var(--color-green-light),transparent)] border-green/20"}`}>
+                                                <div className={`px-4 py-3 border-b flex items-center justify-between ${imageAnalysis.isAIGenerated ? "bg-[rgba(240,82,82,0.08)] border-danger/20" : "bg-[rgba(34,197,94,0.08)] border-green/20"}`}>
                                                     <div className="flex items-center gap-2">
                                                         {imageAnalysis.isAIGenerated ? (
                                                             <ShieldAlert size={18} className="text-danger" />
                                                         ) : (
-                                                            <ShieldCheck size={18} className="text-green-dark" />
+                                                            <ShieldCheck size={18} className="text-green" />
                                                         )}
-                                                        <span className={`font-semibold text-[14px] ${imageAnalysis.isAIGenerated ? "text-danger" : "text-green-dark"}`}>
+                                                        <span className={`font-semibold text-[14px] ${imageAnalysis.isAIGenerated ? "text-danger" : "text-green"}`}>
                                                             {imageAnalysis.isAIGenerated ? "AI Generated Content Detected" : "Authentic Photograph Verified"}
                                                         </span>
                                                     </div>
-                                                    <div className={`text-[12px] font-bold ${imageAnalysis.isAIGenerated ? "text-danger/70" : "text-green-dark/70"}`}>
+                                                    <div className={`text-[12px] font-bold ${imageAnalysis.isAIGenerated ? "text-danger/90" : "text-green/90"}`}>
                                                         {imageAnalysis.confidence}% Confidence
                                                     </div>
                                                 </div>
-                                                <div className="px-4 py-3 bg-white">
+                                                <div className="px-4 py-3 bg-surface/30">
                                                     {/* Progress bar */}
-                                                    <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden mb-3">
+                                                    <div className="h-1.5 w-full bg-border rounded-full overflow-hidden mb-3">
                                                         <div 
                                                             className={`h-full rounded-full transition-all duration-1000 ${imageAnalysis.isAIGenerated ? "bg-danger" : "bg-green"}`}
                                                             style={{ width: `${imageAnalysis.confidence}%` }}
                                                         />
                                                     </div>
-                                                    <p className="text-[13px] opacity-80 leading-relaxed text-[#475569]">
+                                                    <p className="text-[13px] opacity-90 leading-relaxed text-text">
                                                         {imageAnalysis.reason.replace(/⚠️|✅/g, '').trim()}
                                                     </p>
                                                 </div>
