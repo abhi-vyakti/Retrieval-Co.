@@ -304,7 +304,6 @@ export default function DashboardPage() {
         { label: "Today's", value: "today" },
         { label: "Urgent", value: "urgent" },
         { label: "My Posts", value: "my_posts" },
-        { label: "Borrow", value: "borrow" },
     ];
 
     // Local filter mapping on fetched list
@@ -450,7 +449,7 @@ export default function DashboardPage() {
                             <Filter size={14} className="text-primary" /> Quick
                             Filters
                         </h3>
-                        <div className="flex overflow-x-auto gap-2 pb-2 hide-scrollbar whitespace-nowrap">
+                        <div className="flex flex-wrap gap-2 pb-2">
                             {quickChips.map((chip) => {
                                 const isActive =
                                     activeChipFilter === chip.value;
