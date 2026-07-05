@@ -5,7 +5,7 @@ export default function Footer() {
         <footer className="bg-card border-t border-border relative overflow-hidden">
             {/* Decorative Watermark */}
             <div
-                className="footer-watermark absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none select-none text-[120px] md:text-[160px] font-display font-black tracking-tighter leading-none whitespace-nowrap bg-clip-text text-transparent"
+                className="footer-watermark absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none select-none text-[64px] sm:text-[100px] md:text-[160px] font-display font-black tracking-tighter leading-none whitespace-nowrap bg-clip-text text-transparent opacity-50 md:opacity-100"
             >
                 RetrievalCo.
             </div>
