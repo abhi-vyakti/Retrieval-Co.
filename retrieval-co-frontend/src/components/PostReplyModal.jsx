@@ -86,7 +86,7 @@ export default function PostReplyModal({
             case "borrow":
                 return "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary-dim/10 text-primary-dim border border-primary-dim/15";
             default:
-                return "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-800 text-text-muted";
+                return "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-border text-text-muted";
         }
     };
 
@@ -180,7 +180,7 @@ export default function PostReplyModal({
                 {/* Modal Title Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border shrink-0 bg-surface">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-zinc-800 rounded-lg">
+                        <div className="p-2 bg-border rounded-lg">
                             {getTypeIcon()}
                         </div>
                         <div>
@@ -198,7 +198,7 @@ export default function PostReplyModal({
                     <div className="flex items-center gap-1">
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer border-none bg-transparent"
+                            className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-border transition-colors cursor-pointer border-none bg-transparent"
                             title="Close Chat"
                         >
                             <X size={15} />
@@ -493,7 +493,7 @@ export default function PostReplyModal({
                                 <button
                                     onClick={handleSendReply}
                                     disabled={!replyText.trim() || sending}
-                                    className="p-2.5 bg-primary hover:scale-102 active:scale-98 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:text-zinc-400 dark:disabled:text-zinc-600 text-white rounded-lg transition-all shrink-0 cursor-pointer border-none focus-visible:outline-none"
+                                    className="p-2.5 bg-primary hover:scale-102 active:scale-98 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed text-white rounded-lg transition-all shrink-0 cursor-pointer border-none focus-visible:outline-none"
                                 >
                                     <Send
                                         size={14}
