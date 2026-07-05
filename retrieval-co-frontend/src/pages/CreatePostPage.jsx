@@ -44,7 +44,15 @@ export default function CreatePostPage() {
 
     // Image AI Analysis State
     const [analyzingImage, setAnalyzingImage] = useState(false);
-    const [imageAnalysis, setImageAnalysis] = useState(null);
+    const [tabAnalysis, setTabAnalysis] = useState({ lost: null, found: null, borrow: null });
+    const imageAnalysis = tabAnalysis[type];
+    const setImageAnalysis = (updater) => {
+        setTabAnalysis(prev => ({
+            ...prev,
+            [type]: typeof updater === "function" ? updater(prev[type]) : updater
+        }));
+    };
+
     const [isSuspended, setIsSuspended] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -52,7 +60,7 @@ export default function CreatePostPage() {
     const [matchingTimetable, setMatchingTimetable] = useState(false);
     const [matchedClass, setMatchedClass] = useState("");
 
-    const [formData, setFormData] = useState({
+    const initialFormState = {
         title: "",
         category: "",
         description: "",
@@ -63,7 +71,21 @@ export default function CreatePostPage() {
         selectedClass: "",
         isAnonymous: false,
         isUrgent: false,
+    };
+
+    const [tabData, setTabData] = useState({
+        lost: { ...initialFormState },
+        found: { ...initialFormState },
+        borrow: { ...initialFormState },
     });
+
+    const formData = tabData[type];
+    const setFormData = (updater) => {
+        setTabData((prev) => ({
+            ...prev,
+            [type]: typeof updater === "function" ? updater(prev[type]) : updater,
+        }));
+    };
 
     const categories = [
         "Electronics",
@@ -112,7 +134,6 @@ export default function CreatePostPage() {
     React.useEffect(() => {
         setMatchedClass("");
         setMatchingTimetable(false);
-        setImageAnalysis(null);
     }, [type]);
 
     const handleAiParse = async () => {
@@ -137,31 +158,39 @@ export default function CreatePostPage() {
             }
 
             const parsed = data.parsed;
+            const targetType = ["lost", "found", "borrow"].includes(parsed.type) ? parsed.type : type;
 
-            if (["lost", "found", "borrow"].includes(parsed.type)) {
-                setType(parsed.type);
+            if (targetType !== type) {
+                setType(targetType);
             }
 
-            let newDate = formData.date;
-            let newTime = formData.time;
-            if (parsed.datetime) {
-                const dtStr = parsed.datetime.substring(0, 16);
-                if (dtStr.includes("T")) {
-                    const parts = dtStr.split("T");
-                    newDate = parts[0];
-                    newTime = parts[1];
+            setTabData((prev) => {
+                const prevData = prev[targetType];
+                let newDate = prevData.date;
+                let newTime = prevData.time;
+
+                if (parsed.datetime) {
+                    const dtStr = parsed.datetime.substring(0, 16);
+                    if (dtStr.includes("T")) {
+                        const parts = dtStr.split("T");
+                        newDate = parts[0];
+                        newTime = parts[1];
+                    }
                 }
-            }
 
-            setFormData((prev) => ({
-                ...prev,
-                title: parsed.title || prev.title,
-                category: parsed.category || prev.category,
-                location: parsed.location || prev.location,
-                description: parsed.description || prev.description,
-                date: newDate || prev.date,
-                time: newTime || prev.time,
-            }));
+                return {
+                    ...prev,
+                    [targetType]: {
+                        ...prevData,
+                        title: parsed.title || prevData.title,
+                        category: parsed.category || prevData.category,
+                        location: parsed.location || prevData.location,
+                        description: parsed.description || prevData.description,
+                        date: newDate || prevData.date,
+                        time: newTime || prevData.time,
+                    }
+                };
+            });
 
             setAiPrompt("");
         } catch (err) {
