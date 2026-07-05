@@ -48,6 +48,16 @@ export default function ImageUpload({
         };
     }, []);
 
+    // Auto-clear prerequisite error when conditions are met
+    useEffect(() => {
+        if (error && error.includes("Item Name and Description") && onBeforeUpload) {
+            const currentErr = onBeforeUpload();
+            if (!currentErr) {
+                setError("");
+            }
+        }
+    }, [onBeforeUpload, error]);
+
     const startCamera = async () => {
         if (onBeforeUpload) {
             const err = onBeforeUpload();
