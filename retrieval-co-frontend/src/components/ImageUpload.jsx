@@ -1,15 +1,30 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Camera, Image as ImageIcon, Loader2, X, Check, Aperture, Crop, RotateCcw } from 'lucide-react';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
-import Button from './Button';
-import { useAuth } from '../context/AuthContext';
-import { API_BASE } from '../config/api';
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import {
+    Camera,
+    Image as ImageIcon,
+    Loader2,
+    X,
+    Check,
+    Aperture,
+    Crop,
+    RotateCcw,
+} from "lucide-react";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import Button from "./Button";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
-export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, label = 'Attach Photo', iconOnly = false }) {
+export default function ImageUpload({
+    onUploadSuccess,
+    currentImage,
+    onRemove,
+    label = "Attach Photo",
+    iconOnly = false,
+}) {
     const { token } = useAuth();
     const [isUploading, setIsUploading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
     const fileInputRef = useRef(null);
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -27,16 +42,16 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
     useEffect(() => {
         return () => {
             if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
+                streamRef.current.getTracks().forEach((track) => track.stop());
             }
         };
     }, []);
 
     const startCamera = async () => {
-        setError('');
+        setError("");
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
+                video: { facingMode: "environment" },
             });
             streamRef.current = stream;
             setIsCameraOpen(true);
@@ -44,18 +59,22 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
             setTimeout(() => {
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
-                    videoRef.current.play().catch(e => console.error("Video play error:", e));
+                    videoRef.current
+                        .play()
+                        .catch((e) => console.error("Video play error:", e));
                 }
             }, 100);
         } catch (err) {
-            console.error('Camera access error:', err);
-            setError('Could not access camera. Please check browser permissions.');
+            console.error("Camera access error:", err);
+            setError(
+                "Could not access camera. Please check browser permissions.",
+            );
         }
     };
 
     const stopCamera = () => {
         if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current.getTracks().forEach((track) => track.stop());
             streamRef.current = null;
         }
         setIsCameraOpen(false);
@@ -63,21 +82,29 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
 
     const capturePhoto = () => {
         if (videoRef.current) {
-            const canvas = document.createElement('canvas');
+            const canvas = document.createElement("canvas");
             canvas.width = videoRef.current.videoWidth;
             canvas.height = videoRef.current.videoHeight;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
             stopCamera();
 
             // Instead of uploading directly, open the crop view
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    setRawFile(new File([blob], "camera-capture.jpg", { type: "image/jpeg" }));
-                }
-            }, 'image/jpeg', 0.9);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        setRawFile(
+                            new File([blob], "camera-capture.jpg", {
+                                type: "image/jpeg",
+                            }),
+                        );
+                    }
+                },
+                "image/jpeg",
+                0.9,
+            );
             setRawImageSrc(dataUrl);
             setIsCropping(true);
             setCrop(undefined);
@@ -86,42 +113,45 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
     };
 
     const uploadFile = async (file) => {
-        setError('');
+        setError("");
         setIsUploading(true);
 
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append("image", file);
 
         try {
             const res = await fetch(`${API_BASE}/api/upload`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 },
-                body: formData
+                body: formData,
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Upload failed');
+                throw new Error(data.error || "Upload failed");
             }
 
             if (onUploadSuccess) {
                 const imageDataUrl = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Could not prepare image for analysis.'));
+                    reader.onerror = () =>
+                        reject(
+                            new Error("Could not prepare image for analysis."),
+                        );
                     reader.readAsDataURL(file);
                 });
                 onUploadSuccess(data.imageUrl, imageDataUrl);
             }
         } catch (err) {
-            console.error('Upload Error:', err);
+            console.error("Upload Error:", err);
             setError(err.message);
         } finally {
             setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (fileInputRef.current) fileInputRef.current.value = "";
         }
     };
 
@@ -129,12 +159,12 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (!file.type.startsWith('image/')) {
-            setError('Please select an image file.');
+        if (!file.type.startsWith("image/")) {
+            setError("Please select an image file.");
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
-            setError('Image must be less than 10MB.');
+            setError("Image must be less than 10MB.");
             return;
         }
 
@@ -160,14 +190,14 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                 return;
             }
 
-            const canvas = document.createElement('canvas');
+            const canvas = document.createElement("canvas");
             const scaleX = image.naturalWidth / image.width;
             const scaleY = image.naturalHeight / image.height;
 
             canvas.width = completedCrop.width * scaleX;
             canvas.height = completedCrop.height * scaleY;
 
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             ctx.drawImage(
                 image,
                 completedCrop.x * scaleX,
@@ -177,16 +207,24 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                 0,
                 0,
                 canvas.width,
-                canvas.height
+                canvas.height,
             );
 
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    resolve(new File([blob], rawFile?.name || 'cropped.jpg', { type: 'image/jpeg' }));
-                } else {
-                    resolve(rawFile);
-                }
-            }, 'image/jpeg', 0.9);
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        resolve(
+                            new File([blob], rawFile?.name || "cropped.jpg", {
+                                type: "image/jpeg",
+                            }),
+                        );
+                    } else {
+                        resolve(rawFile);
+                    }
+                },
+                "image/jpeg",
+                0.9,
+            );
         });
     }, [completedCrop, rawFile]);
 
@@ -207,7 +245,7 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
         setRawFile(null);
         setCrop(undefined);
         setCompletedCrop(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const handleSkipCrop = async () => {
@@ -224,7 +262,11 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
         <div className="w-full">
             {currentImage ? (
                 <div className="relative inline-block mt-2">
-                    <img src={currentImage} alt="Uploaded" className="h-32 w-auto object-cover rounded-xl border border-grey-200 shadow-sm" />
+                    <img
+                        src={currentImage}
+                        alt="Uploaded"
+                        className="h-32 w-auto object-cover rounded-xl border border-grey-200 shadow-sm"
+                    />
                     <button
                         type="button"
                         onClick={onRemove}
@@ -233,7 +275,8 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                         <X size={14} />
                     </button>
                     <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white flex items-center gap-1">
-                        <Check size={12} className="text-emerald-400" /> Attached
+                        <Check size={12} className="text-emerald-400" />{" "}
+                        Attached
                     </div>
                 </div>
             ) : (
@@ -254,8 +297,18 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                         className={iconOnly ? "p-2 aspect-square" : "flex-1"}
                         title={label}
                     >
-                        {isUploading ? <Loader2 size={16} className={iconOnly ? "" : "mr-2"} /> : <ImageIcon size={16} className={iconOnly ? "" : "mr-2"} />}
-                        {!iconOnly && (isUploading ? 'Uploading...' : label)}
+                        {isUploading ? (
+                            <Loader2
+                                size={16}
+                                className={iconOnly ? "" : "mr-2"}
+                            />
+                        ) : (
+                            <ImageIcon
+                                size={16}
+                                className={iconOnly ? "" : "mr-2"}
+                            />
+                        )}
+                        {!iconOnly && (isUploading ? "Uploading..." : label)}
                     </Button>
 
                     <Button
@@ -266,7 +319,12 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                         className={iconOnly ? "p-2 aspect-square" : "flex-1"}
                         title="Take Photo"
                     >
-                        <Camera size={16} className={iconOnly ? "text-blue" : "mr-2 text-blue"} />
+                        <Camera
+                            size={16}
+                            className={
+                                iconOnly ? "text-blue" : "mr-2 text-blue"
+                            }
+                        />
                         {!iconOnly && "Take Photo"}
                     </Button>
                 </div>
@@ -313,7 +371,9 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                     <div className="w-full max-w-2xl flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 text-white">
                             <Crop size={18} className="text-primary-400" />
-                            <h3 className="text-lg font-display font-bold">Crop Image</h3>
+                            <h3 className="text-lg font-display font-bold">
+                                Crop Image
+                            </h3>
                         </div>
                         <button
                             onClick={handleCropCancel}
@@ -324,7 +384,8 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                     </div>
 
                     <p className="text-neutral-400 text-sm mb-4 max-w-2xl text-center">
-                        Drag to select the area you want to keep. Focus on the item and crop away the background.
+                        Drag to select the area you want to keep. Focus on the
+                        item and crop away the background.
                     </p>
 
                     {/* Crop Area */}
@@ -370,7 +431,10 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
                             className="flex-1 py-3"
                             disabled={isUploading}
                         >
-                            <Check size={16} className="mr-2" /> {completedCrop ? 'Crop & Upload' : 'Upload Original'}
+                            <Check size={16} className="mr-2" />{" "}
+                            {completedCrop
+                                ? "Crop & Upload"
+                                : "Upload Original"}
                         </Button>
                     </div>
                 </div>

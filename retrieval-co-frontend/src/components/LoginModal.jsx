@@ -1,21 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
-import { AlertCircle, GraduationCap, Lock, X } from 'lucide-react';
-import Input from './Input';
-import Button from './Button';
-import { useAuth } from '../context/AuthContext';
-import { API_BASE } from '../config/api';
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, GraduationCap, Lock, X } from "lucide-react";
+import Input from "./Input";
+import Button from "./Button";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 export default function LoginModal({ onClose }) {
     const { login } = useAuth();
-    const [code, setCode] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [code, setCode] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
         const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = "hidden";
         dialogRef.current?.focus();
 
         return () => {
@@ -25,18 +25,18 @@ export default function LoginModal({ onClose }) {
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.key === 'Escape') onClose();
+            if (event.key === "Escape") onClose();
         };
 
-        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener("keydown", handleKeyDown);
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener("keydown", handleKeyDown);
         };
     }, [onClose]);
 
     const handleDemoLogin = (event) => {
         event.preventDefault();
-        localStorage.setItem('demo_mode', 'true');
+        localStorage.setItem("demo_mode", "true");
 
         // Generate a fresh demo user
         const randomNum = Math.floor(1000 + Math.random() * 9000);
@@ -47,60 +47,86 @@ export default function LoginModal({ onClose }) {
             id: randomId,
             code: randomCode,
             name: `Demo User ${randomNum}`,
-            role: 'student',
-            karma: 0
+            role: "student",
+            karma: 0,
         };
 
         const defaultUsersList = [
-            { _id: 'user_kiransharma', collegeId: '22BCE1234', name: 'Kiran Sharma', karma: 312, role: 'student' },
-            { _id: 'user_priyanair', collegeId: '23ECE4321', name: 'Priya Nair', karma: 247, role: 'student' },
-            { _id: 'user_rahulverma', collegeId: '21MEC5678', name: 'Rahul Verma', karma: 189, role: 'student' },
-            { _id: 'user_ananyasingh', collegeId: '24CIV8765', name: 'Ananya Singh', karma: 134, role: 'student' }
+            {
+                _id: "user_kiransharma",
+                collegeId: "22BCE1234",
+                name: "Kiran Sharma",
+                karma: 312,
+                role: "student",
+            },
+            {
+                _id: "user_priyanair",
+                collegeId: "23ECE4321",
+                name: "Priya Nair",
+                karma: 247,
+                role: "student",
+            },
+            {
+                _id: "user_rahulverma",
+                collegeId: "21MEC5678",
+                name: "Rahul Verma",
+                karma: 189,
+                role: "student",
+            },
+            {
+                _id: "user_ananyasingh",
+                collegeId: "24CIV8765",
+                name: "Ananya Singh",
+                karma: 134,
+                role: "student",
+            },
         ];
 
-        const storedUsers = localStorage.getItem('mock_users');
-        let mockUsers = storedUsers ? JSON.parse(storedUsers) : defaultUsersList;
+        const storedUsers = localStorage.getItem("mock_users");
+        let mockUsers = storedUsers
+            ? JSON.parse(storedUsers)
+            : defaultUsersList;
 
         mockUsers.push({
             _id: randomId,
             collegeId: randomCode,
             name: `Demo User ${randomNum}`,
             karma: 0,
-            role: 'student'
+            role: "student",
         });
 
-        localStorage.setItem('mock_users', JSON.stringify(mockUsers));
+        localStorage.setItem("mock_users", JSON.stringify(mockUsers));
 
-        login(demoUser, 'mock_jwt_token');
+        login(demoUser, "mock_jwt_token");
     };
 
     const handleLogin = async (event) => {
         event.preventDefault();
-        setError('');
+        setError("");
 
         if (!code || !password) {
-            setError('Please enter College ID and Password');
+            setError("Please enter College ID and Password");
             return;
         }
 
         setLoading(true);
         try {
             const response = await fetch(`${API_BASE}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, password })
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, password }),
             });
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('demo_mode', 'false');
+                localStorage.setItem("demo_mode", "false");
                 login(data.user, data.token);
             } else {
-                setError(data.error || 'Login failed');
+                setError(data.error || "Login failed");
             }
         } catch (err) {
-            setError('Failed to connect to server. Ensure backend is running.');
-            console.error('Login Error:', err);
+            setError("Failed to connect to server. Ensure backend is running.");
+            console.error("Login Error:", err);
         } finally {
             setLoading(false);
         }
@@ -121,7 +147,7 @@ export default function LoginModal({ onClose }) {
                 aria-labelledby="login-title"
                 tabIndex={-1}
                 className="relative w-full max-w-[400px] rounded-[20px] border border-border bg-card p-7 shadow-modal sm:p-10"
-                style={{ animation: 'fadeUp 0.25s ease' }}
+                style={{ animation: "fadeUp 0.25s ease" }}
             >
                 <button
                     type="button"
@@ -136,13 +162,20 @@ export default function LoginModal({ onClose }) {
                     <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary">
                         RetrievalCo.
                     </span>
-                    <h2 id="login-title" className="text-[1.8rem] font-[800]">Welcome back</h2>
-                    <p className="mt-2 text-sm text-text-muted">Sign in to find, report, and return items.</p>
+                    <h2 id="login-title" className="text-[1.8rem] font-[800]">
+                        Welcome back
+                    </h2>
+                    <p className="mt-2 text-sm text-text-muted">
+                        Sign in to find, report, and return items.
+                    </p>
                 </div>
 
                 <form className="flex flex-col gap-5" onSubmit={handleLogin}>
                     {error && (
-                        <div className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 p-3 text-sm text-danger" role="alert">
+                        <div
+                            className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 p-3 text-sm text-danger"
+                            role="alert"
+                        >
                             <AlertCircle size={16} />
                             {error}
                         </div>
@@ -168,18 +201,29 @@ export default function LoginModal({ onClose }) {
                         required
                     />
 
-                    <Button type="submit" className="mt-2 w-full" disabled={loading}>
-                        {loading ? 'Signing In...' : 'Sign In →'}
+                    <Button
+                        type="submit"
+                        className="mt-2 w-full"
+                        disabled={loading}
+                    >
+                        {loading ? "Signing In..." : "Sign In →"}
                     </Button>
                 </form>
 
                 <div className="relative flex items-center py-4">
                     <div className="flex-grow border-t border-border" />
-                    <span className="mx-4 flex-shrink text-xs font-bold uppercase tracking-wider text-text-muted">Or</span>
+                    <span className="mx-4 flex-shrink text-xs font-bold uppercase tracking-wider text-text-muted">
+                        Or
+                    </span>
                     <div className="flex-grow border-t border-border" />
                 </div>
 
-                <Button type="button" variant="blue" className="w-full cursor-pointer" onClick={handleDemoLogin}>
+                <Button
+                    type="button"
+                    variant="blue"
+                    className="w-full cursor-pointer"
+                    onClick={handleDemoLogin}
+                >
                     ⚡ Continue as Demo User
                 </Button>
             </div>
