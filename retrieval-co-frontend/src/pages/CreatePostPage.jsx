@@ -413,19 +413,19 @@ export default function CreatePostPage() {
                     onClick={() => setType('lost')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'lost' ? 'bg-[rgba(240,82,82,0.12)] text-red border-[rgba(240,82,82,0.4)]' : 'bg-surface text-text-muted border-border'}`}
                 >
-                    🔴 I Lost
+                    <PackageSearch size={18} /> I Lost
                 </button>
                 <button
                     onClick={() => setType('found')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'found' ? 'bg-[rgba(61,214,140,0.12)] text-green border-[rgba(61,214,140,0.4)]' : 'bg-surface text-text-muted border-border'}`}
                 >
-                    🟢 I Found
+                    <PackageCheck size={18} /> I Found
                 </button>
                 <button
                     onClick={() => setType('borrow')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'borrow' ? 'bg-[rgba(96,165,250,0.12)] text-blue border-[rgba(96,165,250,0.4)]' : 'bg-surface text-text-muted border-border'}`}
                 >
-                    🔵 Borrow
+                    <Repeat size={18} /> Borrow
                 </button>
             </div>
 
