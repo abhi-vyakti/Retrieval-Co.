@@ -1,29 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import { PackageSearch, PackageCheck, Repeat, AlertCircle, ArrowLeft, Sparkles, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import ImageUpload from '../components/ImageUpload';
-import { API_BASE } from '../config/api';
+import React, { useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import {
+    PackageSearch,
+    PackageCheck,
+    Repeat,
+    AlertCircle,
+    ArrowLeft,
+    Sparkles,
+    ChevronDown,
+    ChevronUp,
+    Loader2,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import ImageUpload from "../components/ImageUpload";
+import { API_BASE } from "../config/api";
 
 export default function CreatePostPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [type, setType] = useState(() => {
-        const t = searchParams.get('type');
-        if (t === 'borrow' || t === 'found' || t === 'lost') return t;
-        return 'lost';
+        const t = searchParams.get("type");
+        if (t === "borrow" || t === "found" || t === "lost") return t;
+        return "lost";
     });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const { token } = useAuth();
 
     // AI Parsing State
-    const [aiPrompt, setAiPrompt] = useState('');
+    const [aiPrompt, setAiPrompt] = useState("");
     const [loadingAi, setLoadingAi] = useState(false);
-    const [aiError, setAiError] = useState('');
+    const [aiError, setAiError] = useState("");
 
     // Auto-Match Engine State
     const [potentialMatches, setPotentialMatches] = useState([]);
@@ -37,44 +47,58 @@ export default function CreatePostPage() {
 
     // Timetable Matcher State
     const [matchingTimetable, setMatchingTimetable] = useState(false);
-    const [matchedClass, setMatchedClass] = useState('');
+    const [matchedClass, setMatchedClass] = useState("");
 
     const [formData, setFormData] = useState({
-        title: '',
-        category: '',
-        description: '',
-        location: '',
-        date: '',
-        time: '',
-        imageUrl: '',
-        selectedClass: '',
+        title: "",
+        category: "",
+        description: "",
+        location: "",
+        date: "",
+        time: "",
+        imageUrl: "",
+        selectedClass: "",
         isAnonymous: false,
-        isUrgent: false
+        isUrgent: false,
     });
 
-    const categories = ['Electronics', 'Stationery', 'ID Cards', 'Books', 'Clothing', 'Lab Equipment', 'Others'];
-    const classOptions = ['Engineering Drawing', 'Chemistry Lab', 'Physics Lab', 'Data Structures (CS201)', 'Workshop (EE305)'];
+    const categories = [
+        "Electronics",
+        "Stationery",
+        "ID Cards",
+        "Books",
+        "Clothing",
+        "Lab Equipment",
+        "Others",
+    ];
+    const classOptions = [
+        "Engineering Drawing",
+        "Chemistry Lab",
+        "Physics Lab",
+        "Data Structures (CS201)",
+        "Workshop (EE305)",
+    ];
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: type === "checkbox" ? checked : value,
         }));
     };
 
     const handleClassChange = (e) => {
         const val = e.target.value;
-        setFormData(prev => ({ ...prev, selectedClass: val }));
-        
+        setFormData((prev) => ({ ...prev, selectedClass: val }));
+
         if (!val) {
-            setMatchedClass('');
+            setMatchedClass("");
             setMatchingTimetable(false);
             return;
         }
 
         setMatchingTimetable(true);
-        setMatchedClass('');
+        setMatchedClass("");
 
         setTimeout(() => {
             setMatchingTimetable(false);
@@ -83,34 +107,34 @@ export default function CreatePostPage() {
     };
 
     React.useEffect(() => {
-        setMatchedClass('');
+        setMatchedClass("");
         setMatchingTimetable(false);
     }, [type]);
 
     const handleAiParse = async () => {
         if (!aiPrompt.trim()) return;
         setLoadingAi(true);
-        setAiError('');
+        setAiError("");
 
         try {
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers = { "Content-Type": "application/json" };
+            if (token) headers["Authorization"] = `Bearer ${token}`;
 
             const res = await fetch(`${API_BASE}/api/ai/parse-post`, {
-                method: 'POST',
+                method: "POST",
                 headers,
-                body: JSON.stringify({ text: aiPrompt })
+                body: JSON.stringify({ text: aiPrompt }),
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Failed to parse text magically');
+                throw new Error(data.error || "Failed to parse text magically");
             }
 
             const parsed = data.parsed;
 
-            if (['lost', 'found', 'borrow'].includes(parsed.type)) {
+            if (["lost", "found", "borrow"].includes(parsed.type)) {
                 setType(parsed.type);
             }
 
@@ -118,24 +142,24 @@ export default function CreatePostPage() {
             let newTime = formData.time;
             if (parsed.datetime) {
                 const dtStr = parsed.datetime.substring(0, 16);
-                if (dtStr.includes('T')) {
-                    const parts = dtStr.split('T');
+                if (dtStr.includes("T")) {
+                    const parts = dtStr.split("T");
                     newDate = parts[0];
                     newTime = parts[1];
                 }
             }
 
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
                 title: parsed.title || prev.title,
                 category: parsed.category || prev.category,
                 location: parsed.location || prev.location,
                 description: parsed.description || prev.description,
                 date: newDate || prev.date,
-                time: newTime || prev.time
+                time: newTime || prev.time,
             }));
 
-            setAiPrompt('');
+            setAiPrompt("");
         } catch (err) {
             setAiError(err.message);
         } finally {
@@ -151,32 +175,41 @@ export default function CreatePostPage() {
             setImageAnalysis(null);
 
             try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const headers = { "Content-Type": "application/json" };
+                if (token) headers["Authorization"] = `Bearer ${token}`;
 
                 const res = await fetch(`${API_BASE}/api/ai/analyze-image`, {
-                    method: 'POST',
+                    method: "POST",
                     headers,
-                    body: JSON.stringify({ imageUrl: uploadedUrl })
+                    body: JSON.stringify({ imageUrl: uploadedUrl }),
                 });
 
                 const data = await res.json();
 
                 if (!res.ok) {
-                    setImageAnalysis({ error: data.error || 'AI analysis failed. Please try again.' });
+                    setImageAnalysis({
+                        error:
+                            data.error ||
+                            "AI analysis failed. Please try again.",
+                    });
                     return;
                 }
 
-                if (data.analysis && data.analysis.isAIGenerated !== undefined) {
+                if (
+                    data.analysis &&
+                    data.analysis.isAIGenerated !== undefined
+                ) {
                     setImageAnalysis({
                         isAIGenerated: Boolean(data.analysis.isAIGenerated),
                         confidence: Number(data.analysis.confidence) || 0,
-                        reason: String(data.analysis.reason || ''),
-                        matches: data.analysis.matches || []
+                        reason: String(data.analysis.reason || ""),
+                        matches: data.analysis.matches || [],
                     });
                 }
             } catch (err) {
-                setImageAnalysis({ error: 'Could not connect to AI service. Proceed manually.' });
+                setImageAnalysis({
+                    error: "Could not connect to AI service. Proceed manually.",
+                });
             } finally {
                 setAnalyzingImage(false);
             }
@@ -189,59 +222,64 @@ export default function CreatePostPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setError("");
 
         const showError = (msg) => {
             setError(msg);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
         if (!formData.title) {
-            showError('Please fill the Item Name.');
+            showError("Please fill the Item Name.");
             return;
         }
 
-        if (type !== 'borrow' && (!formData.date || !formData.location)) {
-            showError('Date and Location are required.');
+        if (type !== "borrow" && (!formData.date || !formData.location)) {
+            showError("Date and Location are required.");
             return;
         }
 
-        if ((type === 'lost' || type === 'found') && !formData.description) {
-            showError('Description is required.');
+        if ((type === "lost" || type === "found") && !formData.description) {
+            showError("Description is required.");
             return;
         }
 
-        if (type === 'found' && !formData.imageUrl) {
-            showError('Image is mandatory for Found items as proof of possession.');
+        if (type === "found" && !formData.imageUrl) {
+            showError(
+                "Image is mandatory for Found items as proof of possession.",
+            );
             return;
         }
 
-        if (type === 'borrow') {
+        if (type === "borrow") {
             if (!formData.selectedClass) {
-                showError('Please select your upcoming class to find a match.');
+                showError("Please select your upcoming class to find a match.");
                 return;
             }
         }
 
         setCheckingMatches(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             const headers = {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
             };
 
             const payload = {
                 ...formData,
-                type
+                type,
             };
 
-            if (!isReviewingMatches && type !== 'borrow') {
-                const matchRes = await fetch(`${API_BASE}/api/ai/find-matches`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload)
-                });
+            if (!isReviewingMatches && type !== "borrow") {
+                const matchRes = await fetch(
+                    `${API_BASE}/api/ai/find-matches`,
+                    {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify(payload),
+                    },
+                );
 
                 if (matchRes.ok) {
                     const matchData = await matchRes.json();
@@ -255,7 +293,6 @@ export default function CreatePostPage() {
             }
 
             await submitPostData(payload, headers);
-
         } catch (err) {
             setError(err.message);
             setCheckingMatches(false);
@@ -269,17 +306,22 @@ export default function CreatePostPage() {
             let formattedNeedUntil = undefined;
 
             try {
-                const timeToUse = formData.time || '12:00';
-                const dateToUse = (type === 'borrow' && !formData.date)
-                    ? new Date().toISOString().split('T')[0]
-                    : formData.date;
-                formattedDatetime = new Date(`${dateToUse}T${timeToUse}`).toISOString();
+                const timeToUse = formData.time || "12:00";
+                const dateToUse =
+                    type === "borrow" && !formData.date
+                        ? new Date().toISOString().split("T")[0]
+                        : formData.date;
+                formattedDatetime = new Date(
+                    `${dateToUse}T${timeToUse}`,
+                ).toISOString();
 
-                if (type === 'borrow') {
-                    formattedNeedUntil = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+                if (type === "borrow") {
+                    formattedNeedUntil = new Date(
+                        Date.now() + 2 * 60 * 60 * 1000,
+                    ).toISOString();
                 }
             } catch (dateErr) {
-                setError('Invalid date format provided.');
+                setError("Invalid date format provided.");
                 setLoading(false);
                 return;
             }
@@ -296,28 +338,30 @@ export default function CreatePostPage() {
             if (!payload.category) payload.category = null;
             if (!payload.description) payload.description = null;
 
-            if (type === 'borrow') {
-                payload.location = 'Targeted: Section F';
+            if (type === "borrow") {
+                payload.location = "Targeted: Section F";
                 payload.description = `Targeted request: Needed for ${formData.selectedClass}`;
-                payload.category = 'Others';
+                payload.category = "Others";
             }
 
             const res = await fetch(`${API_BASE}/api/posts`, {
-                method: 'POST',
+                method: "POST",
                 headers,
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Failed to create post');
+                throw new Error(data.error || "Failed to create post");
             }
 
-            if (type === 'borrow') {
-                setSuccessMessage(`Notification sent successfully! Wait for someone to reply or physically meet a student from Section F to get your item.`);
+            if (type === "borrow") {
+                setSuccessMessage(
+                    `Notification sent successfully! Wait for someone to reply or physically meet a student from Section F to get your item.`,
+                );
             } else {
-                navigate('/dashboard');
+                navigate("/dashboard");
             }
         } catch (err) {
             setError(err.message);
@@ -334,15 +378,25 @@ export default function CreatePostPage() {
                     <div className="w-16 h-16 bg-[rgba(61,214,140,0.1)] rounded-full flex items-center justify-center mx-auto mb-5">
                         <PackageCheck size={32} className="text-green" />
                     </div>
-                    <h2 className="text-2xl font-display font-bold text-text mb-3">Request Sent!</h2>
+                    <h2 className="text-2xl font-display font-bold text-text mb-3">
+                        Request Sent!
+                    </h2>
                     <p className="text-text-muted text-[14px] mb-6 leading-relaxed">
                         {successMessage}
                     </p>
                     <div className="flex gap-3">
-                        <Button onClick={() => setSuccessMessage('')} variant="ghost" className="flex-1 py-3">
+                        <Button
+                            onClick={() => setSuccessMessage("")}
+                            variant="ghost"
+                            className="flex-1 py-3"
+                        >
                             Send Another
                         </Button>
-                        <Button onClick={() => navigate('/dashboard')} variant="primary" className="flex-1 py-3">
+                        <Button
+                            onClick={() => navigate("/dashboard")}
+                            variant="primary"
+                            className="flex-1 py-3"
+                        >
                             Go to Dashboard
                         </Button>
                     </div>
@@ -354,22 +408,33 @@ export default function CreatePostPage() {
     return (
         <div className="min-h-screen bg-ink pt-24 pb-20 px-4 md:px-8 max-w-3xl mx-auto">
             <div className="mb-5">
-                <Link to="/dashboard" className="inline-flex items-center text-[13px] font-medium text-text-muted hover:text-amber transition-colors no-underline">
+                <Link
+                    to="/dashboard"
+                    className="inline-flex items-center text-[13px] font-medium text-text-muted hover:text-amber transition-colors no-underline"
+                >
                     <ArrowLeft size={14} className="mr-1.5" />
                     Back to Dashboard
                 </Link>
             </div>
-            <h1 className="text-2xl font-display font-bold text-text mb-1">Create a Post</h1>
-            <p className="text-text-muted text-[14px] mb-8">Report something lost, log a found item, or request to borrow equipment.</p>
+            <h1 className="text-2xl font-display font-bold text-text mb-1">
+                Create a Post
+            </h1>
+            <p className="text-text-muted text-[14px] mb-8">
+                Report something lost, log a found item, or request to borrow
+                equipment.
+            </p>
 
             {/* AI Magic Fill Section */}
             <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.2)] p-5 rounded-[var(--radius-lg)] mb-8">
                 <div className="flex items-center gap-2 mb-2">
                     <Sparkles size={16} className="text-blue" />
-                    <h3 className="font-display font-bold text-[14px] text-blue">Magic Fill with AI</h3>
+                    <h3 className="font-display font-bold text-[14px] text-blue">
+                        Magic Fill with AI
+                    </h3>
                 </div>
                 <p className="text-[12px] text-text-muted mb-4">
-                    Describe what happened in natural language, and we'll automatically fill out the form for you.
+                    Describe what happened in natural language, and we'll
+                    automatically fill out the form for you.
                 </p>
 
                 {aiError && (
@@ -385,7 +450,9 @@ export default function CreatePostPage() {
                         onChange={(e) => setAiPrompt(e.target.value)}
                         placeholder="e.g., I lost my red hydroflask near the basketball court today at 3pm."
                         className="form-input flex-1"
-                        onKeyDown={(e) => e.key === 'Enter' && !loadingAi && handleAiParse()}
+                        onKeyDown={(e) =>
+                            e.key === "Enter" && !loadingAi && handleAiParse()
+                        }
                     />
                     <Button
                         type="button"
@@ -394,13 +461,13 @@ export default function CreatePostPage() {
                         disabled={loadingAi || !aiPrompt.trim()}
                         className="whitespace-nowrap"
                     >
-                        {loadingAi ? 'Extracting...' : '✨ Magic Fill'}
+                        {loadingAi ? "Extracting..." : "✨ Magic Fill"}
                     </Button>
                 </div>
                 <div className="mt-3">
                     <ImageUpload
                         onUploadSuccess={(url) => {
-                            setFormData(prev => ({ ...prev, imageUrl: url }));
+                            setFormData((prev) => ({ ...prev, imageUrl: url }));
                         }}
                         label="Attach Media"
                     />
@@ -410,26 +477,29 @@ export default function CreatePostPage() {
             {/* Type Selector Tabs */}
             <div className="flex gap-2 mb-8">
                 <button
-                    onClick={() => setType('lost')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'lost' ? 'bg-[rgba(240,82,82,0.12)] text-red border-[rgba(240,82,82,0.4)]' : 'bg-surface text-text-muted border-border'}`}
+                    onClick={() => setType("lost")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === "lost" ? "bg-[rgba(240,82,82,0.12)] text-red border-[rgba(240,82,82,0.4)]" : "bg-surface text-text-muted border-border"}`}
                 >
                     <PackageSearch size={18} /> I Lost
                 </button>
                 <button
-                    onClick={() => setType('found')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'found' ? 'bg-[rgba(61,214,140,0.12)] text-green border-[rgba(61,214,140,0.4)]' : 'bg-surface text-text-muted border-border'}`}
+                    onClick={() => setType("found")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === "found" ? "bg-[rgba(61,214,140,0.12)] text-green border-[rgba(61,214,140,0.4)]" : "bg-surface text-text-muted border-border"}`}
                 >
                     <PackageCheck size={18} /> I Found
                 </button>
                 <button
-                    onClick={() => setType('borrow')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === 'borrow' ? 'bg-[rgba(96,165,250,0.12)] text-blue border-[rgba(96,165,250,0.4)]' : 'bg-surface text-text-muted border-border'}`}
+                    onClick={() => setType("borrow")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] font-display font-bold text-[0.9rem] cursor-pointer transition-all border ${type === "borrow" ? "bg-[rgba(96,165,250,0.12)] text-blue border-[rgba(96,165,250,0.4)]" : "bg-surface text-text-muted border-border"}`}
                 >
                     <Repeat size={18} /> Borrow
                 </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-card border border-border rounded-[var(--radius-lg)] p-6 md:p-8">
+            <form
+                onSubmit={handleSubmit}
+                className="bg-card border border-border rounded-[var(--radius-lg)] p-6 md:p-8"
+            >
                 {error && (
                     <div className="mb-5 p-3 bg-[rgba(240,82,82,0.1)] border border-[rgba(240,82,82,0.3)] rounded-[var(--radius)] flex items-center gap-2 text-red text-[13px]">
                         <AlertCircle size={16} />
@@ -443,14 +513,20 @@ export default function CreatePostPage() {
                         name="title"
                         value={formData.title}
                         onChange={handleChange}
-                        placeholder={type === 'borrow' ? "e.g., Scientific Calculator FX-991ES" : "e.g., Black Puma Backpack"}
+                        placeholder={
+                            type === "borrow"
+                                ? "e.g., Scientific Calculator FX-991ES"
+                                : "e.g., Black Puma Backpack"
+                        }
                         required
                     />
 
-                    {type !== 'borrow' && (
+                    {type !== "borrow" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="form-label">Category (Optional)</label>
+                                <label className="form-label">
+                                    Category (Optional)
+                                </label>
                                 <select
                                     name="category"
                                     value={formData.category}
@@ -458,14 +534,16 @@ export default function CreatePostPage() {
                                     className="form-input"
                                 >
                                     <option value="">Select a category</option>
-                                    {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat} value={cat}>
+                                            {cat}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
 
                             <Input
-                                label={`Location ${type === 'lost' ? 'Lost' : 'Found'}`}
+                                label={`Location ${type === "lost" ? "Lost" : "Found"}`}
                                 name="location"
                                 value={formData.location}
                                 onChange={handleChange}
@@ -475,11 +553,11 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type !== 'borrow' && (
+                    {type !== "borrow" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <Input
                                 type="date"
-                                label={`Date ${type === 'lost' ? 'Lost' : type === 'found' ? 'Found' : 'Needed'}`}
+                                label={`Date ${type === "lost" ? "Lost" : type === "found" ? "Found" : "Needed"}`}
                                 name="date"
                                 value={formData.date}
                                 onChange={handleChange}
@@ -487,7 +565,13 @@ export default function CreatePostPage() {
                             />
                             <Input
                                 type="time"
-                                label={type === 'lost' ? 'Time Lost' : type === 'found' ? 'Time Found' : 'Time'}
+                                label={
+                                    type === "lost"
+                                        ? "Time Lost"
+                                        : type === "found"
+                                          ? "Time Found"
+                                          : "Time"
+                                }
                                 name="time"
                                 value={formData.time}
                                 onChange={handleChange}
@@ -495,9 +579,12 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type === 'borrow' && (
+                    {type === "borrow" && (
                         <div>
-                            <label className="form-label">Upcoming Class Session <span className="text-primary">*</span></label>
+                            <label className="form-label">
+                                Upcoming Class Session{" "}
+                                <span className="text-primary">*</span>
+                            </label>
                             <select
                                 name="selectedClass"
                                 value={formData.selectedClass}
@@ -506,35 +593,46 @@ export default function CreatePostPage() {
                                 required
                             >
                                 <option value="">Select your class...</option>
-                                {classOptions.map(cls => (
-                                    <option key={cls} value={cls}>{cls}</option>
+                                {classOptions.map((cls) => (
+                                    <option key={cls} value={cls}>
+                                        {cls}
+                                    </option>
                                 ))}
                             </select>
                         </div>
                     )}
 
-                    {type === 'borrow' && matchingTimetable && (
+                    {type === "borrow" && matchingTimetable && (
                         <div className="bg-[rgba(96,165,250,0.04)] border border-[rgba(96,165,250,0.15)] rounded-[var(--radius)] p-4 flex items-center gap-3">
-                            <Loader2 className="animate-spin text-primary shrink-0" size={15} />
-                            <span className="text-[13px] text-text-muted font-medium">Checking timetable database matching...</span>
+                            <Loader2
+                                className="animate-spin text-primary shrink-0"
+                                size={15}
+                            />
+                            <span className="text-[13px] text-text-muted font-medium">
+                                Checking timetable database matching...
+                            </span>
                         </div>
                     )}
 
-                    {type === 'borrow' && matchedClass && (
+                    {type === "borrow" && matchedClass && (
                         <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.2)] rounded-[var(--radius)] p-4 animate-in fade-in slide-in-from-top-1 duration-200">
                             <h4 className="text-blue font-medium text-[13px] flex items-center gap-2 mb-2">
                                 <Sparkles size={15} /> Smart Timetable Matcher
                             </h4>
                             <p className="text-[13px] text-text mb-1">
-                                🎯 Found Match: <strong className="text-blue">Section F</strong> had {matchedClass} pre-lunch.
+                                🎯 Found Match:{" "}
+                                <strong className="text-blue">Section F</strong>{" "}
+                                had {matchedClass} pre-lunch.
                             </p>
                             <p className="text-[11px] text-text-muted">
-                                This section just finished using the item you need. Do you want to send a targeted request to them?
+                                This section just finished using the item you
+                                need. Do you want to send a targeted request to
+                                them?
                             </p>
                         </div>
                     )}
 
-                    {type !== 'borrow' && (
+                    {type !== "borrow" && (
                         <div>
                             <label className="form-label">Description *</label>
                             <textarea
@@ -549,91 +647,161 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type !== 'borrow' && (
+                    {type !== "borrow" && (
                         <div>
-                            <label className="form-label">Photo {type === 'found' ? <span className="text-primary">*</span> : '(Optional)'}</label>
+                            <label className="form-label">
+                                Photo{" "}
+                                {type === "found" ? (
+                                    <span className="text-primary">*</span>
+                                ) : (
+                                    "(Optional)"
+                                )}
+                            </label>
 
                             <ImageUpload
                                 currentImage={formData.imageUrl}
                                 onUploadSuccess={(url) => {
-                                    setFormData(prev => ({ ...prev, imageUrl: url }));
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        imageUrl: url,
+                                    }));
                                     setImageAnalysis(null);
                                 }}
                                 onRemove={() => {
-                                    setFormData(prev => ({ ...prev, imageUrl: '' }));
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        imageUrl: "",
+                                    }));
                                     setImageAnalysis(null);
                                 }}
                             />
 
                             {/* Manual AI Detection Button */}
-                            {formData.imageUrl && !analyzingImage && !imageAnalysis && (
-                                <button
-                                    type="button"
-                                    onClick={() => handleAnalyzeImage(formData.imageUrl)}
-                                    className="mt-2 text-[11px] text-green-dark hover:text-green border border-green/30 hover:border-green rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer"
-                                >
-                                    <Sparkles size={11} /> Check if AI-Generated
-                                </button>
-                            )}
+                            {formData.imageUrl &&
+                                !analyzingImage &&
+                                !imageAnalysis && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleAnalyzeImage(
+                                                formData.imageUrl,
+                                            )
+                                        }
+                                        className="mt-2 text-[11px] text-green-dark hover:text-green border border-green/30 hover:border-green rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                        <Sparkles size={11} /> Check if
+                                        AI-Generated
+                                    </button>
+                                )}
 
                             {/* Image AI Results Banner */}
-                            {imageAnalysis && !imageAnalysis.error && imageAnalysis.isAIGenerated !== undefined && (
-                                <div className="space-y-3 mt-3">
-                                    <div className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? 'bg-danger-bg border-danger/20 text-danger' : 'bg-green-light border-green/20 text-green-dark'}`}>
-                                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                                        <div>
-                                            <span className="font-bold">AI Image Detection</span>
-                                            <p className="mt-1 opacity-80 text-[12px]">
-                                                {imageAnalysis.isAIGenerated
-                                                    ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
-                                                    : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Image Match Detection Results */}
-                                    {imageAnalysis.matches && imageAnalysis.matches.length > 0 && (
-                                        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-text flex flex-col gap-3">
-                                            <h4 className="text-[12px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                                                <Sparkles size={14} /> Potential Matches Found on Campus
-                                            </h4>
-                                            <div className="space-y-2">
-                                                {imageAnalysis.matches.map((m) => (
-                                                    <div key={m._id} className="p-3 rounded-lg bg-surface border border-border flex justify-between items-start gap-2 hover:border-primary/40 transition-colors">
-                                                        <div className="flex flex-col gap-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${m.type === 'found' ? 'bg-green/10 text-green border border-green/15' : 'bg-danger/10 text-red border border-danger/15'}`}>
-                                                                    {m.type}
-                                                                </span>
-                                                                <span className="font-semibold text-[13px] text-text">{m.title}</span>
-                                                            </div>
-                                                            <p className="text-[11px] text-text-muted leading-relaxed">"{m.reason}"</p>
-                                                            {m.location && (
-                                                                <span className="text-[10px] text-text-muted">📍 {m.location}</span>
-                                                            )}
-                                                        </div>
-                                                        <div className="text-[11px] font-bold text-primary bg-primary/10 border border-primary/15 px-2 py-0.5 rounded">
-                                                            {m.confidenceScore}% Match
-                                                        </div>
-                                                    </div>
-                                                ))}
+                            {imageAnalysis &&
+                                !imageAnalysis.error &&
+                                imageAnalysis.isAIGenerated !== undefined && (
+                                    <div className="space-y-3 mt-3">
+                                        <div
+                                            className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? "bg-danger-bg border-danger/20 text-danger" : "bg-green-light border-green/20 text-green-dark"}`}
+                                        >
+                                            <AlertCircle
+                                                size={16}
+                                                className="shrink-0 mt-0.5"
+                                            />
+                                            <div>
+                                                <span className="font-bold">
+                                                    AI Image Detection
+                                                </span>
+                                                <p className="mt-1 opacity-80 text-[12px]">
+                                                    {imageAnalysis.isAIGenerated
+                                                        ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
+                                                        : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
+                                                </p>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-                            )}
+
+                                        {/* Image Match Detection Results */}
+                                        {imageAnalysis.matches &&
+                                            imageAnalysis.matches.length >
+                                                0 && (
+                                                <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-text flex flex-col gap-3">
+                                                    <h4 className="text-[12px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                                                        <Sparkles size={14} />{" "}
+                                                        Potential Matches Found
+                                                        on Campus
+                                                    </h4>
+                                                    <div className="space-y-2">
+                                                        {imageAnalysis.matches.map(
+                                                            (m) => (
+                                                                <div
+                                                                    key={m._id}
+                                                                    className="p-3 rounded-lg bg-surface border border-border flex justify-between items-start gap-2 hover:border-primary/40 transition-colors"
+                                                                >
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span
+                                                                                className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${m.type === "found" ? "bg-green/10 text-green border border-green/15" : "bg-danger/10 text-red border border-danger/15"}`}
+                                                                            >
+                                                                                {
+                                                                                    m.type
+                                                                                }
+                                                                            </span>
+                                                                            <span className="font-semibold text-[13px] text-text">
+                                                                                {
+                                                                                    m.title
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                        <p className="text-[11px] text-text-muted leading-relaxed">
+                                                                            "
+                                                                            {
+                                                                                m.reason
+                                                                            }
+                                                                            "
+                                                                        </p>
+                                                                        {m.location && (
+                                                                            <span className="text-[10px] text-text-muted">
+                                                                                📍{" "}
+                                                                                {
+                                                                                    m.location
+                                                                                }
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-[11px] font-bold text-primary bg-primary/10 border border-primary/15 px-2 py-0.5 rounded">
+                                                                        {
+                                                                            m.confidenceScore
+                                                                        }
+                                                                        % Match
+                                                                    </div>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                    </div>
+                                )}
                             {analyzingImage && (
                                 <p className="text-[11px] text-green-dark mt-2 flex items-center gap-2">
-                                    <Loader2 className="animate-spin text-green" size={13} />
+                                    <Loader2
+                                        className="animate-spin text-green"
+                                        size={13}
+                                    />
                                     Running AI forensic vision analysis...
                                 </p>
                             )}
                             {imageAnalysis && imageAnalysis.error && (
                                 <div className="mt-3 p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 bg-danger-bg border-danger/20 text-danger">
-                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                    <AlertCircle
+                                        size={16}
+                                        className="shrink-0 mt-0.5"
+                                    />
                                     <div>
-                                        <span className="font-bold">AI Analysis Failed</span>
-                                        <p className="mt-1 opacity-80 text-[12px]">{imageAnalysis.error}</p>
+                                        <span className="font-bold">
+                                            AI Analysis Failed
+                                        </span>
+                                        <p className="mt-1 opacity-80 text-[12px]">
+                                            {imageAnalysis.error}
+                                        </p>
                                     </div>
                                 </div>
                             )}
@@ -650,38 +818,62 @@ export default function CreatePostPage() {
                             <span className="flex items-center gap-2">
                                 Advanced Options
                             </span>
-                            {showAdvanced ? <ChevronUp size={16} className="text-text-muted" /> : <ChevronDown size={16} className="text-text-muted" />}
+                            {showAdvanced ? (
+                                <ChevronUp
+                                    size={16}
+                                    className="text-text-muted"
+                                />
+                            ) : (
+                                <ChevronDown
+                                    size={16}
+                                    className="text-text-muted"
+                                />
+                            )}
                         </button>
 
                         {showAdvanced && (
                             <div className="mt-4 pl-1 flex flex-col gap-4 animate-in fade-in slide-in-from-top-1 duration-200">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-text-muted text-[13px] font-medium">Post Anonymously (Hide my name)</span>
+                                    <span className="text-text-muted text-[13px] font-medium">
+                                        Post Anonymously (Hide my name)
+                                    </span>
                                     <button
                                         type="button"
                                         role="switch"
                                         aria-checked={formData.isAnonymous}
-                                        onClick={() => setFormData(prev => ({ ...prev, isAnonymous: !prev.isAnonymous }))}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isAnonymous ? 'bg-success' : 'bg-border'}`}
+                                        onClick={() =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                isAnonymous: !prev.isAnonymous,
+                                            }))
+                                        }
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isAnonymous ? "bg-success" : "bg-border"}`}
                                     >
                                         <span
-                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isAnonymous ? 'translate-x-6' : 'translate-x-1'}`}
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isAnonymous ? "translate-x-6" : "translate-x-1"}`}
                                         />
                                     </button>
                                 </div>
 
-                                {type === 'borrow' && (
+                                {type === "borrow" && (
                                     <div className="flex items-center justify-between pt-2 border-t border-border/10">
-                                        <span className="text-text-muted text-[13px] font-medium">Mark as Urgent</span>
+                                        <span className="text-text-muted text-[13px] font-medium">
+                                            Mark as Urgent
+                                        </span>
                                         <button
                                             type="button"
                                             role="switch"
                                             aria-checked={formData.isUrgent}
-                                            onClick={() => setFormData(prev => ({ ...prev, isUrgent: !prev.isUrgent }))}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isUrgent ? 'bg-success' : 'bg-border'}`}
+                                            onClick={() =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    isUrgent: !prev.isUrgent,
+                                                }))
+                                            }
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.isUrgent ? "bg-success" : "bg-border"}`}
                                         >
                                             <span
-                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isUrgent ? 'translate-x-6' : 'translate-x-1'}`}
+                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.isUrgent ? "translate-x-6" : "translate-x-1"}`}
                                             />
                                         </button>
                                     </div>
@@ -694,27 +886,38 @@ export default function CreatePostPage() {
                     {isReviewingMatches && potentialMatches.length > 0 && (
                         <div className="bg-green-light border border-green/30 rounded-[var(--radius)] p-5 mb-4">
                             <h3 className="text-green-dark font-display font-bold text-[16px] mb-2 flex items-center gap-2">
-                                <Sparkles size={18} /> Wait! We found potential matches!
+                                <Sparkles size={18} /> Wait! We found potential
+                                matches!
                             </h3>
                             <p className="text-text-muted text-[13px] mb-4">
-                                Before you post, check if someone else has already posted about this item:
+                                Before you post, check if someone else has
+                                already posted about this item:
                             </p>
 
                             <div className="space-y-3 mb-5">
                                 {potentialMatches.map((match) => (
-                                    <div key={match._id} className="bg-surface border border-grey-200 rounded-[var(--radius-sm)] p-3 flex flex-col gap-2">
+                                    <div
+                                        key={match._id}
+                                        className="bg-surface border border-grey-200 rounded-[var(--radius-sm)] p-3 flex flex-col gap-2"
+                                    >
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <span className={`badge ${match.type === 'found' ? 'badge-found' : 'badge-lost'}`}>
+                                                <span
+                                                    className={`badge ${match.type === "found" ? "badge-found" : "badge-lost"}`}
+                                                >
                                                     {match.type}
                                                 </span>
-                                                <h4 className="font-bold text-text text-[13px] mt-1">{match.title}</h4>
+                                                <h4 className="font-bold text-text text-[13px] mt-1">
+                                                    {match.title}
+                                                </h4>
                                             </div>
                                             <div className="badge badge-aimatch">
                                                 {match.aiMatchData.score}% Match
                                             </div>
                                         </div>
-                                        <p className="text-[11px] text-text-muted">"{match.aiMatchData.reason}"</p>
+                                        <p className="text-[11px] text-text-muted">
+                                            "{match.aiMatchData.reason}"
+                                        </p>
                                     </div>
                                 ))}
                             </div>
@@ -724,7 +927,7 @@ export default function CreatePostPage() {
                                     type="button"
                                     variant="ghost"
                                     className="flex-1"
-                                    onClick={() => navigate('/dashboard')}
+                                    onClick={() => navigate("/dashboard")}
                                 >
                                     Cancel & View Matches
                                 </Button>
@@ -732,10 +935,21 @@ export default function CreatePostPage() {
                                     type="button"
                                     variant="primary"
                                     className="flex-1"
-                                    onClick={(e) => submitPostData({ ...formData, type }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` })}
+                                    onClick={(e) =>
+                                        submitPostData(
+                                            { ...formData, type },
+                                            {
+                                                "Content-Type":
+                                                    "application/json",
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                        )
+                                    }
                                     disabled={loading}
                                 >
-                                    {loading ? 'Posting...' : 'Not Mine, Post Anyway'}
+                                    {loading
+                                        ? "Posting..."
+                                        : "Not Mine, Post Anyway"}
                                 </Button>
                             </div>
                         </div>
@@ -743,8 +957,19 @@ export default function CreatePostPage() {
 
                     {!isReviewingMatches && (
                         <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 md:static mt-6">
-                            <Button type="submit" variant="primary" className="w-full py-3.5 md:py-3 text-[15px] font-bold shadow-[0_8px_30px_rgb(0,0,0,0.12)] md:shadow-none bg-primary hover:bg-primary-dim transition-all" disabled={loading || checkingMatches}>
-                                {checkingMatches ? 'Scanning for Matches...' : loading ? 'Submitting...' : type === 'borrow' ? 'Send request' : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                className="w-full py-3.5 md:py-3 text-[15px] font-bold shadow-[0_8px_30px_rgb(0,0,0,0.12)] md:shadow-none bg-primary hover:bg-primary-dim transition-all"
+                                disabled={loading || checkingMatches}
+                            >
+                                {checkingMatches
+                                    ? "Scanning for Matches..."
+                                    : loading
+                                      ? "Submitting..."
+                                      : type === "borrow"
+                                        ? "Send request"
+                                        : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
                             </Button>
                         </div>
                     )}
@@ -752,7 +977,8 @@ export default function CreatePostPage() {
             </form>
 
             <div className="mt-5 text-center text-[11px] text-grey-400 flex items-center justify-center gap-1.5">
-                <AlertCircle size={12} /> Fake claims or posts can lead to account suspension.
+                <AlertCircle size={12} /> Fake claims or posts can lead to
+                account suspension.
             </div>
         </div>
     );

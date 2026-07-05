@@ -1,13 +1,33 @@
-import React from 'react';
-import { MapPin, Clock, MessageSquare, AlertCircle, PackageSearch, PackageCheck, Repeat, QrCode, Sparkles, MoreHorizontal } from 'lucide-react';
-import Badge from './Badge';
-import Button from './Button';
+import React from "react";
+import {
+    MapPin,
+    Clock,
+    MessageSquare,
+    AlertCircle,
+    PackageSearch,
+    PackageCheck,
+    Repeat,
+    QrCode,
+    Sparkles,
+    MoreHorizontal,
+} from "lucide-react";
+import Badge from "./Badge";
+import Button from "./Button";
 
-export default function PostCard({ post, onReply, isAuthor = false, onStatusUpdate, onQRReturn }) {
+export default function PostCard({
+    post,
+    onReply,
+    isAuthor = false,
+    onStatusUpdate,
+    onQRReturn,
+}) {
     if (!post) return null;
 
-    const timeAgo = new Date(post.createdAt || post.datetime).toLocaleDateString('en-US', {
-        month: 'short', day: 'numeric'
+    const timeAgo = new Date(
+        post.createdAt || post.datetime,
+    ).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
     });
 
     // Unread replies tracking logic via localStorage
@@ -26,12 +46,24 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
     // Solid badge class based on type
     const getTypeBadge = () => {
         switch (post.type) {
-            case 'lost':
-                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-danger text-white">Lost</span>;
-            case 'found':
-                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-success text-white">Found</span>;
-            case 'borrow':
-                return <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-primary-dim text-white">Borrow</span>;
+            case "lost":
+                return (
+                    <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-danger text-white">
+                        Lost
+                    </span>
+                );
+            case "found":
+                return (
+                    <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-success text-white">
+                        Found
+                    </span>
+                );
+            case "borrow":
+                return (
+                    <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-primary-dim text-white">
+                        Borrow
+                    </span>
+                );
             default:
                 return null;
         }
@@ -39,22 +71,32 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
 
     // Author Initials
     const authorInitials = post.author?.name
-        ? post.author.name.split(' ').map(n => n[0]).join('').toUpperCase()
-        : 'U';
+        ? post.author.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+        : "U";
 
     return (
-        <div 
+        <div
             onClick={handleReplyClick}
             className={`glass-panel rounded-lg p-3 md:p-5 flex flex-col h-full relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-hover group cursor-pointer ${
-                post.isUrgent && post.status === 'open' && post.type === 'borrow' ? 'border-l-[3px] border-l-danger' : ''
+                post.isUrgent &&
+                post.status === "open" &&
+                post.type === "borrow"
+                    ? "border-l-[3px] border-l-danger"
+                    : ""
             }`}
         >
             {/* Top Status & Badge Line */}
             <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-1.5 flex-wrap">
                     {getTypeBadge()}
-                    <Badge type={post.status || 'open'} />
-                    {post.isUrgent && post.type === 'borrow' && <Badge type="urgent" />}
+                    <Badge type={post.status || "open"} />
+                    {post.isUrgent && post.type === "borrow" && (
+                        <Badge type="urgent" />
+                    )}
                 </div>
 
                 {/* Unread dot notification badge */}
@@ -74,11 +116,11 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
             {/* Image (if present) */}
             {post.imageUrl && (
                 <div className="w-full h-40 mb-3.5 rounded-lg overflow-hidden bg-surface border border-border">
-                    <img 
-                        src={post.imageUrl} 
-                        alt={post.title} 
+                    <img
+                        src={post.imageUrl}
+                        alt={post.title}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200" 
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
                     />
                 </div>
             )}
@@ -90,13 +132,19 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
 
             {/* Meta details footer: Location • Time ago */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] text-text-muted mb-4 border-t border-border/40 pt-3 flex-wrap">
-                <span className="flex items-center gap-1"><MapPin size={11} /> {post.location}</span>
+                <span className="flex items-center gap-1">
+                    <MapPin size={11} /> {post.location}
+                </span>
                 <span>•</span>
-                <span className="flex items-center gap-1"><Clock size={11} /> {timeAgo}</span>
+                <span className="flex items-center gap-1">
+                    <Clock size={11} /> {timeAgo}
+                </span>
                 {post.replies?.length > 0 && (
                     <>
                         <span>•</span>
-                        <span className="flex items-center gap-1 font-semibold text-primary-dim"><MessageSquare size={11} /> {repliesLength} replies</span>
+                        <span className="flex items-center gap-1 font-semibold text-primary-dim">
+                            <MessageSquare size={11} /> {repliesLength} replies
+                        </span>
                     </>
                 )}
             </div>
@@ -104,29 +152,37 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
             {/* Author Profile section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
                 <div className="flex items-center gap-2">
-                    <div 
-                        className="w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-[0.68rem] text-white shrink-0" 
-                        style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dim))' }}
+                    <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-[0.68rem] text-white shrink-0"
+                        style={{
+                            background:
+                                "linear-gradient(135deg, var(--primary), var(--primary-dim))",
+                        }}
                     >
                         {authorInitials}
                     </div>
                     <span className="text-[11px] text-text-muted font-medium line-clamp-1">
-                        {post.isAnonymous ? 'Anonymous Student' : (post.author?.name || 'Unknown User')}
+                        {post.isAnonymous
+                            ? "Anonymous Student"
+                            : post.author?.name || "Unknown User"}
                     </span>
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <button 
+                    <button
                         className="btn-primary py-1.5 px-3 text-[11px] flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-md min-h-[44px]"
-                        onClick={(e) => { e.stopPropagation(); handleReplyClick(); }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleReplyClick();
+                        }}
                     >
                         <MessageSquare size={12} /> Reply
                     </button>
                     {isAuthor && (
                         <div className="sm:hidden flex items-center">
-                            <button 
-                                className="text-text-muted hover:text-text bg-surface rounded-md border border-border flex items-center justify-center min-h-[44px] min-w-[44px]" 
+                            <button
+                                className="text-text-muted hover:text-text bg-surface rounded-md border border-border flex items-center justify-center min-h-[44px] min-w-[44px]"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal size={14} />
@@ -140,10 +196,11 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
             {post.aiMatch && (
                 <div className="bg-primary-dim/5 border border-primary-dim/15 rounded-lg px-3 py-2 text-[0.8rem] text-primary-dim mt-4 flex items-center gap-1.5 animate-pulse">
                     <Sparkles size={11} className="text-primary-dim shrink-0" />
-                    <span>Potential match found — <strong>View Match</strong></span>
+                    <span>
+                        Potential match found — <strong>View Match</strong>
+                    </span>
                 </div>
             )}
         </div>
     );
 }
-
