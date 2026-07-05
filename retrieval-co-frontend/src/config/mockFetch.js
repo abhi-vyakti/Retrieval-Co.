@@ -149,7 +149,27 @@ function getPosts() {
         localStorage.setItem("mock_posts", JSON.stringify(DEFAULT_POSTS));
         return DEFAULT_POSTS;
     }
-    return JSON.parse(stored);
+    
+    // Migrate old bad images to the new ones for returning users
+    let parsed = JSON.parse(stored);
+    let updated = false;
+    parsed = parsed.map(post => {
+        if (post._id === "post_2" && post.imageUrl && post.imageUrl.includes("1594980596870-8aa52a78d8cd")) {
+            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Casio_fx-991ES_PLUS.jpg/800px-Casio_fx-991ES_PLUS.jpg";
+            updated = true;
+        }
+        if (post._id === "post_5" && post.imageUrl && post.imageUrl.includes("1606220838315-056192d5e927")) {
+            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/AirPods.jpg/800px-AirPods.jpg";
+            updated = true;
+        }
+        return post;
+    });
+    
+    if (updated) {
+        localStorage.setItem("mock_posts", JSON.stringify(parsed));
+    }
+    
+    return parsed;
 }
 
 // Helper to save posts
