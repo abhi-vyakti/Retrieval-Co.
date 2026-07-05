@@ -477,16 +477,7 @@ export default function DashboardPage() {
 
 
 
-            {/* Mobile Create Post FAB */}
-            {user && (
-                <Link
-                    to="/create"
-                    className="lg:hidden fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] right-4 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-dim transition-all z-[90] active:scale-95"
-                    aria-label="Create Post"
-                >
-                    <Plus size={24} />
-                </Link>
-            )}
+
 
             {/* QR Return Modal */}
             <QRReturnModal
