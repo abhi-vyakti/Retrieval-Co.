@@ -123,9 +123,13 @@ export default function PostReplyModal({ post, isOpen, onClose, isMinimized, onT
 
             {/* Main Modal Layout Panel */}
             <div
-                className="relative w-full max-w-4xl h-[80vh] md:h-[75vh] bg-surface border border-border rounded-xl shadow-lg flex flex-col overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-200"
+                className="relative w-full max-w-4xl h-[90vh] md:h-[75vh] mt-auto md:mt-0 bg-surface border border-border rounded-t-2xl md:rounded-xl shadow-lg flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Mobile Swipe Indicator */}
+                <div className="md:hidden w-full flex justify-center pt-3 pb-1 bg-surface shrink-0">
+                    <div className="w-12 h-1.5 bg-border rounded-full"></div>
+                </div>
                 {/* Modal Title Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border shrink-0 bg-surface">
                     <div className="flex items-center gap-3">
@@ -325,7 +329,7 @@ export default function PostReplyModal({ post, isOpen, onClose, isMinimized, onT
                         </div>
 
                         {/* Send Message Input Container */}
-                        <div className="p-4 border-t border-border bg-surface shrink-0">
+                        <div className="p-4 border-t border-border bg-surface shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
                             <div className="flex gap-2 items-center">
                                 <input
                                     ref={inputRef}

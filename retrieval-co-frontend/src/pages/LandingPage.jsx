@@ -93,27 +93,27 @@ export default function LandingPage() {
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     {/* 1. Calculator Card (Top Left) */}
                     <div className="absolute hidden lg:flex items-center left-[8%] top-[20%] w-36 pointer-events-auto animate-float-3d-1">
-                        <img src="/calculator_3d.png" alt="3D Calculator" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(56,189,248,0.12)]" />
+                        <img src="/calculator_3d.png" alt="3D Calculator" loading="lazy" decoding="async" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(56,189,248,0.12)]" />
                     </div>
 
                     {/* 2. ID Card Card (Top Right) */}
                     <div className="absolute hidden lg:flex items-center right-[8%] top-[23%] w-36 pointer-events-auto animate-float-3d-2">
-                        <img src="/id_badge_3d.png" alt="3D Student ID Card" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(52,211,153,0.12)]" />
+                        <img src="/id_badge_3d.png" alt="3D Student ID Card" loading="lazy" decoding="async" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(52,211,153,0.12)]" />
                     </div>
 
                     {/* 3. Magnifying Scan Card (Bottom Left) */}
                     <div className="absolute hidden lg:flex items-center left-[10%] bottom-[28%] w-36 pointer-events-auto animate-float-3d-3">
-                        <img src="/magnifying_glass_3d.png" alt="3D Magnifying Glass" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(251,191,36,0.12)]" />
+                        <img src="/magnifying_glass_3d.png" alt="3D Magnifying Glass" loading="lazy" decoding="async" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(251,191,36,0.12)]" />
                     </div>
 
                     {/* 4. Drafting/Pen Tool Card (Bottom Right) */}
                     <div className="absolute hidden lg:flex items-center right-[9%] bottom-[22%] w-36 pointer-events-auto animate-float-3d-4">
-                        <img src="/drafter_tool_3d.png" alt="3D Drafting Tool" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(244,63,94,0.12)]" />
+                        <img src="/drafter_tool_3d.png" alt="3D Drafting Tool" loading="lazy" decoding="async" className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(244,63,94,0.12)]" />
                     </div>
                 </div>
 
                 {/* Hero Title */}
-                <h1 className="font-display font-[900] leading-[1.1] tracking-tight z-10 text-[3.2rem] sm:text-6xl md:text-8xl max-w-5xl text-text animate-in fade-in duration-500">
+                <h1 className="font-display font-[900] leading-[1.1] tracking-tight z-10 text-5xl sm:text-6xl md:text-[3.2rem] lg:text-8xl max-w-5xl text-text animate-in fade-in duration-500">
                     Lost it.<br />
                     <span className="bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Find it.</span><br />
                     Borrow it.

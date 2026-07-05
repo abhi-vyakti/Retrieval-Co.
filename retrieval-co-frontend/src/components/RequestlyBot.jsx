@@ -159,11 +159,11 @@ export default function RequestlyBot() {
     };
 
     return (
-        <div className="fixed bottom-8 right-8 z-[400] flex flex-col items-end">
+        <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[400] flex flex-col items-end" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingRight: 'env(safe-area-inset-right)' }}>
             {/* Chat Window */}
             {isOpen && (
                 <div
-                    className="w-[360px] h-[500px] bg-surface border border-border rounded-[18px] overflow-hidden mb-4 flex flex-col"
+                    className="w-[calc(100vw-2rem)] md:w-[360px] h-[75vh] md:h-[500px] max-h-[600px] bg-surface border border-border rounded-[18px] overflow-hidden mb-4 flex flex-col"
                     style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'fadeUp 0.3s ease' }}
                 >
                     {/* Header */}

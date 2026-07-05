@@ -191,29 +191,34 @@ export default function CreatePostPage() {
         e.preventDefault();
         setError('');
 
+        const showError = (msg) => {
+            setError(msg);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
         if (!formData.title) {
-            setError('Please fill the Item Name.');
+            showError('Please fill the Item Name.');
             return;
         }
 
         if (type !== 'borrow' && (!formData.date || !formData.location)) {
-            setError('Date and Location are required.');
+            showError('Date and Location are required.');
             return;
         }
 
         if ((type === 'lost' || type === 'found') && !formData.description) {
-            setError('Description is required.');
+            showError('Description is required.');
             return;
         }
 
         if (type === 'found' && !formData.imageUrl) {
-            setError('Image is mandatory for Found items as proof of possession.');
+            showError('Image is mandatory for Found items as proof of possession.');
             return;
         }
 
         if (type === 'borrow') {
             if (!formData.selectedClass) {
-                setError('Please select your upcoming class to find a match.');
+                showError('Please select your upcoming class to find a match.');
                 return;
             }
         }
@@ -471,7 +476,7 @@ export default function CreatePostPage() {
                     )}
 
                     {type !== 'borrow' && (
-                        <div className="grid grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <Input
                                 type="date"
                                 label={`Date ${type === 'lost' ? 'Lost' : type === 'found' ? 'Found' : 'Needed'}`}
@@ -737,9 +742,11 @@ export default function CreatePostPage() {
                     )}
 
                     {!isReviewingMatches && (
-                        <Button type="submit" variant="primary" className="w-full py-3 text-[14px]" disabled={loading || checkingMatches}>
-                            {checkingMatches ? 'Scanning for Matches...' : loading ? 'Submitting...' : type === 'borrow' ? 'Send request' : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
-                        </Button>
+                        <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 md:static mt-6">
+                            <Button type="submit" variant="primary" className="w-full py-3.5 md:py-3 text-[15px] font-bold shadow-[0_8px_30px_rgb(0,0,0,0.12)] md:shadow-none bg-primary hover:bg-primary-dim transition-all" disabled={loading || checkingMatches}>
+                                {checkingMatches ? 'Scanning for Matches...' : loading ? 'Submitting...' : type === 'borrow' ? 'Send request' : `Create ${type.charAt(0).toUpperCase() + type.slice(1)} Post`}
+                            </Button>
+                        </div>
                     )}
                 </div>
             </form>

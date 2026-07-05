@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Clock, MessageSquare, AlertCircle, PackageSearch, PackageCheck, Repeat, QrCode, Sparkles } from 'lucide-react';
+import { MapPin, Clock, MessageSquare, AlertCircle, PackageSearch, PackageCheck, Repeat, QrCode, Sparkles, MoreHorizontal } from 'lucide-react';
 import Badge from './Badge';
 import Button from './Button';
 
@@ -45,7 +45,7 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
     return (
         <div 
             onClick={handleReplyClick}
-            className={`glass-panel rounded-lg p-5 flex flex-col h-full relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-hover group cursor-pointer ${
+            className={`glass-panel rounded-lg p-3 md:p-5 flex flex-col h-full relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-hover group cursor-pointer ${
                 post.isUrgent && post.status === 'open' && post.type === 'borrow' ? 'border-l-[3px] border-l-danger' : ''
             }`}
         >
@@ -89,7 +89,7 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
             </p>
 
             {/* Meta details footer: Location • Time ago */}
-            <div className="flex items-center gap-2 text-[11px] text-text-muted mb-4 border-t border-border/40 pt-3 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] text-text-muted mb-4 border-t border-border/40 pt-3 flex-wrap">
                 <span className="flex items-center gap-1"><MapPin size={11} /> {post.location}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1"><Clock size={11} /> {timeAgo}</span>
@@ -102,17 +102,37 @@ export default function PostCard({ post, onReply, isAuthor = false, onStatusUpda
             </div>
 
             {/* Author Profile section */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
                 <div className="flex items-center gap-2">
                     <div 
-                        className="w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-[0.68rem] text-white" 
+                        className="w-6 h-6 rounded-full flex items-center justify-center font-display font-extrabold text-[0.68rem] text-white shrink-0" 
                         style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dim))' }}
                     >
                         {authorInitials}
                     </div>
-                    <span className="text-[11px] text-text-muted font-medium">
+                    <span className="text-[11px] text-text-muted font-medium line-clamp-1">
                         {post.isAnonymous ? 'Anonymous Student' : (post.author?.name || 'Unknown User')}
                     </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button 
+                        className="btn-primary py-1.5 px-3 text-[11px] flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-md min-h-[44px]"
+                        onClick={(e) => { e.stopPropagation(); handleReplyClick(); }}
+                    >
+                        <MessageSquare size={12} /> Reply
+                    </button>
+                    {isAuthor && (
+                        <div className="sm:hidden flex items-center">
+                            <button 
+                                className="text-text-muted hover:text-text bg-surface rounded-md border border-border flex items-center justify-center min-h-[44px] min-w-[44px]" 
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <MoreHorizontal size={14} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 

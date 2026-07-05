@@ -108,8 +108,8 @@ export default function LeaderboardPage() {
                 })}
             </div>
 
-            {/* Full Table */}
-            <div className="glass-panel rounded-xl overflow-hidden shadow-sm">
+            {/* Desktop Table View */}
+            <div className="hidden md:block glass-panel rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -198,6 +198,64 @@ export default function LeaderboardPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="md:hidden flex flex-col gap-3">
+                {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="glass-panel p-4 rounded-xl flex items-center gap-3 animate-pulse">
+                            <div className="w-8 h-8 rounded-full bg-surface shrink-0"></div>
+                            <div className="flex-1 space-y-2">
+                                <div className="w-24 h-4 bg-surface rounded"></div>
+                                <div className="w-16 h-3 bg-surface rounded"></div>
+                            </div>
+                            <div className="w-12 h-6 bg-surface rounded shrink-0"></div>
+                        </div>
+                    ))
+                ) : leaders.length === 0 ? (
+                    <div className="glass-panel p-8 rounded-xl text-center">
+                        <Trophy size={40} className="text-text-muted mb-3 mx-auto" />
+                        <h3 className="text-base font-display font-bold text-text mb-1">No contributors yet</h3>
+                        <p className="text-xs text-text-muted">Return an item on campus to claim the top spot!</p>
+                    </div>
+                ) : (
+                    leaders.map((user, index) => {
+                        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                        const returnCount = Math.max(1, Math.round(user.karmaPoints / 40));
+                        return (
+                            <div key={user.id} className="glass-panel p-4 rounded-xl flex flex-col gap-3 relative">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="shrink-0">
+                                            {getRankBadge(index + 1)}
+                                        </div>
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-[11px] text-white shrink-0" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dim))' }}>
+                                                {initials}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="font-bold text-text text-sm truncate">{user.name}</div>
+                                                <div className="text-[10px] text-text-muted truncate">{user.collegeId}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="inline-flex items-center gap-1 bg-primary/10 border border-primary/15 px-2 py-1 rounded text-primary font-display font-bold text-xs shrink-0">
+                                        <Zap size={10} className="fill-current" />
+                                        <span>{user.karmaPoints}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 pt-3 border-t border-border/40">
+                                    <span className="px-2 py-1 rounded bg-surface text-text text-[10px] font-bold border border-border uppercase">
+                                        {getDept(user.collegeId)}
+                                    </span>
+                                    <span className="text-[10px] text-text-muted">•</span>
+                                    <span className="text-xs font-semibold text-text">{returnCount} returns</span>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
             </div>
         </div>
     );

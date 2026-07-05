@@ -378,14 +378,14 @@ export default function DashboardPage() {
                         <h3 className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
                             <Filter size={14} className="text-primary" /> Quick Filters
                         </h3>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex overflow-x-auto gap-2 pb-2 hide-scrollbar whitespace-nowrap">
                             {quickChips.map(chip => {
                                 const isActive = activeChipFilter === chip.value;
                                 return (
                                     <button
                                         key={chip.value}
                                         onClick={() => setActiveChipFilter(isActive ? 'all' : chip.value)}
-                                        className={`px-3.5 py-2 rounded-full text-xs font-semibold cursor-pointer border transition-all flex items-center gap-1.5 ${
+                                        className={`px-3.5 py-2 rounded-full text-xs font-semibold cursor-pointer border transition-all flex items-center gap-1.5 min-h-[44px] ${
                                             isActive 
                                                 ? 'bg-primary border-primary text-white shadow-sm hover:brightness-110' 
                                                 : 'bg-surface border-border text-text-muted hover:text-text hover:border-zinc-500'
@@ -476,6 +476,17 @@ export default function DashboardPage() {
             </div>
 
 
+
+            {/* Mobile Create Post FAB */}
+            {user && (
+                <Link
+                    to="/create"
+                    className="lg:hidden fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] right-4 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-dim transition-all z-[90] active:scale-95"
+                    aria-label="Create Post"
+                >
+                    <Plus size={24} />
+                </Link>
+            )}
 
             {/* QR Return Modal */}
             <QRReturnModal

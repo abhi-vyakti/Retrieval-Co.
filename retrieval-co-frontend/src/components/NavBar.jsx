@@ -51,7 +51,7 @@ export default function NavBar() {
 
     const authLinks = [
         { name: 'Home', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Post', path: '/create', icon: PlusSquare },
+        { name: 'Post', path: '/create', icon: PlusSquare, hideOnMobile: true },
         { name: 'Hotspots', path: '/hotspots', icon: Map },
         { name: 'Leaders', path: '/leaderboard', icon: Trophy },
     ];
@@ -69,7 +69,7 @@ export default function NavBar() {
                 </Link>
 
                 {/* Nav Links (Desktop) */}
-                <div className={`hidden md:flex items-center transition-all duration-300 ${isAuthenticated ? 'flex-1 justify-center gap-16 lg:gap-24' : 'gap-6'}`}>
+                <div className={`hidden lg:flex items-center transition-all duration-300 ${isAuthenticated ? 'flex-1 justify-center gap-16 lg:gap-24' : 'gap-6'}`}>
                     {links.map((link) => {
                         const Icon = link.icon;
                         const isActive = !link.onClick && location.pathname === link.path;
@@ -112,7 +112,7 @@ export default function NavBar() {
                     </button>
 
                     {isAuthenticated ? (
-                        <div className="hidden md:flex items-center gap-4">
+                        <div className="hidden lg:flex items-center gap-4">
                             {/* Karma Badge */}
                             <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 text-primary rounded-full px-3 py-1 text-[0.82rem] font-bold">
                                 <Zap size={12} /> {userKarma} Karma
@@ -175,7 +175,7 @@ export default function NavBar() {
                     {/* Hamburger Button (Mobile Only) */}
                     <button
                         onClick={() => setMobileMenuOpen(prev => !prev)}
-                        className="p-2 -mr-1 md:hidden rounded-full text-text-muted hover:text-text hover:bg-zinc-800/10 dark:hover:bg-zinc-100/10 transition-colors cursor-pointer focus-visible:outline-none"
+                        className="p-2 -mr-1 lg:hidden rounded-full text-text-muted hover:text-text hover:bg-zinc-800/10 dark:hover:bg-zinc-100/10 transition-colors cursor-pointer focus-visible:outline-none"
                         aria-label="Toggle Navigation Menu"
                     >
                         {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -185,8 +185,8 @@ export default function NavBar() {
 
             {/* Mobile Menu Panel */}
             {mobileMenuOpen && (
-                <div className="absolute top-16 left-0 right-0 p-4 mx-2 bg-card/95 backdrop-blur-[16px] border border-border shadow-modal rounded-2xl flex flex-col gap-3 md:hidden animate-in fade-in slide-in-from-top-3 duration-200">
-                    {links.map((link) => {
+                <div className="absolute top-16 left-0 right-0 p-4 mx-2 bg-card/95 backdrop-blur-[16px] border border-border shadow-modal rounded-2xl flex flex-col gap-3 lg:hidden animate-in fade-in slide-in-from-top-3 duration-200">
+                    {links.filter(l => !l.hideOnMobile).map((link) => {
                         const Icon = link.icon;
                         const isActive = !link.onClick && location.pathname === link.path;
                         const className = `px-4 py-2.5 rounded-lg text-[0.92rem] font-medium transition-colors no-underline flex items-center gap-2.5 ${isActive ? 'bg-zinc-500/10 text-text' : 'text-text-muted hover:text-text hover:bg-zinc-500/5'}`;

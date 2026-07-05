@@ -110,6 +110,10 @@ html.light, body.light, .light {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   *, *::before, *::after {
@@ -585,17 +589,27 @@ body.light .footer-watermark,
   100% { transform: translateY(0px) rotate(-4deg) translateZ(0); }
 }
 
-.animate-float-3d-1 {
-  animation: float-1 6s ease-in-out infinite;
-}
-.animate-float-3d-2 {
-  animation: float-2 8s ease-in-out infinite;
-}
-.animate-float-3d-3 {
-  animation: float-3 7s ease-in-out infinite;
-}
-.animate-float-3d-4 {
-  animation: float-4 9s ease-in-out infinite;
+@layer utilities {
+  .animate-float-3d-1 {
+    animation: float-1 6s ease-in-out infinite;
+  }
+  .animate-float-3d-2 {
+    animation: float-2 8s ease-in-out infinite;
+  }
+  .animate-float-3d-3 {
+    animation: float-3 7s ease-in-out infinite;
+  }
+  .animate-float-3d-4 {
+    animation: float-4 9s ease-in-out infinite;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* 3D Glass Card effect */

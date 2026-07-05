@@ -59,7 +59,7 @@ export default function HotspotsMapPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 {/* Left Column: Leaflet Map (2/3 width) */}
                 <div className="lg:col-span-2 space-y-4">
-                    <div className="glass-panel rounded-xl overflow-hidden shadow-sm" style={{ height: '520px' }}>
+                    <div className="glass-panel rounded-xl overflow-hidden shadow-sm h-[400px] lg:h-[520px]">
                         <MapContainer center={mapCenter} zoom={16} style={{ height: '100%', width: '100%', zIndex: 1 }}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -94,13 +94,13 @@ export default function HotspotsMapPage() {
                     </div>
                     
                     {/* Bottom Map Legend */}
-                    <div className="flex gap-4 p-4 rounded-xl bg-surface border border-border text-xs text-text-muted items-center">
-                        <span className="font-bold uppercase text-[10px] tracking-wider text-text">Hotspots Legend:</span>
-                        <div className="flex items-center gap-1.5">
+                    <div className="flex overflow-x-auto whitespace-nowrap hide-scrollbar gap-4 p-4 rounded-xl bg-surface border border-border text-xs text-text-muted items-center">
+                        <span className="font-bold uppercase text-[10px] tracking-wider text-text shrink-0">Hotspots Legend:</span>
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-2.5 h-2.5 rounded-full bg-danger inline-block"></span>
                             <span>High Loss Probability</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-2.5 h-2.5 rounded-full bg-warning inline-block"></span>
                             <span>Medium Loss Probability</span>
                         </div>
