@@ -371,17 +371,6 @@ export default function ImageUpload({
             {/* Fullscreen Camera Overlay */}
             {isCameraOpen && (
                 <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
-                    <div className="absolute top-4 left-4 z-[110]">
-                        <button
-                            type="button"
-                            onClick={() => setIsMirrored(!isMirrored)}
-                            className={`rounded-full p-2 transition ${isMirrored ? 'bg-blue text-white' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}
-                            title="Mirror Camera"
-                        >
-                            <FlipHorizontal size={24} />
-                        </button>
-                    </div>
-                    
                     <div className="absolute top-4 right-4 z-[110]">
                         <button
                             type="button"
@@ -400,13 +389,25 @@ export default function ImageUpload({
                             className={`w-full h-[80vh] object-cover bg-neutral-900 border border-neutral-800 transition-transform duration-300 ${isMirrored ? '-scale-x-100' : ''}`}
                         />
 
-                        <div className="absolute bottom-8 left-0 w-full flex justify-center">
+                        <div className="absolute bottom-12 left-0 w-full flex justify-center items-center">
+                            {/* Invisible spacer to keep capture button centered */}
+                            <div className="w-12 h-12" />
+                            
                             <button
                                 type="button"
                                 onClick={capturePhoto}
-                                className="w-16 h-16 bg-white rounded-full border-4 border-neutral-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+                                className="w-16 h-16 mx-8 bg-white rounded-full border-4 border-neutral-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
                             >
                                 <div className="w-12 h-12 bg-white rounded-full border border-neutral-300" />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsMirrored(!isMirrored)}
+                                className={`w-12 h-12 flex items-center justify-center rounded-full transition shadow-lg backdrop-blur-sm ${isMirrored ? 'bg-blue text-white' : 'bg-neutral-800/80 text-white hover:bg-neutral-700'}`}
+                                title="Mirror Camera"
+                            >
+                                <FlipHorizontal size={22} />
                             </button>
                         </div>
                     </div>
