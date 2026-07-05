@@ -600,7 +600,7 @@ export default function CreatePostPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="form-label">
-                                    Category (Optional)
+                                    Category
                                 </label>
                                 <select
                                     name="category"
@@ -709,7 +709,9 @@ export default function CreatePostPage() {
 
                     {type !== "borrow" && (
                         <div>
-                            <label className="form-label">Description *</label>
+                            <label className="form-label">
+                                Description <span className="text-primary">*</span>
+                            </label>
                             <textarea
                                 name="description"
                                 value={formData.description}
@@ -726,10 +728,8 @@ export default function CreatePostPage() {
                         <div>
                             <label className="form-label">
                                 Photo{" "}
-                                {type === "found" ? (
+                                {type === "found" && (
                                     <span className="text-primary">*</span>
-                                ) : (
-                                    "(Optional)"
                                 )}
                             </label>
 
