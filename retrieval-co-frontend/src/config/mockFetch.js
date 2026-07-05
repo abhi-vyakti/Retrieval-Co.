@@ -612,6 +612,9 @@ window.fetch = async function (url, options = {}) {
                     parsedDate.setHours(hours, minutes, 0, 0);
                 }
 
+                const pad = (n) => n.toString().padStart(2, '0');
+                const localDatetime = `${parsedDate.getFullYear()}-${pad(parsedDate.getMonth() + 1)}-${pad(parsedDate.getDate())}T${pad(parsedDate.getHours())}:${pad(parsedDate.getMinutes())}:00.000Z`;
+
                 return new Response(
                     JSON.stringify({
                         message: "Successfully parsed text",
@@ -621,7 +624,7 @@ window.fetch = async function (url, options = {}) {
                             category,
                             location: location,
                             description: text || "",
-                            datetime: parsedDate.toISOString(),
+                            datetime: localDatetime,
                             isUrgent:
                                 textLower.includes("urgent") ||
                                 textLower.includes("fast") ||
