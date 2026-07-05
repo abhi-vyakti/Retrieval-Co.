@@ -218,7 +218,7 @@ export default function CreatePostPage() {
         }
     };
 
-    const handleAnalyzeLostImage = async (uploadedUrl) => {
+    const handleAnalyzeLostImage = async (uploadedUrl, currentFormData) => {
         if (!uploadedUrl || !uploadedUrl.trim()) return;
 
         setAnalyzingImage(true);
@@ -231,7 +231,11 @@ export default function CreatePostPage() {
             const res = await fetch(`${API_BASE}/api/ai/find-image-matches`, {
                 method: "POST",
                 headers,
-                body: JSON.stringify({ imageUrl: uploadedUrl }),
+                body: JSON.stringify({
+                    imageUrl: uploadedUrl,
+                    title: currentFormData?.title || "",
+                    description: currentFormData?.description || "",
+                }),
             });
 
             const data = await res.json();
@@ -505,7 +509,7 @@ export default function CreatePostPage() {
                             if (type === "found") {
                                 handleAnalyzeFoundImage(url);
                             } else if (type === "lost") {
-                                handleAnalyzeLostImage(url);
+                                handleAnalyzeLostImage(url, formData);
                             }
                         }}
                         label="Attach Media"
@@ -720,7 +724,7 @@ export default function CreatePostPage() {
                                     if (type === "found") {
                                         handleAnalyzeFoundImage(url);
                                     } else if (type === "lost") {
-                                        handleAnalyzeLostImage(url);
+                                        handleAnalyzeLostImage(url, formData);
                                     }
                                 }}
                                 onRemove={() => {

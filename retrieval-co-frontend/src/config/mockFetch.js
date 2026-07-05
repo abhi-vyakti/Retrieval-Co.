@@ -721,35 +721,33 @@ window.fetch = async function (url, options = {}) {
             if (path === "/api/ai/find-image-matches" && method === "POST") {
                 await new Promise((resolve) => setTimeout(resolve, 1500));
                 const posts = getPosts();
+                const { title, description } = body || {};
                 
-                // For demo purposes, pick found posts to simulate image matching
+                // For demo purposes, we simulate an AI identifying the image by using the title/description they've typed so far
                 let foundPosts = posts.filter(p => p.type === "found" && p.status === "open");
                 
-                // Demo Magic: Prioritize the Earpods if they exist in the DB, to make the live demo look perfect
-                let earpodMatch = foundPosts.find(p => p.title.toLowerCase().includes("earpod"));
-                if (!earpodMatch) {
-                    // Inject a mock earpod match in case the user's local storage hasn't been cleared
-                    earpodMatch = {
-                        _id: "mock_earpod_demo",
-                        type: "found",
-                        title: "OnePlus Earpods (White)",
-                        category: "Electronics",
-                        description: "Found a pair of white OnePlus earpods on a table in the Canteen.",
-                        location: "Canteen",
-                        datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-                        status: "open",
-                        imageUrl: "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=500&h=500&fit=crop",
-                        author: { name: "Ananya Singh", karma: 134 }
-                    };
-                }
+                const searchWords = ((title || "") + " " + (description || "")).toLowerCase().split(/\s+/);
                 
-                foundPosts = [earpodMatch, ...foundPosts.filter(p => p._id !== earpodMatch._id)];
+                const scored = foundPosts.map(c => {
+                    let score = 0;
+                    const cText = (c.title + " " + (c.description || "")).toLowerCase();
+                    let overlap = 0;
+                    searchWords.forEach(w => {
+                        if (w.length > 3 && cText.includes(w)) {
+                            overlap++;
+                            score += 45;
+                        }
+                    });
+                    return {
+                        ...c,
+                        confidenceScore: Math.min(score + 40, 98), // Simulated visual confidence
+                        overlap
+                    };
+                }).filter(c => c.overlap > 0).sort((a, b) => b.confidenceScore - a.confidenceScore);
 
-                // Return the top 1 or 2 visual matches
-                const matches = foundPosts.slice(0, 1).map(c => ({
+                const matches = scored.slice(0, 2).map(c => ({
                     ...c,
-                    confidenceScore: Math.floor(Math.random() * 8) + 90, // 90-97% match
-                    reason: "Strong visual similarity detected in object shape, color, and brand logo."
+                    reason: "Visual similarity detected matching your description."
                 }));
 
                 return new Response(JSON.stringify({ matches }), {
