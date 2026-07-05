@@ -112,6 +112,7 @@ export default function CreatePostPage() {
     React.useEffect(() => {
         setMatchedClass("");
         setMatchingTimetable(false);
+        setImageAnalysis(null);
     }, [type]);
 
     const handleAiParse = async () => {
