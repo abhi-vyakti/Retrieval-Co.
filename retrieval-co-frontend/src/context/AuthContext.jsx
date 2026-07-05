@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("demo_mode");
         localStorage.removeItem("mock_posts");
         localStorage.removeItem("mock_users");
+        localStorage.removeItem("bot_chat_history");
         setUser(null);
         setToken(null);
         navigate("/?login=1");

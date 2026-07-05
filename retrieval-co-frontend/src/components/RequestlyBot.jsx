@@ -8,13 +8,23 @@ export default function RequestlyBot() {
     const { token, user } = useAuth();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
+    const initialMessages = [
         {
             role: "model",
             content:
                 "Hey! I'm your campus AI assistant. I can help you find lost items, suggest lenders, or check current matches. What do you need?",
         },
-    ]);
+    ];
+
+    const [messages, setMessages] = useState(() => {
+        try {
+            const stored = localStorage.getItem("bot_chat_history");
+            if (stored) return JSON.parse(stored);
+        } catch (e) {
+            console.error("Failed to parse chat history", e);
+        }
+        return initialMessages;
+    });
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [posts, setPosts] = useState([]);
@@ -59,6 +69,10 @@ export default function RequestlyBot() {
                 messagesContainerRef.current.scrollHeight;
         }
     };
+
+    useEffect(() => {
+        localStorage.setItem("bot_chat_history", JSON.stringify(messages));
+    }, [messages]);
 
     useEffect(() => {
         // Small timeout to allow content layout sizing to complete before scrolling
