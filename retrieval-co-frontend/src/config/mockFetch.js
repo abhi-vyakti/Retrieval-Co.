@@ -731,8 +731,8 @@ window.fetch = async function (url, options = {}) {
                 // Score them based on simple overlap
                 const scored = candidates
                     .map((c) => {
-                        let score = 70;
-                        const searchWords = (title + " " + description)
+                        let score = 20; // Base score
+                        const searchWords = ((title || "") + " " + (description || ""))
                             .toLowerCase()
                             .split(/\s+/);
                         const cText = (
@@ -742,18 +742,20 @@ window.fetch = async function (url, options = {}) {
                         ).toLowerCase();
                         let overlap = 0;
                         searchWords.forEach((w) => {
-                            if (w.length > 2 && cText.includes(w)) overlap++;
+                            if (w.length > 3 && cText.includes(w)) {
+                                overlap++;
+                                score += 35;
+                            }
                         });
-                        score += Math.min(overlap * 8, 25);
                         return {
                             ...c,
                             aiMatchData: {
                                 score: Math.min(score, 98),
-                                reason: `Category match with keyword overlap.`,
+                                reason: overlap > 0 ? `Category match with keyword overlap.` : `Category match.`,
                             },
                         };
                     })
-                    .filter((c) => c.aiMatchData.score >= 60);
+                    .filter((c) => c.aiMatchData.score >= 70); // Require at least some keyword overlap to match
 
                 return new Response(JSON.stringify({ matches: scored }), {
                     status: 200,
