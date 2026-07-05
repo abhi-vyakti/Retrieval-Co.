@@ -12,6 +12,8 @@ import {
     ChevronDown,
     ChevronUp,
     Loader2,
+    ShieldCheck,
+    ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import ImageUpload from "../components/ImageUpload";
@@ -742,21 +744,32 @@ export default function CreatePostPage() {
                                 (imageAnalysis.isAIGenerated !== undefined || (imageAnalysis.matches && imageAnalysis.matches.length > 0)) && (
                                     <div className="space-y-3 mt-3">
                                         {imageAnalysis.isAIGenerated !== undefined && (
-                                            <div
-                                                className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? "bg-danger-bg border-danger/20 text-danger" : "bg-green-light border-green/20 text-green-dark"}`}
-                                            >
-                                                <AlertCircle
-                                                    size={16}
-                                                    className="shrink-0 mt-0.5"
-                                                />
-                                                <div>
-                                                    <span className="font-bold">
-                                                        AI Image Detection
-                                                    </span>
-                                                    <p className="mt-1 opacity-80 text-[12px]">
-                                                        {imageAnalysis.isAIGenerated
-                                                            ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
-                                                            : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
+                                            <div className={`rounded-xl border overflow-hidden shadow-sm transition-all duration-300 ${imageAnalysis.isAIGenerated ? 'border-danger/30 shadow-[0_4px_20px_-10px_rgba(240,82,82,0.3)]' : 'border-green/30 shadow-[0_4px_20px_-10px_rgba(34,197,94,0.3)]'}`}>
+                                                <div className={`px-4 py-3 border-b flex items-center justify-between ${imageAnalysis.isAIGenerated ? "bg-[linear-gradient(90deg,var(--color-danger-bg),transparent)] border-danger/20" : "bg-[linear-gradient(90deg,var(--color-green-light),transparent)] border-green/20"}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        {imageAnalysis.isAIGenerated ? (
+                                                            <ShieldAlert size={18} className="text-danger" />
+                                                        ) : (
+                                                            <ShieldCheck size={18} className="text-green-dark" />
+                                                        )}
+                                                        <span className={`font-semibold text-[14px] ${imageAnalysis.isAIGenerated ? "text-danger" : "text-green-dark"}`}>
+                                                            {imageAnalysis.isAIGenerated ? "AI Generated Content Detected" : "Authentic Photograph Verified"}
+                                                        </span>
+                                                    </div>
+                                                    <div className={`text-[12px] font-bold ${imageAnalysis.isAIGenerated ? "text-danger/70" : "text-green-dark/70"}`}>
+                                                        {imageAnalysis.confidence}% Confidence
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 py-3 bg-white">
+                                                    {/* Progress bar */}
+                                                    <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden mb-3">
+                                                        <div 
+                                                            className={`h-full rounded-full transition-all duration-1000 ${imageAnalysis.isAIGenerated ? "bg-danger" : "bg-green"}`}
+                                                            style={{ width: `${imageAnalysis.confidence}%` }}
+                                                        />
+                                                    </div>
+                                                    <p className="text-[13px] opacity-80 leading-relaxed text-[#475569]">
+                                                        {imageAnalysis.reason.replace(/⚠️|✅/g, '').trim()}
                                                     </p>
                                                 </div>
                                             </div>
