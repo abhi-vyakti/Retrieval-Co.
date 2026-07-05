@@ -181,19 +181,24 @@ export default function LandingPage() {
                         </button>
                     </div>
 
-                    <div className="relative glass-panel rounded-xl border border-border shadow-2xl p-6 bg-card/40 backdrop-blur-md overflow-hidden flex flex-col gap-6 min-h-[460px]">
+                    <div className="relative glass-panel rounded-[2.2rem] md:rounded-xl border-[8px] border-[#1e1e24] dark:border-black md:border-[1px] md:border-border shadow-2xl p-4 md:p-6 bg-card/40 backdrop-blur-md overflow-hidden flex flex-col gap-4 md:gap-6 min-h-[580px] md:min-h-[460px] max-w-[320px] md:max-w-none mx-auto">
                         
+                        {/* Mobile Dynamic Island Mock */}
+                        <div className="md:hidden absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#1e1e24] dark:bg-black rounded-b-xl z-50"></div>
+
                         {/* Mock header row */}
-                        <div className="flex justify-between items-center border-b border-border/50 pb-4">
+                        <div className="flex justify-between items-center border-b border-border/50 pb-3 md:pb-4 mt-2 md:mt-0">
                             <div className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full bg-danger/50"></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-warning/50"></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-success/50"></span>
-                                <span className="font-display font-[800] text-sm text-primary ml-2">Retrieval<span className="text-text">Co.</span></span>
+                                <div className="hidden md:flex items-center gap-2 mr-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-danger/50"></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-warning/50"></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-success/50"></span>
+                                </div>
+                                <span className="font-display font-[800] text-sm text-primary">Retrieval<span className="text-text">Co.</span></span>
                             </div>
                             
                             {/* Search Feed mock */}
-                            <div className="w-48 sm:w-64 relative">
+                            <div className="hidden md:block w-48 sm:w-64 relative">
                                 <input
                                     type="text"
                                     placeholder={step === 0 ? "Searching: iPhone..." : "Search items, locations..."}
@@ -218,9 +223,9 @@ export default function LandingPage() {
 
 
                         {/* Split panel mockup columns */}
-                        <div className="grid grid-cols-12 gap-6 text-left items-start relative flex-1">
+                        <div className="grid grid-cols-12 gap-4 md:gap-6 text-left items-start relative flex-1">
                             {/* Left Col filters sidebar mockup */}
-                            <div className="col-span-4 flex flex-col gap-4 border-r border-border/30 pr-4">
+                            <div className="hidden md:flex col-span-4 flex-col gap-4 border-r border-border/30 pr-4">
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Quick Filters</span>
                                     <div className="flex gap-1.5 flex-wrap">
@@ -239,7 +244,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Right Col feed cards mockup */}
-                            <div className="col-span-8 flex flex-col gap-4 relative w-full">
+                            <div className="col-span-12 md:col-span-8 flex flex-col gap-4 relative w-full">
                                 {/* Card 1: Lost iPhone */}
                                 <div className="glass-panel border-l-[3px] border-l-danger rounded-lg p-4 flex flex-col gap-2 relative bg-surface/20">
                                     <div className="flex justify-between items-center">
