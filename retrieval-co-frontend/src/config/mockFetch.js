@@ -660,11 +660,6 @@ window.fetch = async function (url, options = {}) {
             }
 
             if (path === "/api/ai/analyze-image" && method === "POST") {
-                // Simulate realistic processing delay
-                await new Promise((resolve) =>
-                    setTimeout(resolve, 1500 + Math.random() * 1000),
-                );
-
                 const activeUser = getActiveUser();
                 const users = getUsers();
                 const userIndex = users.findIndex((u) => u._id === (activeUser._id || activeUser.id));
@@ -674,8 +669,37 @@ window.fetch = async function (url, options = {}) {
                     return new Response(JSON.stringify({ isSuspended: true }), { status: 200, headers: { "Content-Type": "application/json" } });
                 }
 
-                // 30% chance for an image to be flagged as AI generated for demonstration purposes
-                const isAIGenerated = Math.random() > 0.7;
+                let isAIGenerated = false;
+                let confidence = 95;
+                let reason = "Image accepted. For best results, ensure the photo is clear and shows the actual item.";
+                let usingRealAI = false;
+
+                try {
+                    // Temporarily bypass the mock interceptor to hit the real backend which holds the OpenRouter API key!
+                    const realRes = await originalFetch(urlString, options);
+                    if (realRes.ok) {
+                        const data = await realRes.json();
+                        if (data.analysis) {
+                            isAIGenerated = data.analysis.verdict === 'ai_generated';
+                            confidence = data.analysis.confidence || 95;
+                            reason = data.analysis.reason || reason;
+                            usingRealAI = true;
+                        }
+                    }
+                } catch(e) {
+                    console.warn("[MockFetch] Real backend unavailable, falling back to heuristic AI generation check.");
+                }
+
+                if (!usingRealAI) {
+                    // Simulate realistic processing delay if backend fails
+                    await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
+                    // 30% chance for an image to be flagged as AI generated for demonstration purposes
+                    isAIGenerated = Math.random() > 0.7;
+                    if (isAIGenerated) {
+                        confidence = Math.floor(Math.random() * 8) + 91;
+                        reason = "Image exhibits characteristics of AI generation (artifacts in shadows/textures).";
+                    }
+                }
 
                 if (isAIGenerated) {
                     user.aiWarnings = (user.aiWarnings || 0) + 1;
@@ -689,14 +713,12 @@ window.fetch = async function (url, options = {}) {
                         return new Response(JSON.stringify({ isSuspended: true }), { status: 200, headers: { "Content-Type": "application/json" } });
                     }
 
+                    reason = `Warning ${user.aiWarnings}/3: ` + reason;
+                    
                     return new Response(
                         JSON.stringify({
                             message: "Image analysis completed",
-                            analysis: {
-                                isAIGenerated: true,
-                                confidence: Math.floor(Math.random() * 8) + 91,
-                                reason: `Warning ${user.aiWarnings}/3: Image exhibits characteristics of AI generation (artifacts in shadows/textures).`,
-                            },
+                            analysis: { isAIGenerated: true, confidence, reason },
                         }),
                         { status: 200, headers: { "Content-Type": "application/json" } }
                     );
@@ -704,16 +726,9 @@ window.fetch = async function (url, options = {}) {
                     return new Response(
                         JSON.stringify({
                             message: "Image analysis completed",
-                            analysis: {
-                                isAIGenerated: false,
-                                confidence: Math.floor(Math.random() * 8) + 91,
-                                reason: "Image accepted. For best results, ensure the photo is clear and shows the actual item.",
-                            },
+                            analysis: { isAIGenerated: false, confidence, reason },
                         }),
-                        {
-                            status: 200,
-                            headers: { "Content-Type": "application/json" },
-                        },
+                        { status: 200, headers: { "Content-Type": "application/json" } },
                     );
                 }
             }
