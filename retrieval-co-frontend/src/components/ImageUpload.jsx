@@ -8,6 +8,7 @@ import {
     Aperture,
     Crop,
     RotateCcw,
+    FlipHorizontal,
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -38,6 +39,7 @@ export default function ImageUpload({
     const [crop, setCrop] = useState(undefined);
     const [completedCrop, setCompletedCrop] = useState(null);
     const cropImgRef = useRef(null);
+    const [isMirrored, setIsMirrored] = useState(false);
 
     // Cleanup camera when unmounting
     useEffect(() => {
@@ -104,6 +106,12 @@ export default function ImageUpload({
             canvas.width = videoRef.current.videoWidth;
             canvas.height = videoRef.current.videoHeight;
             const ctx = canvas.getContext("2d");
+            
+            if (isMirrored) {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            
             ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
             stopCamera();
@@ -363,6 +371,16 @@ export default function ImageUpload({
             {/* Fullscreen Camera Overlay */}
             {isCameraOpen && (
                 <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
+                    <div className="absolute top-4 left-4 z-[110]">
+                        <button
+                            onClick={() => setIsMirrored(!isMirrored)}
+                            className={`rounded-full p-2 transition ${isMirrored ? 'bg-blue text-white' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}
+                            title="Mirror Camera"
+                        >
+                            <FlipHorizontal size={24} />
+                        </button>
+                    </div>
+                    
                     <div className="absolute top-4 right-4 z-[110]">
                         <button
                             onClick={stopCamera}
@@ -377,7 +395,7 @@ export default function ImageUpload({
                             ref={videoRef}
                             autoPlay
                             playsInline
-                            className="w-full h-[80vh] object-cover bg-neutral-900 border border-neutral-800"
+                            className={`w-full h-[80vh] object-cover bg-neutral-900 border border-neutral-800 transition-transform duration-300 ${isMirrored ? '-scale-x-100' : ''}`}
                         />
 
                         <div className="absolute bottom-8 left-0 w-full flex justify-center">
