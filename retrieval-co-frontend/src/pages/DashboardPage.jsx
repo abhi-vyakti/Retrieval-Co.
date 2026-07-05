@@ -302,7 +302,6 @@ export default function DashboardPage() {
         { label: "Lost", value: "lost" },
         { label: "Found", value: "found" },
         { label: "Today's", value: "today" },
-        { label: "Urgent", value: "urgent" },
         { label: "My Posts", value: "my_posts" },
     ];
 
