@@ -545,7 +545,10 @@ window.fetch = async function (url, options = {}) {
                     textLower.includes("laptop") ||
                     textLower.includes("charger") ||
                     textLower.includes("calculator") ||
-                    textLower.includes("casio")
+                    textLower.includes("casio") ||
+                    textLower.includes("earpod") ||
+                    textLower.includes("earphone") ||
+                    textLower.includes("headphone")
                 ) {
                     category = "Electronics";
                 } else if (
@@ -575,11 +578,38 @@ window.fetch = async function (url, options = {}) {
                     category = "Clothing";
                 }
 
-                // Extract title
+                // Extract title using regex
                 let title = "Smart Post";
-                const words = (text || "").split(" ");
-                if (words.length > 2) {
-                    title = words.slice(0, 3).join(" ") + "...";
+                const titleMatch = text.match(/(?:lost my|found a|found an|lost a) (.{3,25}?)(?: in | at | during | today|,|\.|$)/i);
+                if (titleMatch && titleMatch[1]) {
+                    title = titleMatch[1].charAt(0).toUpperCase() + titleMatch[1].slice(1);
+                } else {
+                    const words = (text || "").split(" ");
+                    if (words.length > 2) {
+                        title = words.slice(0, 3).join(" ") + "...";
+                    }
+                }
+                
+                // Extract location
+                let location = "Campus Area";
+                const locMatchAny = text.match(/(?:in the|at the|in|at|near) (.{3,20}?)(?: during| today| at|,|\.|$)/i);
+                if (locMatchAny && locMatchAny[1]) {
+                    location = locMatchAny[1].split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                }
+
+                // Extract datetime
+                let parsedDate = new Date();
+                const timeMatch = text.match(/(\d{1,2}:\d{2})\s*(AM|PM|am|pm)?/i);
+                if (timeMatch) {
+                    const [_, timePart, modifier] = timeMatch;
+                    let [hours, minutes] = timePart.split(':').map(Number);
+                    if (modifier && modifier.toLowerCase() === 'pm' && hours !== 12) {
+                        hours += 12;
+                    }
+                    if (modifier && modifier.toLowerCase() === 'am' && hours === 12) {
+                        hours = 0;
+                    }
+                    parsedDate.setHours(hours, minutes, 0, 0);
                 }
 
                 return new Response(
@@ -589,9 +619,9 @@ window.fetch = async function (url, options = {}) {
                             type,
                             title,
                             category,
-                            location: "Campus Area",
+                            location: location,
                             description: text || "",
-                            datetime: new Date().toISOString(),
+                            datetime: parsedDate.toISOString(),
                             isUrgent:
                                 textLower.includes("urgent") ||
                                 textLower.includes("fast") ||
