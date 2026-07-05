@@ -117,7 +117,7 @@ export default function PostReplyModal({ post, isOpen, onClose, isMinimized, onT
 
     // --- Full Chat Modal Popup ---
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4" onClick={onClose}>
             {/* Dark Backdrop overlay */}
             <div className="absolute inset-0 bg-black/25 animate-in fade-in duration-200"></div>
 

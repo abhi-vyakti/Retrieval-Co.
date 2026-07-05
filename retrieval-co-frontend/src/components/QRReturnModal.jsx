@@ -187,7 +187,7 @@ export default function QRReturnModal({ isOpen, onClose, post, isOwner, onSucces
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/20">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/20">
             <div className="bg-surface border border-grey-200 w-full max-w-md max-h-[90vh] flex flex-col rounded-[var(--radius-xl)] overflow-hidden shadow-lg">
 
                 {/* Header */}

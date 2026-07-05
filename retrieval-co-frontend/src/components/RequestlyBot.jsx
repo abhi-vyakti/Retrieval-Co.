@@ -173,7 +173,7 @@ export default function RequestlyBot() {
                             <h4 className="text-[0.9rem] font-bold">Retrieval Assistant</h4>
                             <p className="text-[0.75rem] text-green">● Online</p>
                         </div>
-                        <button onClick={() => setIsOpen(false)} className="text-text-muted hover:text-text transition-colors cursor-pointer bg-transparent border-none">
+                        <button onClick={() => setIsOpen(false)} className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer bg-transparent border-none flex items-center justify-center">
                             <X size={18} />
                         </button>
                     </div>
