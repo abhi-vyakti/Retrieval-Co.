@@ -504,20 +504,7 @@ export default function CreatePostPage() {
                         {loadingAi ? "Extracting..." : "✨ Magic Fill"}
                     </Button>
                 </div>
-                <div className="mt-3">
-                    <ImageUpload
-                        onUploadSuccess={(url) => {
-                            setFormData((prev) => ({ ...prev, imageUrl: url }));
-                            setImageAnalysis(null);
-                            if (type === "found") {
-                                handleAnalyzeFoundImage(url);
-                            } else if (type === "lost") {
-                                handleAnalyzeLostImage(url, formData);
-                            }
-                        }}
-                        label="Attach Media"
-                    />
-                </div>
+
             </div>
 
             {/* Type Selector Tabs */}
