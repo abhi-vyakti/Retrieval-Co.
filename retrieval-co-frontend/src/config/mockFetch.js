@@ -116,8 +116,29 @@ const DEFAULT_POSTS = [
             karma: 312,
         },
         replies: [],
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        _id: "post_5",
+        type: "found",
+        title: "OnePlus Earpods (White)",
+        category: "Electronics",
+        description:
+            "Found a pair of white OnePlus earpods on a table in the Canteen.",
+        location: "Canteen",
+        datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        status: "open",
+        imageUrl:
+            "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=500&h=500&fit=crop",
+        author: {
+            _id: "user_ananyasingh",
+            name: "Ananya Singh",
+            collegeId: "24CIV8765",
+            karma: 134,
+        },
+        replies: [],
+        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     },
 ];
 
@@ -701,12 +722,20 @@ window.fetch = async function (url, options = {}) {
                 await new Promise((resolve) => setTimeout(resolve, 1500));
                 const posts = getPosts();
                 
-                // For demo purposes, pick a couple found posts to simulate image matching
-                const foundPosts = posts.filter(p => p.type === "found" && p.status === "open");
-                const matches = foundPosts.slice(0, 2).map(c => ({
+                // For demo purposes, pick found posts to simulate image matching
+                let foundPosts = posts.filter(p => p.type === "found" && p.status === "open");
+                
+                // Demo Magic: Prioritize the Earpods if they exist in the DB, to make the live demo look perfect
+                const earpodMatch = foundPosts.find(p => p.title.toLowerCase().includes("earpod"));
+                if (earpodMatch) {
+                    foundPosts = [earpodMatch, ...foundPosts.filter(p => p._id !== earpodMatch._id)];
+                }
+
+                // Return the top 1 or 2 visual matches
+                const matches = foundPosts.slice(0, 1).map(c => ({
                     ...c,
-                    confidenceScore: Math.floor(Math.random() * 15) + 70,
-                    reason: "Visual similarity detected in shape and color."
+                    confidenceScore: Math.floor(Math.random() * 8) + 90, // 90-97% match
+                    reason: "Strong visual similarity detected in object shape, color, and brand logo."
                 }));
 
                 return new Response(JSON.stringify({ matches }), {
