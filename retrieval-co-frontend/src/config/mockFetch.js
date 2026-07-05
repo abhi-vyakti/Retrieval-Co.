@@ -643,21 +643,76 @@ window.fetch = async function (url, options = {}) {
                 await new Promise((resolve) =>
                     setTimeout(resolve, 1500 + Math.random() * 1000),
                 );
-                const confidence = Math.floor(Math.random() * 8) + 91; // 91-98%
-                return new Response(
-                    JSON.stringify({
-                        message: "Image analysis completed",
-                        analysis: {
-                            isAIGenerated: false,
-                            confidence: confidence,
-                            reason: "Image accepted. For best results, ensure the photo is clear and shows the actual item.",
+
+                const activeUser = getActiveUser();
+                const users = getUsers();
+                const userIndex = users.findIndex((u) => u._id === (activeUser._id || activeUser.id));
+                const user = userIndex >= 0 ? users[userIndex] : activeUser;
+
+                if (user.isSuspended) {
+                    return new Response(JSON.stringify({ isSuspended: true }), { status: 200, headers: { "Content-Type": "application/json" } });
+                }
+
+                // 30% chance for an image to be flagged as AI generated for demonstration purposes
+                const isAIGenerated = Math.random() > 0.7;
+
+                if (isAIGenerated) {
+                    user.aiWarnings = (user.aiWarnings || 0) + 1;
+                    if (user.aiWarnings >= 3) {
+                        user.isSuspended = true;
+                    }
+                    if (userIndex >= 0) saveUsers(users);
+                    saveActiveUser(user);
+
+                    if (user.isSuspended) {
+                        return new Response(JSON.stringify({ isSuspended: true }), { status: 200, headers: { "Content-Type": "application/json" } });
+                    }
+
+                    return new Response(
+                        JSON.stringify({
+                            message: "Image analysis completed",
+                            analysis: {
+                                isAIGenerated: true,
+                                confidence: Math.floor(Math.random() * 8) + 91,
+                                reason: `Warning ${user.aiWarnings}/3: Image exhibits characteristics of AI generation (artifacts in shadows/textures).`,
+                            },
+                        }),
+                        { status: 200, headers: { "Content-Type": "application/json" } }
+                    );
+                } else {
+                    return new Response(
+                        JSON.stringify({
+                            message: "Image analysis completed",
+                            analysis: {
+                                isAIGenerated: false,
+                                confidence: Math.floor(Math.random() * 8) + 91,
+                                reason: "Image accepted. For best results, ensure the photo is clear and shows the actual item.",
+                            },
+                        }),
+                        {
+                            status: 200,
+                            headers: { "Content-Type": "application/json" },
                         },
-                    }),
-                    {
-                        status: 200,
-                        headers: { "Content-Type": "application/json" },
-                    },
-                );
+                    );
+                }
+            }
+
+            if (path === "/api/ai/find-image-matches" && method === "POST") {
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+                const posts = getPosts();
+                
+                // For demo purposes, pick a couple found posts to simulate image matching
+                const foundPosts = posts.filter(p => p.type === "found" && p.status === "open");
+                const matches = foundPosts.slice(0, 2).map(c => ({
+                    ...c,
+                    confidenceScore: Math.floor(Math.random() * 15) + 70,
+                    reason: "Visual similarity detected in shape and color."
+                }));
+
+                return new Response(JSON.stringify({ matches }), {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                });
             }
 
             if (path === "/api/ai/find-matches" && method === "POST") {
