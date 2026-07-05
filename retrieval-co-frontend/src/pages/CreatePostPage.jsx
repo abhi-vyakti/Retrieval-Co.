@@ -14,6 +14,7 @@ import {
     Loader2,
     ShieldCheck,
     ShieldAlert,
+    Image as ImageIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import ImageUpload from "../components/ImageUpload";
