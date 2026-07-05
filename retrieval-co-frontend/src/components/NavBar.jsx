@@ -51,7 +51,7 @@ export default function NavBar() {
 
     const authLinks = [
         { name: 'Home', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Post', path: '/create', icon: PlusSquare, hideOnMobile: true },
+        { name: 'Post', path: '/create', icon: PlusSquare },
         { name: 'Hotspots', path: '/hotspots', icon: Map },
         { name: 'Leaders', path: '/leaderboard', icon: Trophy },
     ];
