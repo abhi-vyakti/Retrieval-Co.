@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE } from '../config/api';
 
 export default function RequestlyBot() {
     const { token, user } = useAuth();
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         { role: 'model', content: "Hey! I'm your campus AI assistant. I can help you find lost items, suggest lenders, or check current matches. What do you need?" }
@@ -195,9 +197,14 @@ export default function RequestlyBot() {
                                     {(matchedPost || postId) && (
                                         <button
                                             onClick={() => {
-                                                window.dispatchEvent(new CustomEvent('open-post-reply', {
-                                                    detail: { postId, post: matchedPost }
-                                                }));
+                                                const currentPath = window.location.pathname;
+                                                if (currentPath === '/dashboard' || currentPath === '/my-posts') {
+                                                    window.dispatchEvent(new CustomEvent('open-post-reply', {
+                                                        detail: { postId, post: matchedPost }
+                                                    }));
+                                                } else {
+                                                    navigate(`/dashboard?openPost=${postId}`);
+                                                }
                                             }}
                                             className="px-3 py-1.5 rounded-lg border border-primary/30 hover:border-primary bg-primary/5 text-primary text-[11px] font-bold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-start gap-1.5 ml-1 self-start max-w-[95%] text-left whitespace-normal break-words"
                                         >

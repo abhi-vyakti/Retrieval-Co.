@@ -17,7 +17,7 @@ import { API_BASE } from '../config/api';
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'borrow' ? 'borrow' : 'lost_found');
@@ -134,6 +134,21 @@ export default function DashboardPage() {
         window.addEventListener('post-created', fetchPosts);
         return () => window.removeEventListener('post-created', fetchPosts);
     }, [activeTab, categoryFilter]);
+
+    useEffect(() => {
+        const openPostId = searchParams.get('openPost');
+        if (openPostId) {
+            const timer = setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('open-post-reply', {
+                    detail: { postId: openPostId }
+                }));
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('openPost');
+                setSearchParams(newParams, { replace: true });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [searchParams, setSearchParams]);
 
     useEffect(() => {
         const handleOpenPostReply = async (e) => {
