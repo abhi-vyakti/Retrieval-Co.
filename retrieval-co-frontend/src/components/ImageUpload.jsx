@@ -276,8 +276,8 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
 
             {/* Fullscreen Camera Overlay */}
             {isCameraOpen && (
-                <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center">
-                    <div className="absolute top-4 right-4 z-[510]">
+                <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
+                    <div className="absolute top-4 right-4 z-[110]">
                         <button
                             onClick={stopCamera}
                             className="bg-neutral-800 text-white rounded-full p-2 hover:bg-neutral-700 transition"
@@ -308,7 +308,7 @@ export default function ImageUpload({ onUploadSuccess, currentImage, onRemove, l
 
             {/* Fullscreen Crop Overlay */}
             {isCropping && rawImageSrc && (
-                <div className="fixed inset-0 z-[500] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+                <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
                     {/* Header */}
                     <div className="w-full max-w-2xl flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 text-white">
