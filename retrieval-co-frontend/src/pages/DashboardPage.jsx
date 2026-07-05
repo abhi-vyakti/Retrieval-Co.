@@ -212,10 +212,6 @@ export default function DashboardPage() {
 
     // Dynamic Metrics
     const myPosts = posts.filter(p => p.author?._id === user?.id || p.author?.collegeId === user?.code);
-    const activePostsCount = myPosts.filter(p => !['closed', 'returned', 'expired'].includes(p.status)).length;
-    const repliesReceived = myPosts.reduce((acc, p) => acc + (p.replies?.length || 0), 0);
-    const possibleMatches = myPosts.filter(p => p.aiMatch || (p.matchIds && p.matchIds.length > 0)).length;
-    const successfulReturns = posts.filter(p => (p.author?._id === user?.id || p.author?.collegeId === user?.code) && p.status === 'returned').length;
 
     // Dynamic Notifications Center activity list
     const notifications = [];
@@ -245,11 +241,6 @@ export default function DashboardPage() {
             });
         }
     });
-
-    const activeNotifications = notifications.slice(0, 4);
-
-    // Categories
-    const categories = ['All', 'Electronics', 'Stationery', 'ID Cards', 'Books', 'Clothing', 'Lab Equipment', 'Others'];
 
     // Quick Chips Filters (Clean without emojis)
     const quickChips = [

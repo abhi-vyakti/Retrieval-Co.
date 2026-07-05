@@ -6,41 +6,6 @@ import LoginModal from '../components/LoginModal';
 
 
 
-const featuresData = [
-    {
-        icon: "🤖",
-        title: "AI Matching",
-        desc: "Matches lost and found reports instantly."
-    },
-    {
-        icon: "⚡",
-        title: "Quick Post",
-        desc: "Report lost, found, or borrow items in seconds."
-    },
-    {
-        icon: "📅",
-        title: "Schedule Sync",
-        desc: "Coordinate borrows based on class schedules."
-    },
-    {
-        icon: "📱",
-        title: "QR Handoff",
-        desc: "Verifies returns securely with dual-scan QR."
-    },
-    {
-        icon: "🏆",
-        title: "Karma Points",
-        desc: "Earn karma points and climb the campus ranking."
-    },
-    {
-        icon: "🗺️",
-        title: "Loss Hotspots",
-        desc: "Visualizes lost items using AI campus heatmaps."
-    }
-];
-
-
-
 export default function LandingPage() {
     const { user } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();

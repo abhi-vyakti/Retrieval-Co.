@@ -145,7 +145,7 @@ window.fetch = async function (url, options = {}) {
             }
         }
 
-        console.log(`[MOCK API INTERCEPT] ${method} ${path}`, body);
+
 
         // Define route handlers
         try {

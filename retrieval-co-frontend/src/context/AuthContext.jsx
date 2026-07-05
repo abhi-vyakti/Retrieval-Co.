@@ -41,11 +41,6 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(initial.token);
     const navigate = useNavigate();
 
-    // Debug: log auth state changes
-    useEffect(() => {
-        console.log('[AuthProvider] user state changed:', user);
-    }, [user]);
-
     const login = (userData, jwtToken) => {
         localStorage.setItem('token', jwtToken);
         localStorage.setItem('user', JSON.stringify(userData));
