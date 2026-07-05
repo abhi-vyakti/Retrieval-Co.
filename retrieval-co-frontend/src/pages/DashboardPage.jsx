@@ -297,13 +297,20 @@ export default function DashboardPage() {
     });
 
     // Quick Chips Filters (Clean without emojis)
-    const quickChips = [
+    let quickChips = [
         { label: "All Items", value: "all" },
         { label: "Lost", value: "lost" },
         { label: "Found", value: "found" },
         { label: "Today's", value: "today" },
+        { label: "Urgent", value: "urgent" },
         { label: "My Posts", value: "my_posts" },
     ];
+
+    if (activeTab === "borrow") {
+        quickChips = quickChips.filter(chip => chip.value !== "lost" && chip.value !== "found");
+    } else if (activeTab === "lost_found") {
+        quickChips = quickChips.filter(chip => chip.value !== "urgent");
+    }
 
     // Local filter mapping on fetched list
     const filteredPosts = posts.filter((post) => {
