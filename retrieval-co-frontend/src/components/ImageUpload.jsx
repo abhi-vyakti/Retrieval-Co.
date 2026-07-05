@@ -21,6 +21,7 @@ export default function ImageUpload({
     onRemove,
     label = "Attach Photo",
     iconOnly = false,
+    onBeforeUpload,
 }) {
     const { token } = useAuth();
     const [isUploading, setIsUploading] = useState(false);
@@ -48,6 +49,13 @@ export default function ImageUpload({
     }, []);
 
     const startCamera = async () => {
+        if (onBeforeUpload) {
+            const err = onBeforeUpload();
+            if (err) {
+                setError(err);
+                return;
+            }
+        }
         setError("");
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -292,7 +300,17 @@ export default function ImageUpload({
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => {
+                            if (onBeforeUpload) {
+                                const err = onBeforeUpload();
+                                if (err) {
+                                    setError(err);
+                                    return;
+                                }
+                            }
+                            setError("");
+                            fileInputRef.current?.click();
+                        }}
                         disabled={isUploading}
                         className={iconOnly ? "p-2 aspect-square" : "flex-1"}
                         title={label}

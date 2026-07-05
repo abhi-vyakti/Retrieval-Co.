@@ -733,19 +733,14 @@ export default function CreatePostPage() {
                                 )}
                             </label>
 
-                            {!formData.imageUrl && (!formData.title.trim() || !formData.description.trim()) ? (
-                                <div className="bg-surface/50 border border-border border-dashed rounded-xl p-8 text-center text-text-muted flex flex-col items-center justify-center">
-                                    <div className="w-12 h-12 rounded-full bg-border/50 flex items-center justify-center mb-3">
-                                        <ImageIcon size={20} className="opacity-60" />
-                                    </div>
-                                    <p className="text-[14px] font-semibold text-text">Item Details Required</p>
-                                    <p className="text-[12.5px] opacity-80 mt-1.5 max-w-[280px]">
-                                        Please fill in the Item Name and Description first. This gives our AI context to accurately analyze and match your photo!
-                                    </p>
-                                </div>
-                            ) : (
-                                <ImageUpload
+                            <ImageUpload
                                 currentImage={formData.imageUrl}
+                                onBeforeUpload={() => {
+                                    if (!formData.title.trim() || !formData.description.trim()) {
+                                        return "Please fill in the Item Name and Description first. This gives our AI context to accurately analyze and match your photo!";
+                                    }
+                                    return null;
+                                }}
                                 onUploadSuccess={(url) => {
                                     setFormData((prev) => ({
                                         ...prev,
@@ -766,7 +761,6 @@ export default function CreatePostPage() {
                                     setImageAnalysis(null);
                                 }}
                             />
-                            )}
 
                             {/* Image AI Results Banner */}
                             {imageAnalysis &&
