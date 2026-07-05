@@ -735,26 +735,28 @@ export default function CreatePostPage() {
                             {/* Image AI Results Banner */}
                             {imageAnalysis &&
                                 !imageAnalysis.error &&
-                                imageAnalysis.isAIGenerated !== undefined && (
+                                (imageAnalysis.isAIGenerated !== undefined || (imageAnalysis.matches && imageAnalysis.matches.length > 0)) && (
                                     <div className="space-y-3 mt-3">
-                                        <div
-                                            className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? "bg-danger-bg border-danger/20 text-danger" : "bg-green-light border-green/20 text-green-dark"}`}
-                                        >
-                                            <AlertCircle
-                                                size={16}
-                                                className="shrink-0 mt-0.5"
-                                            />
-                                            <div>
-                                                <span className="font-bold">
-                                                    AI Image Detection
-                                                </span>
-                                                <p className="mt-1 opacity-80 text-[12px]">
-                                                    {imageAnalysis.isAIGenerated
-                                                        ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
-                                                        : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
-                                                </p>
+                                        {imageAnalysis.isAIGenerated !== undefined && (
+                                            <div
+                                                className={`p-3 text-[13px] rounded-[var(--radius)] border flex items-start gap-3 ${imageAnalysis.isAIGenerated ? "bg-danger-bg border-danger/20 text-danger" : "bg-green-light border-green/20 text-green-dark"}`}
+                                            >
+                                                <AlertCircle
+                                                    size={16}
+                                                    className="shrink-0 mt-0.5"
+                                                />
+                                                <div>
+                                                    <span className="font-bold">
+                                                        AI Image Detection
+                                                    </span>
+                                                    <p className="mt-1 opacity-80 text-[12px]">
+                                                        {imageAnalysis.isAIGenerated
+                                                            ? `⚠️ Warning: This image appears to be AI-generated (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`
+                                                            : `✅ This image appears to be an authentic photograph (${imageAnalysis.confidence}% confidence). ${imageAnalysis.reason}`}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
                                         {/* Image Match Detection Results */}
                                         {imageAnalysis.matches &&
