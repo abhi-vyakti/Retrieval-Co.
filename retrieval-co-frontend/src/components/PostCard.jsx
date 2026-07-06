@@ -120,7 +120,7 @@ export default function PostCard({
                         src={post.imageUrl}
                         alt={post.title}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+                        className="w-full h-full object-contain p-1 group-hover:scale-102 transition-transform duration-200"
                     />
                 </div>
             )}

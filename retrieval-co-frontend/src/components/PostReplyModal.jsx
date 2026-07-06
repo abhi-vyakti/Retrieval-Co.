@@ -219,7 +219,7 @@ export default function PostReplyModal({
                                 <img
                                     src={post.imageUrl}
                                     alt={post.title}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain p-1"
                                 />
                             </div>
                         )}
