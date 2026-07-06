@@ -628,10 +628,11 @@ export default function DashboardPage() {
                     setSelectedQRPost(null);
                 }}
                 post={selectedQRPost}
-                isOwner={
+                isReceiver={
                     selectedQRPost
-                        ? selectedQRPost.author?._id === user?.id ||
-                          selectedQRPost.author?.collegeId === user?.code
+                        ? (selectedQRPost.type === "lost" 
+                            ? (selectedQRPost.author?._id === user?.id || selectedQRPost.author?.collegeId === user?.code)
+                            : !(selectedQRPost.author?._id === user?.id || selectedQRPost.author?.collegeId === user?.code))
                         : false
                 }
                 onSuccessCallback={() => {

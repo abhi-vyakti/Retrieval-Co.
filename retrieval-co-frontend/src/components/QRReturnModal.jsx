@@ -9,7 +9,7 @@ export default function QRReturnModal({
     isOpen,
     onClose,
     post,
-    isOwner,
+    isReceiver,
     onSuccessCallback,
 }) {
     const { token } = useAuth();
@@ -25,7 +25,7 @@ export default function QRReturnModal({
     const [showManual, setShowManual] = useState(false);
 
     useEffect(() => {
-        if (isOpen && isOwner && post) {
+        if (isOpen && isReceiver && post) {
             generateSession();
         } else if (!isOpen) {
             setScanned(false);
@@ -43,7 +43,7 @@ export default function QRReturnModal({
         return () => {
             document.body.style.overflow = "";
         };
-    }, [isOpen, isOwner, post]);
+    }, [isOpen, isReceiver, post]);
 
     useEffect(() => {
         if (showManual) {
@@ -249,7 +249,7 @@ export default function QRReturnModal({
                         </div>
                     ) : (
                         <>
-                            {isOwner ? (
+                            {isReceiver ? (
                                 <div className="space-y-5">
                                     <p className="text-text-muted text-[13px] leading-relaxed">
                                         Show this QR code to the person
