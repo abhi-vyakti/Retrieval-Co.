@@ -164,7 +164,7 @@ export default function LoginModal({ onClose }) {
                             Retrieval<span className="text-text">Co.</span>
                         </span>
                     </div>
-                    <h2 id="login-title" className="text-[1.8rem] font-[800]">
+                    <h2 id="login-title" className="text-[1.75rem] font-semibold tracking-tight text-text/90">
                         Welcome back
                     </h2>
                     <p className="mt-2 text-sm text-text-muted">
