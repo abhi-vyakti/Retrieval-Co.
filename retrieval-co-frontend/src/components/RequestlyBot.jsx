@@ -80,6 +80,22 @@ export default function RequestlyBot() {
         return () => clearTimeout(timer);
     }, [messages, isOpen, isLoading]);
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setIsOpen(false);
+            }
+        };
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        } else {
+            document.removeEventListener("keydown", handleKeyDown);
+        }
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen]);
+
     const handleSend = async (e) => {
         e?.preventDefault();
         if (!input.trim() || isLoading) return;
