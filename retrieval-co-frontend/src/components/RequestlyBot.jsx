@@ -50,6 +50,11 @@ export default function RequestlyBot() {
     const { token, user } = useAuth();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent("bot-toggled", { detail: { isOpen } }));
+    }, [isOpen]);
+
     const initialMessages = [
         {
             role: "model",
