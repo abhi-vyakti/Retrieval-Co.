@@ -66,7 +66,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/1/1a/Casio_fx-991ES_PLUS_2nd_edition.jpg",
+            "/images/casio.jpg",
         author: {
             _id: "user_rahulverma",
             name: "Rahul Verma",
@@ -129,7 +129,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://m.media-amazon.com/images/I/61+Q6Rh3OQL._SL1500_.jpg",
+            "/images/earbuds.jpg",
         author: {
             _id: "user_ananyasingh",
             name: "Ananya Singh",
@@ -154,12 +154,12 @@ function getPosts() {
     let parsed = JSON.parse(stored);
     let updated = false;
     parsed = parsed.map(post => {
-        if (post._id === "post_2" && post.imageUrl && (post.imageUrl.includes("1594980596870-8aa52a78d8cd") || post.imageUrl.includes("d7/Casio_fx-991ES_PLUS.jpg"))) {
-            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Casio_fx-991ES_PLUS_2nd_edition.jpg";
+        if (post._id === "post_2" && post.imageUrl && (post.imageUrl.includes("1594980596870-8aa52a78d8cd") || post.imageUrl.includes("d7/Casio_fx-991ES_PLUS.jpg") || post.imageUrl.includes("upload.wikimedia"))) {
+            post.imageUrl = "/images/casio.jpg";
             updated = true;
         }
-        if (post._id === "post_5" && post.imageUrl && (post.imageUrl.includes("1606220838315-056192d5e927") || post.imageUrl.includes("AirPods.jpg"))) {
-            post.imageUrl = "https://m.media-amazon.com/images/I/61+Q6Rh3OQL._SL1500_.jpg";
+        if (post._id === "post_5" && post.imageUrl && (post.imageUrl.includes("1606220838315-056192d5e927") || post.imageUrl.includes("AirPods.jpg") || post.imageUrl.includes("m.media-amazon"))) {
+            post.imageUrl = "/images/earbuds.jpg";
             updated = true;
         }
         return post;
