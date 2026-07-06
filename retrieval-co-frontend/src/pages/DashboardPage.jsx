@@ -38,9 +38,15 @@ export default function DashboardPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState(
-        searchParams.get("tab") === "borrow" ? "borrow" : "lost_found",
-    );
+    const [activeTab, setActiveTab] = useState(() => {
+        const urlTab = searchParams.get("tab");
+        if (urlTab === "borrow" || urlTab === "lost_found") return urlTab;
+        return localStorage.getItem("dashboard_active_tab") || "lost_found";
+    });
+
+    useEffect(() => {
+        localStorage.setItem("dashboard_active_tab", activeTab);
+    }, [activeTab]);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [activeChipFilter, setActiveChipFilter] = useState("all");
