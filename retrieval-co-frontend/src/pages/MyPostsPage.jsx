@@ -81,19 +81,29 @@ export default function MyPostsPage() {
     useEffect(() => {
         const openPostId = searchParams.get("openPost");
         if (openPostId) {
-            const timer = setTimeout(() => {
-                window.dispatchEvent(
-                    new CustomEvent("open-post-reply", {
-                        detail: { postId: openPostId },
-                    }),
+            if (posts.length > 0) {
+                const foundPost = posts.find(
+                    (p) => p._id === openPostId || p.id === openPostId
                 );
+                if (foundPost) {
+                    handleReply(foundPost);
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("openPost");
+                    setSearchParams(newParams, { replace: true });
+                } else if (!loading) {
+                    toast.error("Post details could not be found.");
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("openPost");
+                    setSearchParams(newParams, { replace: true });
+                }
+            } else if (!loading) {
+                toast.error("Post details could not be found.");
                 const newParams = new URLSearchParams(searchParams);
                 newParams.delete("openPost");
                 setSearchParams(newParams, { replace: true });
-            }, 300);
-            return () => clearTimeout(timer);
+            }
         }
-    }, [searchParams, setSearchParams]);
+    }, [posts, loading, searchParams, setSearchParams]);
 
     useEffect(() => {
         const handleOpenPostReply = async (e) => {
