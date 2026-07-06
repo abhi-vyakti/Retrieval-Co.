@@ -4,6 +4,48 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE } from "../config/api";
 
+const MessageFormatter = ({ text }) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+
+    return (
+        <div className="flex flex-col gap-1.5">
+            {lines.map((line, i) => {
+                const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ');
+                let content = line;
+                if (isBullet) {
+                    content = line.trim().substring(2);
+                }
+                
+                const parts = content.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+                const formattedContent = parts.map((part, j) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={j}>{part.slice(2, -2)}</strong>;
+                    } else if (part.startsWith('*') && part.endsWith('*')) {
+                        return <em key={j}>{part.slice(1, -1)}</em>;
+                    }
+                    return <span key={j}>{part}</span>;
+                });
+
+                if (isBullet) {
+                    return (
+                        <div key={i} className="flex gap-2 pl-1">
+                            <span className="text-amber mt-[2px] leading-none">•</span>
+                            <span className="flex-1">{formattedContent}</span>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div key={i} className="min-h-[1em]">
+                        {formattedContent.length > 0 ? formattedContent : <br />}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
 export default function RequestlyBot() {
     const { token, user } = useAuth();
     const navigate = useNavigate();
@@ -330,17 +372,7 @@ export default function RequestlyBot() {
                                                 : "bg-background rounded-[4px_14px_14px_14px] text-text"
                                         }`}
                                     >
-                                        {cleanText
-                                            .split("**")
-                                            .map((text, i) =>
-                                                i % 2 === 1 ? (
-                                                    <strong key={i}>
-                                                        {text}
-                                                    </strong>
-                                                ) : (
-                                                    text
-                                                ),
-                                            )}
+                                        <MessageFormatter text={cleanText} />
                                     </div>
                                     {(matchedPost || postId) && (
                                         <button
