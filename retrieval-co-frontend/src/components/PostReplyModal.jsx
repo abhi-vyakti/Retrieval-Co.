@@ -36,6 +36,11 @@ export default function PostReplyModal({
     const [activeTab, setActiveTab] = useState(defaultTab); // 'details' | 'discussion'
     const repliesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const onCloseRef = useRef(onClose);
+
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         // Reset tab to defaultTab when a new post is opened
@@ -51,6 +56,29 @@ export default function PostReplyModal({
     useEffect(() => {
         repliesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [localReplies]);
+
+    // Handle browser back button to close modal instead of navigating
+    useEffect(() => {
+        if (!isOpen || isMinimized) return;
+
+        const handlePopState = (e) => {
+            // Prevent default back behavior and close modal instead
+            onCloseRef.current();
+        };
+
+        // Push a dummy state so we have something to pop
+        window.history.pushState({ modal: "postReply" }, "");
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+            // If the modal was closed by a button (not back button),
+            // we need to clean up the history state we pushed.
+            if (window.history.state?.modal === "postReply") {
+                window.history.back();
+            }
+        };
+    }, [isOpen, isMinimized]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
