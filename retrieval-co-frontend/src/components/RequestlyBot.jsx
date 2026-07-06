@@ -252,7 +252,7 @@ export default function RequestlyBot() {
                         />
                         <div className="flex-1">
                             <h4 className="text-[0.9rem] font-bold">
-                                Retrieval Assistant
+                                Requestly
                             </h4>
                             <p className="text-[0.75rem] text-green">
                                 ● Online
