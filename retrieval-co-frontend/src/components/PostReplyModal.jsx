@@ -46,16 +46,25 @@ export default function PostReplyModal({
     }, [localReplies]);
 
     useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+
         if (isOpen && !isMinimized) {
             document.body.style.overflow = "hidden";
             setTimeout(() => inputRef.current?.focus(), 300);
+            document.addEventListener("keydown", handleKeyDown);
         } else {
             document.body.style.overflow = "";
+            document.removeEventListener("keydown", handleKeyDown);
         }
         return () => {
             document.body.style.overflow = "";
+            document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, isMinimized]);
+    }, [isOpen, isMinimized, onClose]);
 
     if (!post || !isOpen) return null;
 
