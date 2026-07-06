@@ -253,7 +253,7 @@ export default function QRReturnModal({
                 {/* Body */}
                 <div
                     ref={modalBodyRef}
-                    className="p-6 text-center flex-1 overflow-y-auto"
+                    className="p-6 pb-10 text-center flex-1 overflow-y-auto"
                 >
                     {scanned ? (
                         <div className="py-8">
