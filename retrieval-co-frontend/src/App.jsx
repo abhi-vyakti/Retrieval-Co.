@@ -71,10 +71,10 @@ function FloatingPostButton() {
 
     return (
         <div 
-            className={`fixed z-[500] group flex items-center gap-2 transition-all duration-300 ease-in-out ${
+            className={`fixed z-[500] group flex items-center gap-2 transition-all duration-300 ease-in-out origin-center ${
                 isBotOpen 
-                    ? "bottom-4 md:bottom-8 right-[82px] md:right-[98px]" 
-                    : "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 md:bottom-[6.5rem] md:right-8"
+                    ? "opacity-0 scale-50 pointer-events-none bottom-4 right-4 md:bottom-8 md:right-8" 
+                    : "opacity-100 scale-100 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 md:bottom-[6.5rem] md:right-8"
             }`}
         >
             <span className="hidden md:block bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none select-none font-bold">
