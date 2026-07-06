@@ -159,9 +159,11 @@ export default function LoginModal({ onClose }) {
                 </button>
 
                 <div className="mb-8 pr-8">
-                    <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary">
-                        RetrievalCo.
-                    </span>
+                    <div className="mb-4">
+                        <span className="font-display font-[800] text-[1.5rem] tracking-tight text-primary">
+                            Retrieval<span className="text-text">Co.</span>
+                        </span>
+                    </div>
                     <h2 id="login-title" className="text-[1.8rem] font-[800]">
                         Welcome back
                     </h2>
