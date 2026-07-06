@@ -23,6 +23,11 @@ export default function QRReturnModal({
     const [manualLoading, setManualLoading] = useState(false);
     const [manualError, setManualError] = useState("");
     const [showManual, setShowManual] = useState(false);
+    const onCloseRef = useRef(onClose);
+
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         if (isOpen && isReceiver && post) {
@@ -56,6 +61,25 @@ export default function QRReturnModal({
             }, 80);
         }
     }, [showManual]);
+
+    // Handle browser back button to close modal instead of navigating
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handlePopState = (e) => {
+            onCloseRef.current();
+        };
+
+        window.history.pushState({ modal: "qrReturn" }, "");
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+            if (window.history.state?.modal === "qrReturn") {
+                window.history.back();
+            }
+        };
+    }, [isOpen]);
 
     useEffect(() => {
         let scanner = null;
