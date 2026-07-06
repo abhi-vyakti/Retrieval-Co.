@@ -54,6 +54,7 @@ export default function DashboardPage() {
 
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
     const [selectedQRPost, setSelectedQRPost] = useState(null);
+    const [replyModalTab, setReplyModalTab] = useState("details");
 
     // Reply Modal State
     const [selectedPost, setSelectedPost] = useState(null);
@@ -606,7 +607,11 @@ export default function DashboardPage() {
                                 <PostCard
                                     key={post._id}
                                     post={post}
-                                    onReply={handleReply}
+                                    onReply={(p, tab = "details") => {
+                                        setSelectedPost(p);
+                                        setReplyModalTab(tab);
+                                        setIsReplyModalOpen(true);
+                                    }}
                                     isAuthor={
                                         post.author?._id === user?.id ||
                                         post.author?.collegeId === user?.code
@@ -645,6 +650,7 @@ export default function DashboardPage() {
             <PostReplyModal
                 post={selectedPost}
                 isOpen={isReplyModalOpen}
+                defaultTab={replyModalTab}
                 onClose={() => {
                     setIsReplyModalOpen(false);
                     setSelectedPost(null);

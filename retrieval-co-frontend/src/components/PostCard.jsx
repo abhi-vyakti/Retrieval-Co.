@@ -36,11 +36,11 @@ export default function PostCard({
     const repliesLength = post.replies?.length || 0;
     const hasUnread = repliesLength > readCount;
 
-    const handleReplyClick = () => {
+    const handleReplyClick = (tab = "details") => {
         if (post.replies) {
             localStorage.setItem(readKey, repliesLength.toString());
         }
-        onReply?.(post);
+        onReply?.(post, tab);
     };
 
     // Solid badge class based on type
@@ -80,7 +80,7 @@ export default function PostCard({
 
     return (
         <div
-            onClick={handleReplyClick}
+            onClick={() => handleReplyClick("details")}
             className={`glass-panel rounded-lg p-3 md:p-5 flex flex-col h-full relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-hover group cursor-pointer ${
                 post.isUrgent &&
                 post.status === "open" &&
@@ -174,7 +174,7 @@ export default function PostCard({
                         className="btn-primary py-1.5 px-3 text-[11px] flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-md min-h-[44px]"
                         onClick={(e) => {
                             e.stopPropagation();
-                            handleReplyClick();
+                            handleReplyClick("discussion");
                         }}
                     >
                         <MessageSquare size={12} /> Reply
