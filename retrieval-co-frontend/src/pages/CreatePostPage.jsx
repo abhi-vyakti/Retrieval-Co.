@@ -432,7 +432,10 @@ export default function CreatePostPage() {
                 );
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } else {
-                navigate("/dashboard");
+                setSuccessMessage(
+                    `Your ${type} post for "${formData.title}" has been successfully created.`,
+                );
+                window.scrollTo({ top: 0, behavior: "smooth" });
             }
         } catch (err) {
             setError(err.message);
@@ -443,6 +446,7 @@ export default function CreatePostPage() {
     };
 
     if (successMessage) {
+        const isBorrow = type === "borrow";
         return (
             <div className="min-h-screen bg-ink pt-24 pb-20 px-4 md:px-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center">
                 <div className="bg-[rgba(61,214,140,0.08)] border border-[rgba(61,214,140,0.2)] p-8 rounded-[var(--radius-xl)] max-w-lg w-full mb-8">
@@ -450,19 +454,29 @@ export default function CreatePostPage() {
                         <PackageCheck size={32} className="text-green" />
                     </div>
                     <h2 className="text-2xl font-display font-bold text-text mb-3">
-                        Request Sent!
+                        {isBorrow ? "Request Sent!" : "Post Created!"}
                     </h2>
                     <p className="text-text-muted text-[14px] mb-6 leading-relaxed">
                         {successMessage}
                     </p>
                     <div className="flex gap-3">
-                        <Button
-                            onClick={() => setSuccessMessage("")}
-                            variant="ghost"
-                            className="flex-1 py-3"
-                        >
-                            Send Another
-                        </Button>
+                        {isBorrow ? (
+                            <Button
+                                onClick={() => setSuccessMessage("")}
+                                variant="ghost"
+                                className="flex-1 py-3"
+                            >
+                                Send Another
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={() => navigate("/my-posts")}
+                                variant="ghost"
+                                className="flex-1 py-3"
+                            >
+                                View Post
+                            </Button>
+                        )}
                         <Button
                             onClick={() => navigate("/dashboard")}
                             variant="primary"
