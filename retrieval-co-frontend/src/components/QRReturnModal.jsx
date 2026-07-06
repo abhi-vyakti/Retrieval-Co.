@@ -59,7 +59,7 @@ export default function QRReturnModal({
 
     useEffect(() => {
         let scanner = null;
-        if (isOpen && !isOwner && !scanned) {
+        if (isOpen && !isReceiver && !scanned) {
             scanner = new Html5QrcodeScanner(
                 "qr-reader",
                 {
@@ -84,7 +84,7 @@ export default function QRReturnModal({
                 scanner.clear().catch(console.error);
             }
         };
-    }, [isOpen, isOwner, scanned]);
+    }, [isOpen, isReceiver, scanned]);
 
     const generateSession = async () => {
         setLoading(true);
