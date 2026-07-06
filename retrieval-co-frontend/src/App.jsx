@@ -71,24 +71,26 @@ function FloatingPostButton() {
 
     return (
         <div 
-            className={`fixed z-[500] group flex items-center gap-2 transition-all duration-300 ease-in-out origin-center ${
+            className={`fixed z-[500] group flex items-center transition-all duration-300 ease-in-out ${
                 isBotOpen 
-                    ? "opacity-0 scale-50 pointer-events-none bottom-4 right-4 md:bottom-8 md:right-8" 
-                    : "opacity-100 scale-100 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 md:bottom-[6.5rem] md:right-8"
+                    ? "bottom-4 md:bottom-8 right-[82px] md:right-[98px]" 
+                    : "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 md:bottom-[6.5rem] md:right-8"
             }`}
         >
-            <span className="hidden md:block bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none select-none font-bold">
+            <span className={`hidden md:block bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow transition-all duration-200 pointer-events-none select-none font-bold mr-2 ${isBotOpen ? "opacity-0" : "opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0"}`}>
                 Create a Post
             </span>
             <Link
                 to={`/create?type=${activeTab === "borrow" ? "borrow" : "lost"}`}
-                className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer border-none no-underline focus-visible:outline-none"
+                className={`flex items-center justify-center h-14 bg-primary text-white shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border-none no-underline focus-visible:outline-none ${
+                    isBotOpen ? "rounded-full px-5 gap-2" : "w-14 rounded-full"
+                }`}
                 aria-label="Create new post"
             >
-                <Plus
-                    size={24}
-                    className="group-hover:rotate-90 transition-transform duration-200"
-                />
+                <Plus size={24} className={!isBotOpen ? "group-hover:rotate-90 transition-transform duration-200" : ""} />
+                <span className={`font-bold text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ${isBotOpen ? "max-w-[150px] opacity-100 ml-1" : "max-w-0 opacity-0 m-0"}`}>
+                    Create Post
+                </span>
             </Link>
         </div>
     );
