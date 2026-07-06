@@ -12,7 +12,7 @@ Retrieval Co. is a centralized campus portal for managing lost and found items a
 
 ## Demo
 
-- **Live Application:** [Deployment URL Placeholder]
+- **Live Application:** https://retrieval-co.vercel.app/
 - **Demo Mode:** Click `⚡ Continue as Demo User` on the login screen to explore the application using the client-side mock interceptor.
 
 ![Demo](docs/assets/demo.gif)
@@ -30,25 +30,25 @@ Retrieval Co. consolidates item reporting and equipment borrowing into a single 
 
 ## Features
 
-### 🔍 Lost & Found
+###  Lost & Found
 Standardized reporting for lost or found items, capturing essential metadata (location, time, category, and visual evidence).
 
-### 🤝 Borrowing
+###  Borrowing
 A dedicated workflow for students to request or lend temporary academic equipment. Includes automated scheduling and return deadline tracking.
 
-### 🤖 AI Assisted Posting
+###  AI Assisted Posting
 Integrates natural language processing to parse unstructured user input into structured form data, reducing friction during item reporting.
 
-### 🧠 AI Matching
+###  AI Matching
 Calculates similarity between lost item reports and found item inventory to automatically suggest potential matches to users.
 
-### 📱 QR Return Workflow
+###  QR Return Workflow
 Utilizes time-based JSON Web Tokens (JWT) embedded within QR codes. Both parties must scan to securely verify the transfer of an item, ensuring non-repudiation.
 
-### 🗺️ Campus Hotspots
+###  Campus Hotspots
 Aggregates geographical data from lost item reports to render a heatmap of frequent loss locations on campus.
 
-### 🏆 Leaderboard
+###  Leaderboard
 Incentivizes positive community behavior by tracking successful returns and attributing metric-driven scores to users.
 
 ### ⚡ Demo Mode
