@@ -32,8 +32,14 @@ export default function PostReplyModal({
     const [replyText, setReplyText] = useState("");
     const [sending, setSending] = useState(false);
     const [localReplies, setLocalReplies] = useState([]);
+    const [activeTab, setActiveTab] = useState("details"); // 'details' | 'discussion'
     const repliesEndRef = useRef(null);
     const inputRef = useRef(null);
+
+    useEffect(() => {
+        // Reset tab to details when a new post is opened
+        if (isOpen) setActiveTab("details");
+    }, [isOpen, post?._id]);
 
     useEffect(() => {
         if (post?.replies) {
@@ -54,7 +60,6 @@ export default function PostReplyModal({
 
         if (isOpen && !isMinimized) {
             document.body.style.overflow = "hidden";
-            setTimeout(() => inputRef.current?.focus(), 300);
             document.addEventListener("keydown", handleKeyDown);
         } else {
             document.body.style.overflow = "";
@@ -215,11 +220,27 @@ export default function PostReplyModal({
                     </div>
                 </div>
 
+                {/* Mobile Tabs */}
+                <div className="md:hidden flex border-b border-border bg-surface shrink-0">
+                    <button 
+                        onClick={() => setActiveTab('details')}
+                        className={`flex-1 py-3 text-xs font-bold transition-colors ${activeTab === 'details' ? 'text-primary border-b-2 border-primary' : 'text-text-muted hover:text-text'}`}
+                    >
+                        Item Details
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('discussion')}
+                        className={`flex-1 py-3 text-xs font-bold transition-colors ${activeTab === 'discussion' ? 'text-primary border-b-2 border-primary' : 'text-text-muted hover:text-text'}`}
+                    >
+                        Discussion {localReplies.length > 0 && `(${localReplies.length})`}
+                    </button>
+                </div>
+
                 {/* Split Responsive Body (Left: Post context summary, Right: Active chat) */}
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-0">
-                    {/* Left Pane: Post Details Summary Context (Hidden on mobile for layout speed) */}
-                    <div className="hidden md:flex md:col-span-4 flex-col border-r border-border p-5 overflow-y-auto gap-4 bg-surface">
-                        <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
+                    {/* Left Pane: Post Details Summary Context */}
+                    <div className={`${activeTab === 'details' ? 'flex' : 'hidden'} md:flex md:col-span-4 flex-col border-r border-border p-5 overflow-y-auto gap-4 bg-surface`}>
+                        <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider hidden md:block">
                             Item Details
                         </h4>
 
@@ -344,7 +365,7 @@ export default function PostReplyModal({
                     </div>
 
                     {/* Right Pane: Chat Window & Input (Full width) */}
-                    <div className="col-span-12 md:col-span-8 flex flex-col min-h-0 bg-surface">
+                    <div className={`${activeTab === 'discussion' ? 'flex' : 'hidden'} md:flex col-span-12 md:col-span-8 flex-col min-h-0 bg-surface`}>
                         {/* Messages Thread Feed */}
                         <div className="flex-1 overflow-y-auto p-5 space-y-4">
                             <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
