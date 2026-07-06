@@ -409,7 +409,7 @@ export default function PostReplyModal({
                             {localReplies.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 text-center">
                                     <div className="w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center mb-3">
-                                        💬
+                                        <MessageSquare size={20} className="text-primary/70" />
                                     </div>
                                     <p className="text-[13px] text-text-muted">
                                         No messages in this chat. Start the
