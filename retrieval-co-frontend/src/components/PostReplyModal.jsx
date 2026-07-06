@@ -27,19 +27,20 @@ export default function PostReplyModal({
     onToggleMinimize,
     onQRReturn,
     onStatusUpdate,
+    defaultTab = "details",
 }) {
     const { user: currentUser } = useAuth();
     const [replyText, setReplyText] = useState("");
     const [sending, setSending] = useState(false);
     const [localReplies, setLocalReplies] = useState([]);
-    const [activeTab, setActiveTab] = useState("details"); // 'details' | 'discussion'
+    const [activeTab, setActiveTab] = useState(defaultTab); // 'details' | 'discussion'
     const repliesEndRef = useRef(null);
     const inputRef = useRef(null);
 
     useEffect(() => {
-        // Reset tab to details when a new post is opened
-        if (isOpen) setActiveTab("details");
-    }, [isOpen, post?._id]);
+        // Reset tab to defaultTab when a new post is opened
+        if (isOpen) setActiveTab(defaultTab);
+    }, [isOpen, post?._id, defaultTab]);
 
     useEffect(() => {
         if (post?.replies) {
@@ -60,6 +61,10 @@ export default function PostReplyModal({
 
         if (isOpen && !isMinimized) {
             document.body.style.overflow = "hidden";
+            // Auto-focus input only if discussion tab is opened
+            if (activeTab === "discussion") {
+                setTimeout(() => inputRef.current?.focus(), 300);
+            }
             document.addEventListener("keydown", handleKeyDown);
         } else {
             document.body.style.overflow = "";

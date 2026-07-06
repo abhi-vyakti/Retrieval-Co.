@@ -25,6 +25,7 @@ export default function MyPostsPage() {
 
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
     const [selectedQRPost, setSelectedQRPost] = useState(null);
+    const [replyModalTab, setReplyModalTab] = useState("details");
 
     const [selectedPost, setSelectedPost] = useState(null);
     const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
@@ -397,7 +398,11 @@ export default function MyPostsPage() {
                                         <PostCard
                                             key={post._id}
                                             post={post}
-                                            onReply={handleReply}
+                                            onReply={(p, tab = "details") => {
+                                                setSelectedPost(p);
+                                                setReplyModalTab(tab);
+                                                setIsReplyModalOpen(true);
+                                            }}
                                             isAuthor={true}
                                             onStatusUpdate={handleStatusUpdate}
                                             onQRReturn={handleQRReturn}
@@ -438,6 +443,7 @@ export default function MyPostsPage() {
             <PostReplyModal
                 post={selectedPost}
                 isOpen={isReplyModalOpen}
+                defaultTab={replyModalTab}
                 onClose={() => {
                     setIsReplyModalOpen(false);
                     setSelectedPost(null);
