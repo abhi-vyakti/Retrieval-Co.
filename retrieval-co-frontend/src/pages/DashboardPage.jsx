@@ -46,6 +46,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         localStorage.setItem("dashboard_active_tab", activeTab);
+        window.dispatchEvent(new CustomEvent("dashboard-tab-changed", { detail: { tab: activeTab } }));
     }, [activeTab]);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
