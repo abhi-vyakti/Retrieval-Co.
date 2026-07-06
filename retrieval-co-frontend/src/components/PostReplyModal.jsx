@@ -250,6 +250,15 @@ export default function PostReplyModal({
                                 />{" "}
                                 Category: {post.category || "Others"}
                             </span>
+                            {post.author?.name && (
+                                <span className="flex items-center gap-1.5 mt-1 border-t border-border/40 pt-2 text-text">
+                                    <User
+                                        size={13}
+                                        className="text-text-muted shrink-0"
+                                    />{" "}
+                                    <span className="font-medium text-text-muted">Posted by:</span> {post.author.name}
+                                </span>
+                            )}
                         </div>
 
                         {/* Case Action Buttons */}
