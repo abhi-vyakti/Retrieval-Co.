@@ -276,10 +276,7 @@ export default function QRReturnModal({
                             {isReceiver ? (
                                 <div className="space-y-5">
                                     <p className="text-text-muted text-[13px] leading-relaxed">
-                                        Show this QR code to the person
-                                        returning your item. When they scan it,
-                                        the item will be marked as returned and
-                                        they will receive Karma.
+                                        Show this QR code to the finder. They will scan it to confirm the return and receive Karma.
                                     </p>
 
                                     {error && (
