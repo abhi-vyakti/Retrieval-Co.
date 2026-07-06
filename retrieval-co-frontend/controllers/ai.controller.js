@@ -477,7 +477,12 @@ const generateSmartOfflineResponse = async (messages, context) => {
         return `Found items are typically kept at the **Campus Security Desk (Ground Floor, Main Block)** or the **Central Library Front Desk**. If you've found an item, please post it here first and drop it off there!`;
     }
 
-    // 2. ITEM SEARCH IN DATABASE
+    // 2. SPECIFIC INTENT CATCHERS
+    if (lastMsgLower.includes('borrow') || lastMsgLower.includes('lend')) {
+        return `To borrow equipment (like calculators, drafters, or textbooks), you need to create a request! Select the **Borrow** tab on the Dashboard or click **+ Post** to ask the community.`;
+    }
+
+    // 3. ITEM SEARCH IN DATABASE
     const stopwords = new Set(['are', 'there', 'any', 'lost', 'found', 'borrow', 'need', 'have', 'you', 'seen', 'search', 'find', 'item', 'a', 'an', 'the', 'is', 'in', 'on', 'near', 'at', 'with', 'my', 'of', 'for', 'about', 'can', 'could', 'would', 'should', 'please', 'help', 'me', 'want', 'someone', 'anyone']);
     const words = lastMsgLower.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 3 && !stopwords.has(w));
     
@@ -499,14 +504,14 @@ const generateSmartOfflineResponse = async (messages, context) => {
                 const locationLabel = m.location ? ` at ${m.location}` : '';
                 responseText += `\n\n• **[${typeLabel}] ${m.title}** (Category: ${m.category}${locationLabel}) [[postId:${m._id || m.id}]]`;
             });
-            responseText += `\n\nClick the button(s) above to view details. If these aren't what you're looking for, you can easily create a new post to get help!`;
+            responseText += `\n\nClick the button(s) below to view details. If these aren't what you're looking for, you can easily create a new post to get help!`;
             return responseText;
         } else {
             return `I couldn't find any active matches for that right now. But don't worry! You can easily create a request so others can help you out. Just click the **+ Post** button in the navigation bar to create a new post.`;
         }
     }
 
-    // 3. POST TYPE ASSISTANCE
+    // 4. POST TYPE ASSISTANCE
     if (lastMsgLower.includes('lost') || lastMsgLower.includes('missing')) {
         return `If you lost an item, click **+ Post** or head to the **Post** tab and choose **Lost**. Provide details like the location, date, and time to help other students match it!`;
     }
@@ -515,11 +520,7 @@ const generateSmartOfflineResponse = async (messages, context) => {
         return `If you found an item, head to the **Post** tab and select **Found**. Remember, posting a found item requires uploading a clear photo of the item as proof of possession.`;
     }
 
-    if (lastMsgLower.includes('borrow') || lastMsgLower.includes('lend') || lastMsgLower.includes('need')) {
-        return `To borrow equipment (like calculators, drafters, or textbooks), select the **Borrow** tab. You'll need to specify which class session you need it for and a duration timer.`;
-    }
-
-    // 4. GENERIC DEFAULT HELP
+    // 5. GENERIC DEFAULT HELP
     return `I can help you search active campus requests. Try asking something like:
 - *"Have you seen any keys?"*
 - *"Is there a calculator I can borrow?"*
