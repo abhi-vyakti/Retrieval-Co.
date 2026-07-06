@@ -478,8 +478,8 @@ const generateSmartOfflineResponse = async (messages, context) => {
     }
 
     // 2. ITEM SEARCH IN DATABASE
-    const stopwords = new Set(['are', 'there', 'any', 'lost', 'found', 'borrow', 'need', 'have', 'you', 'seen', 'search', 'find', 'item', 'a', 'an', 'the', 'is', 'in', 'on', 'near', 'at', 'with', 'my', 'of', 'for', 'about']);
-    const words = lastMsgLower.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 2 && !stopwords.has(w));
+    const stopwords = new Set(['are', 'there', 'any', 'lost', 'found', 'borrow', 'need', 'have', 'you', 'seen', 'search', 'find', 'item', 'a', 'an', 'the', 'is', 'in', 'on', 'near', 'at', 'with', 'my', 'of', 'for', 'about', 'can', 'could', 'would', 'should', 'please', 'help', 'me', 'want', 'someone', 'anyone']);
+    const words = lastMsgLower.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 3 && !stopwords.has(w));
     
     if (words.length > 0) {
         // Search openPosts for matches
@@ -489,18 +489,20 @@ const generateSmartOfflineResponse = async (messages, context) => {
             const locText = (post.location || '').toLowerCase();
             const categoryText = (post.category || '').toLowerCase();
             
-            return words.some(w => titleText.includes(w) || descText.includes(w) || locText.includes(w) || categoryText.includes(w));
+            return words.some(w => titleText.includes(w) || descText.includes(w) || categoryText.includes(w));
         });
 
         if (matches.length > 0) {
-            let responseText = `I found **${matches.length} active post(s)** matching your query:`;
+            let responseText = `I found **${matches.length} active post(s)** that might be what you're looking for:`;
             matches.slice(0, 3).forEach(m => {
                 const typeLabel = m.type.toUpperCase();
                 const locationLabel = m.location ? ` at ${m.location}` : '';
                 responseText += `\n\n• **[${typeLabel}] ${m.title}** (Category: ${m.category}${locationLabel}) [[postId:${m._id || m.id}]]`;
             });
-            responseText += `\n\nClick the button(s) above to reply or claim! Let me know if you need help with anything else.`;
+            responseText += `\n\nClick the button(s) above to view details. If these aren't what you're looking for, you can easily create a new post to get help!`;
             return responseText;
+        } else {
+            return `I couldn't find any active matches for that right now. But don't worry! You can easily create a request so others can help you out. Just click the **+ Post** button in the navigation bar to create a new post.`;
         }
     }
 
