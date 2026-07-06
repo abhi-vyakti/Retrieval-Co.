@@ -28,6 +28,45 @@ export default function RequestlyBot() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [posts, setPosts] = useState([]);
+    
+    // Placeholder Animation State
+    const placeholderPhrases = [
+        "Report a lost item...",
+        "Found something...",
+        "Want to borrow something...",
+        "Check my matches...",
+        "Ask me anything..."
+    ];
+    const [placeholderText, setPlaceholderText] = useState("");
+    const [phraseIndex, setPhraseIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+    
+    useEffect(() => {
+        let timer;
+        const currentPhrase = placeholderPhrases[phraseIndex];
+        
+        if (isDeleting) {
+            timer = setTimeout(() => {
+                setPlaceholderText(currentPhrase.substring(0, placeholderText.length - 1));
+                if (placeholderText.length <= 1) {
+                    setIsDeleting(false);
+                    setPhraseIndex((prev) => (prev + 1) % placeholderPhrases.length);
+                }
+            }, 40);
+        } else {
+            if (placeholderText.length < currentPhrase.length) {
+                timer = setTimeout(() => {
+                    setPlaceholderText(currentPhrase.substring(0, placeholderText.length + 1));
+                }, 80);
+            } else {
+                timer = setTimeout(() => {
+                    setIsDeleting(true);
+                }, 2000);
+            }
+        }
+        return () => clearTimeout(timer);
+    }, [placeholderText, isDeleting, phraseIndex]);
+
     const messagesEndRef = useRef(null);
     const messagesContainerRef = useRef(null);
 
@@ -369,7 +408,7 @@ export default function RequestlyBot() {
                             onKeyDown={(e) =>
                                 e.key === "Enter" && handleSend(e)
                             }
-                            placeholder="Ask me anything…"
+                            placeholder={placeholderText || " "}
                             className="flex-1 bg-background border border-border rounded-[8px] px-3 py-2.5 text-text font-body text-[0.88rem] outline-none"
                         />
                         <button
