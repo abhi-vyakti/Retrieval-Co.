@@ -129,7 +129,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/AirPods.jpg/800px-AirPods.jpg",
+            "https://m.media-amazon.com/images/I/61+Q6Rh3OQL._SL1500_.jpg",
         author: {
             _id: "user_ananyasingh",
             name: "Ananya Singh",
@@ -158,8 +158,8 @@ function getPosts() {
             post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Casio_fx-991ES_PLUS_2nd_edition.jpg";
             updated = true;
         }
-        if (post._id === "post_5" && post.imageUrl && post.imageUrl.includes("1606220838315-056192d5e927")) {
-            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/AirPods.jpg/800px-AirPods.jpg";
+        if (post._id === "post_5" && post.imageUrl && (post.imageUrl.includes("1606220838315-056192d5e927") || post.imageUrl.includes("AirPods.jpg"))) {
+            post.imageUrl = "https://m.media-amazon.com/images/I/61+Q6Rh3OQL._SL1500_.jpg";
             updated = true;
         }
         return post;
