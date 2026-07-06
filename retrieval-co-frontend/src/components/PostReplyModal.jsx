@@ -487,6 +487,63 @@ export default function PostReplyModal({
                             )}
                         </div>
 
+                        {/* Mobile Action Buttons (since sidebar is hidden on mobile) */}
+                        {post.status !== "closed" &&
+                         post.status !== "returned" &&
+                         post.status !== "expired" && (
+                            <div className="md:hidden p-3 border-t border-border bg-surface shrink-0 flex gap-2 overflow-x-auto hide-scrollbar">
+                                {isAuthor ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                if (onQRReturn && post.type !== "borrow") {
+                                                    onQRReturn(post);
+                                                } else {
+                                                    onStatusUpdate?.(post._id, "returned");
+                                                    onClose();
+                                                }
+                                            }}
+                                            className="whitespace-nowrap py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 flex-1 focus-visible:outline-none"
+                                        >
+                                            {post.type !== "borrow" && <QrCode size={13} />}
+                                            Mark Returned
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                onStatusUpdate?.(post._id, "closed");
+                                                onClose();
+                                            }}
+                                            className="whitespace-nowrap py-2 px-3 rounded-lg text-xs font-bold transition-all bg-transparent hover:bg-danger/10 text-danger border border-danger/20 hover:border-danger/30 cursor-pointer flex items-center justify-center gap-1.5 flex-1 focus-visible:outline-none"
+                                        >
+                                            Close
+                                        </button>
+                                        {!post.isUrgent && post.type === "borrow" && (
+                                            <button
+                                                onClick={() => {
+                                                    onStatusUpdate?.(post._id, post.status, true);
+                                                    onClose();
+                                                }}
+                                                className="whitespace-nowrap py-2 px-3 rounded-lg text-xs font-bold transition-all bg-transparent hover:bg-danger/5 text-danger border border-danger/20 cursor-pointer flex items-center justify-center gap-1.5 flex-1 focus-visible:outline-none"
+                                            >
+                                                <AlertCircle size={13} /> URGENT
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {onQRReturn && post.type !== "borrow" && (
+                                            <button
+                                                onClick={() => onQRReturn(post)}
+                                                className="whitespace-nowrap w-full py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none"
+                                            >
+                                                <QrCode size={14} /> Return to Owner
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+
                         {/* Send Message Input Container */}
                         <div
                             className="p-4 border-t border-border bg-surface shrink-0"
