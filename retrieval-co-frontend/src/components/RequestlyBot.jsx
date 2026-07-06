@@ -461,9 +461,11 @@ export default function RequestlyBot() {
 
             {/* Bot FAB */}
             <div className="group flex items-center gap-2">
-                <span className="bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none select-none font-bold">
-                    AI Assistant
-                </span>
+                {!isOpen && (
+                    <span className="bg-card border border-border text-text text-xs px-2.5 py-1.5 rounded-lg shadow opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none select-none font-bold">
+                        AI Assistant
+                    </span>
+                )}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     className={`w-[58px] h-[58px] rounded-full border-none flex items-center justify-center cursor-pointer transition-all hover:scale-[1.08] shrink-0 p-0 relative ${
