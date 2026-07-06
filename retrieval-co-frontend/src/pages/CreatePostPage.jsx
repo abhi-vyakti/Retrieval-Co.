@@ -31,6 +31,7 @@ export default function CreatePostPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [createdPostId, setCreatedPostId] = useState("");
     const { token } = useAuth();
 
     // AI Parsing State
@@ -426,6 +427,21 @@ export default function CreatePostPage() {
                 throw new Error(data.error || "Failed to create post");
             }
 
+            const newPost = data.post || data.newPost;
+            let postId = "";
+            if (newPost) {
+                if (newPost._id && typeof newPost._id === "object" && newPost._id.id) {
+                    postId = newPost._id.id;
+                } else if (typeof newPost._id === "string") {
+                    postId = newPost._id;
+                } else if (newPost.id) {
+                    postId = newPost.id;
+                }
+            }
+            if (postId) {
+                setCreatedPostId(postId);
+            }
+
             if (type === "borrow") {
                 setSuccessMessage(
                     `Notification sent successfully! Wait for someone to reply or physically meet a student from Section F to get your item.`,
@@ -470,7 +486,7 @@ export default function CreatePostPage() {
                             </Button>
                         ) : (
                             <Button
-                                onClick={() => navigate("/my-posts")}
+                                onClick={() => navigate(createdPostId ? `/my-posts?openPost=${createdPostId}` : "/my-posts")}
                                 variant="ghost"
                                 className="flex-1 py-3"
                             >

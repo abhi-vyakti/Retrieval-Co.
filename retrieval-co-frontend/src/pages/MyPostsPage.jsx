@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import PostReplyModal from "../components/PostReplyModal";
@@ -19,6 +19,8 @@ import { API_BASE } from "../config/api";
 
 export default function MyPostsPage() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("active");
@@ -75,6 +77,23 @@ export default function MyPostsPage() {
         window.addEventListener("post-created", fetchMyPosts);
         return () => window.removeEventListener("post-created", fetchMyPosts);
     }, []);
+
+    useEffect(() => {
+        const openPostId = searchParams.get("openPost");
+        if (openPostId) {
+            const timer = setTimeout(() => {
+                window.dispatchEvent(
+                    new CustomEvent("open-post-reply", {
+                        detail: { postId: openPostId },
+                    }),
+                );
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete("openPost");
+                setSearchParams(newParams, { replace: true });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [searchParams, setSearchParams]);
 
     useEffect(() => {
         const handleOpenPostReply = async (e) => {

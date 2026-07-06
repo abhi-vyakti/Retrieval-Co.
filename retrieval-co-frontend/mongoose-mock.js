@@ -50,6 +50,9 @@ class ObjectId {
     equals(other) {
         return this.toString() === (other ? other.toString() : '');
     }
+    toJSON() {
+        return this.toString();
+    }
 }
 
 class Schema {
@@ -153,6 +156,10 @@ function createDocument(collectionName, data) {
             });
         }
         return obj;
+    };
+
+    doc.toJSON = function() {
+        return doc.toObject();
     };
 
     return doc;
