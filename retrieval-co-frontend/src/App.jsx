@@ -63,7 +63,7 @@ function FloatingPostButton() {
 
     return (
         <div 
-            className={`fixed z-40 group flex items-center gap-2 transition-all duration-300 ease-in-out ${
+            className={`fixed z-[500] group flex items-center gap-2 transition-all duration-300 ease-in-out ${
                 isBotOpen 
                     ? "bottom-4 md:bottom-8 right-[82px] md:right-[98px]" 
                     : "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 md:bottom-[6.5rem] md:right-8"
