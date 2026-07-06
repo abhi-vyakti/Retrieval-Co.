@@ -66,7 +66,7 @@ const DEFAULT_POSTS = [
         datetime: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
         status: "open",
         imageUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Casio_fx-991ES_PLUS.jpg/800px-Casio_fx-991ES_PLUS.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/1/1a/Casio_fx-991ES_PLUS_2nd_edition.jpg",
         author: {
             _id: "user_rahulverma",
             name: "Rahul Verma",
@@ -154,8 +154,8 @@ function getPosts() {
     let parsed = JSON.parse(stored);
     let updated = false;
     parsed = parsed.map(post => {
-        if (post._id === "post_2" && post.imageUrl && post.imageUrl.includes("1594980596870-8aa52a78d8cd")) {
-            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Casio_fx-991ES_PLUS.jpg/800px-Casio_fx-991ES_PLUS.jpg";
+        if (post._id === "post_2" && post.imageUrl && (post.imageUrl.includes("1594980596870-8aa52a78d8cd") || post.imageUrl.includes("d7/Casio_fx-991ES_PLUS.jpg"))) {
+            post.imageUrl = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Casio_fx-991ES_PLUS_2nd_edition.jpg";
             updated = true;
         }
         if (post._id === "post_5" && post.imageUrl && post.imageUrl.includes("1606220838315-056192d5e927")) {
