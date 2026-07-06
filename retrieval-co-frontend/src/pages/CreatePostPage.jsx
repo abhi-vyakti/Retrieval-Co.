@@ -430,6 +430,7 @@ export default function CreatePostPage() {
                 setSuccessMessage(
                     `Notification sent successfully! Wait for someone to reply or physically meet a student from Section F to get your item.`,
                 );
+                window.scrollTo({ top: 0, behavior: "smooth" });
             } else {
                 navigate("/dashboard");
             }
