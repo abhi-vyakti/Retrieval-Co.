@@ -43,7 +43,10 @@ Integrates natural language processing to parse unstructured user input into str
 Calculates similarity between lost item reports and found item inventory to automatically suggest potential matches to users.
 
 ### 📱 QR Return Workflow
-Utilizes time-based JSON Web Tokens (JWT) embedded within QR codes. Both parties must scan to securely verify the transfer of an item, ensuring non-repudiation.
+Utilizes time-based JSON Web Tokens (JWT) embedded within QR codes. Both parties must securely verify the transfer of an item to ensure non-repudiation. The system dynamically determines the Receiver and Giver based on the post type:
+- **LOST Post:** Author (Owner) generates the QR to confirm receipt; Replier (Finder) scans it to get Karma.
+- **FOUND Post:** Replier (Owner) generates the QR to confirm receipt; Author (Finder) scans it to get Karma.
+- **BORROW Post:** Replier (Lender) generates the QR to confirm receipt; Author (Borrower) scans it to prove they returned it.
 
 ### 🗺️ Campus Hotspots
 Aggregates geographical data from lost item reports to render a heatmap of frequent loss locations on campus.
