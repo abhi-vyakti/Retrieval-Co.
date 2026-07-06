@@ -418,7 +418,9 @@ export default function MyPostsPage() {
                     setSelectedQRPost(null);
                 }}
                 post={selectedQRPost}
-                isOwner={true}
+                isReceiver={
+                    selectedQRPost ? selectedQRPost.type === "lost" : false
+                }
                 onSuccessCallback={() => {
                     setIsQRModalOpen(false);
                     setPosts((prevPosts) =>

@@ -280,25 +280,17 @@ export default function PostReplyModal({
                                     <>
                                         <button
                                             onClick={() => {
-                                                if (
-                                                    onQRReturn &&
-                                                    post.type !== "borrow"
-                                                ) {
+                                                if (onQRReturn) {
                                                     onQRReturn(post);
                                                 } else {
-                                                    onStatusUpdate?.(
-                                                        post._id,
-                                                        "returned",
-                                                    );
+                                                    onStatusUpdate?.(post._id, "returned");
                                                     onClose();
                                                 }
                                             }}
                                             className="w-full py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none"
                                         >
-                                            {post.type !== "borrow" && (
-                                                <QrCode size={13} />
-                                            )}
-                                            Mark Returned
+                                            <QrCode size={13} />
+                                            {post.type === "lost" ? "Mark Returned" : (post.type === "found" ? "Return to Owner" : "Return Item")}
                                         </button>
                                         <button
                                             onClick={() => {
@@ -338,18 +330,14 @@ export default function PostReplyModal({
                                 post.status !== "returned" &&
                                 post.status !== "expired" && (
                                     <>
-                                        {onQRReturn &&
-                                            post.type !== "borrow" && (
-                                                <button
-                                                    onClick={() =>
-                                                        onQRReturn(post)
-                                                    }
-                                                    className="w-full py-2.5 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none"
-                                                >
-                                                    <QrCode size={14} /> Return
-                                                    to Owner
-                                                </button>
-                                            )}
+                                        {onQRReturn && (
+                                            <button
+                                                onClick={() => onQRReturn(post)}
+                                                className="w-full py-2.5 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none"
+                                            >
+                                                <QrCode size={14} /> {post.type === "lost" ? "Return to Owner" : "Mark Returned"}
+                                            </button>
+                                        )}
                                     </>
                                 )}
                         </div>
@@ -496,7 +484,7 @@ export default function PostReplyModal({
                                     <>
                                         <button
                                             onClick={() => {
-                                                if (onQRReturn && post.type !== "borrow") {
+                                                if (onQRReturn) {
                                                     onQRReturn(post);
                                                 } else {
                                                     onStatusUpdate?.(post._id, "returned");
@@ -505,8 +493,8 @@ export default function PostReplyModal({
                                             }}
                                             className="whitespace-nowrap py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 flex-1 focus-visible:outline-none"
                                         >
-                                            {post.type !== "borrow" && <QrCode size={13} />}
-                                            Mark Returned
+                                            <QrCode size={13} />
+                                            {post.type === "lost" ? "Mark Returned" : (post.type === "found" ? "Return to Owner" : "Return Item")}
                                         </button>
                                         <button
                                             onClick={() => {
@@ -531,12 +519,12 @@ export default function PostReplyModal({
                                     </>
                                 ) : (
                                     <>
-                                        {onQRReturn && post.type !== "borrow" && (
+                                        {onQRReturn && (
                                             <button
                                                 onClick={() => onQRReturn(post)}
                                                 className="whitespace-nowrap w-full py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary hover:scale-[1.01] active:scale-[0.98] text-white border border-transparent cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none"
                                             >
-                                                <QrCode size={14} /> Return to Owner
+                                                <QrCode size={14} /> {post.type === "lost" ? "Return to Owner" : "Mark Returned"}
                                             </button>
                                         )}
                                     </>
