@@ -50,11 +50,19 @@ function FloatingPostButton() {
     const { user } = useAuth();
     const location = useLocation();
     const [isBotOpen, setIsBotOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState(() => localStorage.getItem("dashboard_active_tab") || "lost_found");
 
     useEffect(() => {
         const handleBotToggle = (e) => setIsBotOpen(e.detail.isOpen);
+        const handleTabChange = (e) => setActiveTab(e.detail.tab);
+        
         window.addEventListener("bot-toggled", handleBotToggle);
-        return () => window.removeEventListener("bot-toggled", handleBotToggle);
+        window.addEventListener("dashboard-tab-changed", handleTabChange);
+        
+        return () => {
+            window.removeEventListener("bot-toggled", handleBotToggle);
+            window.removeEventListener("dashboard-tab-changed", handleTabChange);
+        };
     }, []);
 
     if (!user || location.pathname === "/create") {
@@ -73,7 +81,7 @@ function FloatingPostButton() {
                 Create a Post
             </span>
             <Link
-                to="/create"
+                to={`/create?type=${activeTab === "borrow" ? "borrow" : "lost"}`}
                 className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer border-none no-underline focus-visible:outline-none"
                 aria-label="Create new post"
             >
