@@ -344,12 +344,23 @@ export default function RequestlyBot() {
                                 ● Online
                             </p>
                         </div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="text-text-muted hover:text-text transition-colors cursor-pointer bg-transparent border-none"
-                        >
-                            <X size={18} />
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    navigate("/create");
+                                }}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-[rgba(0,201,200,0.15)] text-amber hover:bg-amber hover:text-white hover:scale-105 active:scale-95 transition-all rounded-lg text-[0.7rem] font-bold cursor-pointer border border-[rgba(0,201,200,0.3)] mr-1"
+                            >
+                                <span className="text-[12px] leading-none mb-[1px]">+</span> Post
+                            </button>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="text-text-muted hover:text-text transition-colors cursor-pointer bg-transparent border-none p-1.5 rounded-full hover:bg-white/5"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Messages */}
