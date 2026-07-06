@@ -479,7 +479,7 @@ const generateSmartOfflineResponse = async (messages, context) => {
 
     // 2. SPECIFIC INTENT CATCHERS
     if (lastMsgLower.includes('borrow') || lastMsgLower.includes('lend')) {
-        return `To borrow equipment (like calculators, drafters, or textbooks), you need to create a request! Select the **Borrow** tab on the Dashboard or click **+ Post** to ask the community.`;
+        return `To borrow equipment (like calculators, drafters, or textbooks), you need to create a request! Select the **Borrow** tab on the Navigation bar or click **+ Post** to ask the community.`;
     }
 
     // 3. ITEM SEARCH IN DATABASE

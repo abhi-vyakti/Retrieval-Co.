@@ -431,6 +431,19 @@ export default function RequestlyBot() {
                         <div ref={messagesEndRef} />
                     </div>
 
+                    {/* Quick Actions */}
+                    <div className="px-4 py-2.5 border-t border-border flex justify-center bg-surface">
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                navigate("/create-post");
+                            }}
+                            className="px-5 py-1.5 bg-[rgba(0,201,200,0.15)] text-amber border border-[rgba(0,201,200,0.3)] rounded-full text-[0.8rem] font-bold hover:bg-amber hover:text-surface transition-all cursor-pointer flex items-center gap-1.5 hover:scale-105 active:scale-95"
+                        >
+                            <span className="text-[14px] leading-none mb-0.5">+</span> Post
+                        </button>
+                    </div>
+
                     {/* Input */}
                     <div className="flex gap-2 px-4 py-3.5 border-t border-border">
                         <input
