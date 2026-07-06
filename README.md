@@ -12,7 +12,7 @@ Retrieval Co. is a centralized campus portal for managing lost and found items a
 
 ## Demo
 
-- **Live Application:** [Deployment URL Placeholder]
+- **Live Application:** https://retrieval-co.vercel.app/
 - **Demo Mode:** Click `⚡ Continue as Demo User` on the login screen to explore the application using the client-side mock interceptor.
 
 ![Demo](docs/assets/demo.gif)
