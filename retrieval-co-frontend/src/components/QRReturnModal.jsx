@@ -220,7 +220,7 @@ export default function QRReturnModal({
                     </h3>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer border-none bg-transparent"
+                        className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-border transition-colors cursor-pointer border-none bg-transparent"
                     >
                         <X size={18} />
                     </button>
