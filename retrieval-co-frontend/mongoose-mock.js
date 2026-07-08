@@ -12,6 +12,12 @@ function loadDB() {
         return inMemoryDB;
     }
     try {
+        if (process.env.VERCEL && !fs.existsSync('/tmp/db.json')) {
+            const sourceFile = path.join(__dirname, 'db.json');
+            if (fs.existsSync(sourceFile)) {
+                fs.copyFileSync(sourceFile, '/tmp/db.json');
+            }
+        }
         if (fs.existsSync(DB_FILE)) {
             const data = fs.readFileSync(DB_FILE, 'utf8');
             inMemoryDB = JSON.parse(data);
