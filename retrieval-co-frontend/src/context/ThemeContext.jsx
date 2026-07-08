@@ -8,18 +8,18 @@ export function ThemeProvider({ children }) {
         if (saved) {
             return saved === "dark";
         }
-        return true; // default is dark
+        return false; // default is light
     });
 
     useEffect(() => {
         const root = window.document.documentElement;
         if (isDark) {
-            root.classList.remove("light");
             root.classList.add("dark");
+            root.classList.remove("light");
             localStorage.setItem("theme", "dark");
         } else {
-            root.classList.remove("dark");
             root.classList.add("light");
+            root.classList.remove("dark");
             localStorage.setItem("theme", "light");
         }
     }, [isDark]);

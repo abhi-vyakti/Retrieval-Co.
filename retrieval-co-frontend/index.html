@@ -24,8 +24,9 @@
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
         } else {
-          // default is dark
-          document.documentElement.classList.add('dark');
+          // default is light
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
         }
       } catch (e) { }
     })();
