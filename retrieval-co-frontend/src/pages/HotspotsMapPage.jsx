@@ -34,11 +34,11 @@ const orangeIcon = new L.Icon({
     shadowSize: [41, 41],
 });
 
-// Static MVP Hotspots Array for Sreenidhi
+// Static MVP Hotspots Array for Campus
 const MVP_HOTSPOTS = [
     {
         id: 1,
-        name: "Sreenidhi Library",
+        name: "Central Library",
         position: [17.4567, 78.6667],
         description:
             "High foot traffic area. Frequent lost IDs, wallets, and Books.",
@@ -66,7 +66,7 @@ const RECENT_RECOVERIES = [
     {
         id: 1,
         item: "Student ID Card",
-        location: "Sreenidhi Library",
+        location: "Central Library",
         time: "2 hrs ago",
     },
     {
@@ -84,7 +84,7 @@ const RECENT_RECOVERIES = [
 ];
 
 const COMMON_LOCATIONS = [
-    { name: "Sreenidhi Library", count: 24, status: "High Risk" },
+    { name: "Central Library", count: 24, status: "High Risk" },
     { name: "Campus Canteen", count: 18, status: "Medium Risk" },
     { name: "Main Block Block 3", count: 12, status: "Medium Risk" },
 ];

@@ -95,7 +95,7 @@ export default function LeaderboardPage() {
                     <span className="text-primary">Karma Leaderboard</span>
                 </h1>
                 <p className="text-text-muted max-w-xl mx-auto text-[14px]">
-                    Celebrating Sreenidhi students who actively report lost
+                    Celebrating students who actively report lost
                     items and verify successful returns.
                 </p>
             </div>
