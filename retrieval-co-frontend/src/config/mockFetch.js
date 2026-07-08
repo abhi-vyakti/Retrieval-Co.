@@ -140,6 +140,86 @@ const DEFAULT_POSTS = [
         createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     },
+    {
+        _id: "post_100",
+        type: "found",
+        title: "Black Umbrella",
+        category: "Accessories",
+        description: "Found a black umbrella in the library on the second floor.",
+        location: "Library",
+        datetime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        status: "open",
+        author: {
+            _id: "user_kiransharma",
+            name: "Kiran Sharma",
+            collegeId: "22BCE1234",
+            karma: 312,
+        },
+        replies: [],
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        _id: "post_101",
+        type: "lost",
+        title: "Wireless Earbuds (AirPods Pro)",
+        category: "Electronics",
+        description: "I think I dropped my AirPods case near the basketball court.",
+        location: "Basketball Court",
+        datetime: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        status: "open",
+        isUrgent: true,
+        author: {
+            _id: "user_priyanair",
+            name: "Priya Nair",
+            collegeId: "23ECE4321",
+            karma: 247,
+        },
+        replies: [],
+        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        _id: "post_102",
+        type: "borrow",
+        title: "Lab Coat - Size M",
+        category: "Clothing",
+        description: "Need a lab coat for Chemistry lab immediately. Will return in 2 hours.",
+        location: "Chemistry Block",
+        datetime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        needUntil: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+        status: "open",
+        isUrgent: true,
+        author: {
+            _id: "user_rahulverma",
+            name: "Rahul Verma",
+            collegeId: "21MEC5678",
+            karma: 189,
+        },
+        replies: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    },
+    {
+        _id: "post_103",
+        type: "borrow",
+        title: "Arduino Uno Board",
+        category: "Electronics",
+        description: "Does anyone have a spare Arduino Uno for a weekend project? Will take good care of it.",
+        location: "Hostel A",
+        datetime: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+        needUntil: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        status: "open",
+        author: {
+            _id: "user_ananyasingh",
+            name: "Ananya Singh",
+            collegeId: "24CIV8765",
+            karma: 134,
+        },
+        replies: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    },
 ];
 
 // Helper to load posts from localStorage
@@ -163,6 +243,14 @@ function getPosts() {
             updated = true;
         }
         return post;
+    });
+    
+    // Ensure all default posts exist in the loaded storage (e.g. for returning users)
+    DEFAULT_POSTS.forEach(defPost => {
+        if (!parsed.some(p => p._id === defPost._id)) {
+            parsed.push(defPost);
+            updated = true;
+        }
     });
     
     if (updated) {
