@@ -330,8 +330,12 @@ export default function CreatePostPage() {
         }
 
         if (type === "borrow") {
-            if (!formData.selectedClass) {
+            if (!formData.forProject && !formData.selectedClass) {
                 showError("Please select your upcoming class to find a match.");
+                return;
+            }
+            if (formData.forProject && !formData.description) {
+                showError("Please describe your project or what you need the item for.");
                 return;
             }
         }
