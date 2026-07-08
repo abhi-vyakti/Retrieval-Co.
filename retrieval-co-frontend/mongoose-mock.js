@@ -312,69 +312,142 @@ const mockMongoose = {
         
         // Initialize default seed data if database is empty
         const db = loadDB();
-        if (!db.users || db.users.length === 0) {
-            console.log('[MOCK DB] Initializing seed data in db.json...');
-            
-            // Seed Users
-            const users = [
-                { _id: 'user_kiransharma', collegeId: '22BCE1234', name: 'Kiran Sharma', karma: 312, role: 'student' },
-                { _id: 'user_priyanair', collegeId: '23ECE4321', name: 'Priya Nair', karma: 247, role: 'student' },
-                { _id: 'user_rahulverma', collegeId: '21MEC5678', name: 'Rahul Verma', karma: 189, role: 'student' },
-                { _id: 'user_ananyasingh', collegeId: '24CIV8765', name: 'Ananya Singh', karma: 134, role: 'student' }
-            ];
+        
+        console.log('[MOCK DB] Verifying and appending missing seed data...');
+        
+        // Seed Users
+        const users = [
+            { _id: 'user_kiransharma', collegeId: '22BCE1234', name: 'Kiran Sharma', karma: 312, role: 'student' },
+            { _id: 'user_priyanair', collegeId: '23ECE4321', name: 'Priya Nair', karma: 247, role: 'student' },
+            { _id: 'user_rahulverma', collegeId: '21MEC5678', name: 'Rahul Verma', karma: 189, role: 'student' },
+            { _id: 'user_ananyasingh', collegeId: '24CIV8765', name: 'Ananya Singh', karma: 134, role: 'student' }
+        ];
 
-            const now = new Date();
-            const posts = [
-                {
-                    _id: 'post_1',
-                    type: 'lost',
-                    title: 'Student ID Card',
-                    category: 'ID Cards',
-                    description: 'Lost my ID card near the canteen. It has a blue lanyard.',
-                    location: 'Canteen',
-                    datetime: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
-                    status: 'open',
-                    isUrgent: true,
-                    author: 'user_ananyasingh',
-                    replies: [],
-                    createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
-                    updatedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString()
-                },
-                {
-                    _id: 'post_2',
-                    type: 'found',
-                    title: 'Scientific Calculator (Casio FX-991ES)',
-                    category: 'Electronics',
-                    description: 'Found on the 3rd bench in Physics Lab.',
-                    location: 'Department Lab',
-                    datetime: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString(),
-                    status: 'open',
-                    imageUrl: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop',
-                    author: 'user_rahulverma',
-                    replies: [],
-                    createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString(),
-                    updatedAt: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString()
-                },
-                {
-                    _id: 'post_3',
-                    type: 'borrow',
-                    title: 'Engineering Drafter',
-                    category: 'Stationery',
-                    description: 'Need a drafter for my EG class in 30 mins!',
-                    location: '1st Year Block',
-                    datetime: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
-                    needUntil: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
-                    status: 'open',
-                    isUrgent: true,
-                    author: 'user_priyanair',
-                    replies: [],
-                    createdAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
-                    updatedAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString()
-                }
-            ];
+        const now = new Date();
+        const posts = [
+            {
+                _id: 'post_1',
+                type: 'lost',
+                title: 'Student ID Card',
+                category: 'ID Cards',
+                description: 'Lost my ID card near the canteen. It has a blue lanyard.',
+                location: 'Canteen',
+                datetime: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                isUrgent: true,
+                author: 'user_ananyasingh',
+                replies: [],
+                createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                _id: 'post_2',
+                type: 'found',
+                title: 'Scientific Calculator (Casio FX-991ES)',
+                category: 'Electronics',
+                description: 'Found on the 3rd bench in Physics Lab.',
+                location: 'Department Lab',
+                datetime: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                imageUrl: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop',
+                author: 'user_rahulverma',
+                replies: [],
+                createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                _id: 'post_3',
+                type: 'borrow',
+                title: 'Engineering Drafter',
+                category: 'Stationery',
+                description: 'Need a drafter for my EG class in 30 mins!',
+                location: '1st Year Block',
+                datetime: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
+                needUntil: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                isUrgent: true,
+                author: 'user_priyanair',
+                replies: [],
+                createdAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString()
+            },
+            {
+                _id: 'post_100',
+                type: 'found',
+                title: 'Black Umbrella',
+                category: 'Accessories',
+                description: 'Found a black umbrella in the library on the second floor.',
+                location: 'Library',
+                datetime: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                author: 'user_kiransharma',
+                replies: [],
+                createdAt: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                _id: 'post_101',
+                type: 'lost',
+                title: 'Wireless Earbuds (AirPods Pro)',
+                category: 'Electronics',
+                description: 'I think I dropped my AirPods case near the basketball court.',
+                location: 'Basketball Court',
+                datetime: new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                isUrgent: true,
+                author: 'user_priyanair',
+                replies: [],
+                createdAt: new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                _id: 'post_102',
+                type: 'borrow',
+                title: 'Lab Coat - Size M',
+                category: 'Clothing',
+                description: 'Need a lab coat for Chemistry lab immediately. Will return in 2 hours.',
+                location: 'Chemistry Block',
+                datetime: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
+                needUntil: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                isUrgent: true,
+                author: 'user_rahulverma',
+                replies: [],
+                createdAt: new Date(now.getTime()).toISOString(),
+                updatedAt: new Date(now.getTime()).toISOString()
+            },
+            {
+                _id: 'post_103',
+                type: 'borrow',
+                title: 'Arduino Uno Board',
+                category: 'Electronics',
+                description: 'Does anyone have a spare Arduino Uno for a weekend project? Will take good care of it.',
+                location: 'Hostel A',
+                datetime: new Date(now.getTime() + 6 * 60 * 60 * 1000).toISOString(),
+                needUntil: new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString(),
+                status: 'open',
+                author: 'user_ananyasingh',
+                replies: [],
+                createdAt: new Date(now.getTime()).toISOString(),
+                updatedAt: new Date(now.getTime()).toISOString()
+            }
+        ];
 
-            saveDB({ users, posts });
-        }
+        if (!db.users) db.users = [];
+        users.forEach(u => {
+            if (!db.users.some(existing => existing._id === u._id)) {
+                db.users.push(u);
+            }
+        });
+
+        if (!db.posts) db.posts = [];
+        posts.forEach(p => {
+            if (!db.posts.some(existing => existing._id === p._id)) {
+                db.posts.push(p);
+            }
+        });
+
+        saveDB(db);
         
         return true;
     },
