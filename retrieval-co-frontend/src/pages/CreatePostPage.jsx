@@ -61,6 +61,7 @@ export default function CreatePostPage() {
     // Timetable Matcher State
     const [matchingTimetable, setMatchingTimetable] = useState(false);
     const [matchedClass, setMatchedClass] = useState("");
+    const [matchedSection, setMatchedSection] = useState("");
 
     const initialFormState = {
         title: "",
@@ -120,21 +121,26 @@ export default function CreatePostPage() {
 
         if (!val) {
             setMatchedClass("");
+            setMatchedSection("");
             setMatchingTimetable(false);
             return;
         }
 
         setMatchingTimetable(true);
         setMatchedClass("");
+        setMatchedSection("");
 
         setTimeout(() => {
             setMatchingTimetable(false);
             setMatchedClass(val);
+            const sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+            setMatchedSection(sections[Math.floor(Math.random() * sections.length)]);
         }, 1500);
     };
 
     React.useEffect(() => {
         setMatchedClass("");
+        setMatchedSection("");
         setMatchingTimetable(false);
     }, [type]);
 
@@ -410,7 +416,7 @@ export default function CreatePostPage() {
             if (!payload.description) payload.description = null;
 
             if (type === "borrow") {
-                payload.location = "Targeted: Section F";
+                payload.location = `Targeted: Section ${matchedSection || 'F'}`;
                 payload.description = `Targeted request: Needed for ${formData.selectedClass}`;
                 payload.category = "Others";
             }
@@ -444,7 +450,7 @@ export default function CreatePostPage() {
 
             if (type === "borrow") {
                 setSuccessMessage(
-                    `Notification sent successfully! Wait for someone to reply or physically meet a student from Section F to get your item.`,
+                    `Notification sent successfully! Wait for someone to reply or physically meet a student from Section ${matchedSection || 'F'} to get your item.`,
                 );
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } else {
@@ -727,7 +733,7 @@ export default function CreatePostPage() {
                             </h4>
                             <p className="text-[13px] text-text mb-1">
                                 🎯 Found Match:{" "}
-                                <strong className="text-blue">Section F</strong>{" "}
+                                <strong className="text-blue">Section {matchedSection || 'F'}</strong>{" "}
                                 had {matchedClass} pre-lunch.
                             </p>
                             <p className="text-[11px] text-text-muted">
