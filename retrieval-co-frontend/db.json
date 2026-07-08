@@ -1,0 +1,170 @@
+{
+  "users": [
+    {
+      "_id": "user_kiransharma",
+      "collegeId": "22BCE1234",
+      "name": "Kiran Sharma",
+      "karma": 312,
+      "role": "student"
+    },
+    {
+      "_id": "user_priyanair",
+      "collegeId": "23ECE4321",
+      "name": "Priya Nair",
+      "karma": 247,
+      "role": "student"
+    },
+    {
+      "_id": "user_rahulverma",
+      "collegeId": "21MEC5678",
+      "name": "Rahul Verma",
+      "karma": 189,
+      "role": "student"
+    },
+    {
+      "_id": "user_ananyasingh",
+      "collegeId": "24CIV8765",
+      "name": "Ananya Singh",
+      "karma": 134,
+      "role": "student"
+    }
+  ],
+  "posts": [
+    {
+      "_id": "post_1",
+      "type": "lost",
+      "title": "Student ID Card",
+      "category": "ID Cards",
+      "description": "Lost my ID card near the canteen. It has a blue lanyard.",
+      "location": "Canteen",
+      "datetime": "2026-07-06T12:14:58.089Z",
+      "status": "open",
+      "isUrgent": true,
+      "author": "user_ananyasingh",
+      "replies": [],
+      "createdAt": "2026-07-06T12:14:58.089Z",
+      "updatedAt": "2026-07-06T12:14:58.089Z"
+    },
+    {
+      "_id": "post_2",
+      "type": "found",
+      "title": "Scientific Calculator (Casio FX-991ES)",
+      "category": "Electronics",
+      "description": "Found on the 3rd bench in Physics Lab.",
+      "location": "Department Lab",
+      "datetime": "2026-07-06T09:14:58.089Z",
+      "status": "open",
+      "imageUrl": "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=500&h=500&fit=crop",
+      "author": "user_rahulverma",
+      "replies": [],
+      "createdAt": "2026-07-06T09:14:58.089Z",
+      "updatedAt": "2026-07-06T09:14:58.089Z"
+    },
+    {
+      "_id": "post_3",
+      "type": "borrow",
+      "title": "Engineering Drafter",
+      "category": "Stationery",
+      "description": "Need a drafter for my EG class in 30 mins!",
+      "location": "1st Year Block",
+      "datetime": "2026-07-06T14:04:58.089Z",
+      "needUntil": "2026-07-06T16:14:58.089Z",
+      "status": "open",
+      "isUrgent": true,
+      "author": "user_priyanair",
+      "replies": [],
+      "createdAt": "2026-07-06T14:04:58.089Z",
+      "updatedAt": "2026-07-06T14:04:58.089Z"
+    },
+    {
+      "_id": "54zkxwpf3qmhyuby",
+      "createdAt": "2026-07-06T14:18:39.387Z",
+      "updatedAt": "2026-07-06T14:18:39.387Z",
+      "type": "lost",
+      "title": "Programmatic Test API Date",
+      "category": "Electronics",
+      "description": "Testing if date parsing fixes the 400 error.",
+      "location": "Main Gate",
+      "datetime": "2026-07-06T14:18:39.379Z",
+      "isAnonymous": false,
+      "isUrgent": true,
+      "author": {
+        "id": "user_kiransharma"
+      }
+    },
+    {
+      "_id": "mlgfo9oe5zrsq8pc",
+      "createdAt": "2026-07-06T14:20:03.214Z",
+      "updatedAt": "2026-07-06T14:20:03.214Z",
+      "type": "lost",
+      "title": "Programmatic Test API Date",
+      "category": "Electronics",
+      "description": "Testing if date parsing fixes the 400 error.",
+      "location": "Main Gate",
+      "datetime": "2026-07-06T14:20:03.207Z",
+      "isAnonymous": false,
+      "isUrgent": true,
+      "author": "user_kiransharma"
+    },
+    {
+      "_id": "post_100",
+      "type": "found",
+      "title": "Black Umbrella",
+      "category": "Accessories",
+      "description": "Found a black umbrella in the library on the second floor.",
+      "location": "Library",
+      "datetime": "2026-07-07T10:00:00.000Z",
+      "status": "open",
+      "author": "user_kiransharma",
+      "replies": [],
+      "createdAt": "2026-07-07T10:00:00.000Z",
+      "updatedAt": "2026-07-07T10:00:00.000Z"
+    },
+    {
+      "_id": "post_101",
+      "type": "lost",
+      "title": "Wireless Earbuds (AirPods Pro)",
+      "category": "Electronics",
+      "description": "I think I dropped my AirPods case near the basketball court.",
+      "location": "Basketball Court",
+      "datetime": "2026-07-08T08:30:00.000Z",
+      "status": "open",
+      "isUrgent": true,
+      "author": "user_priyanair",
+      "replies": [],
+      "createdAt": "2026-07-08T08:30:00.000Z",
+      "updatedAt": "2026-07-08T08:30:00.000Z"
+    },
+    {
+      "_id": "post_102",
+      "type": "borrow",
+      "title": "Lab Coat - Size M",
+      "category": "Clothing",
+      "description": "Need a lab coat for Chemistry lab immediately. Will return in 2 hours.",
+      "location": "Chemistry Block",
+      "datetime": "2026-07-08T11:00:00.000Z",
+      "needUntil": "2026-07-08T13:00:00.000Z",
+      "status": "open",
+      "isUrgent": true,
+      "author": "user_rahulverma",
+      "replies": [],
+      "createdAt": "2026-07-08T09:00:00.000Z",
+      "updatedAt": "2026-07-08T09:00:00.000Z"
+    },
+    {
+      "_id": "post_103",
+      "type": "borrow",
+      "title": "Arduino Uno Board",
+      "category": "Electronics",
+      "description": "Does anyone have a spare Arduino Uno for a weekend project? Will take good care of it.",
+      "location": "Hostel A",
+      "datetime": "2026-07-08T15:00:00.000Z",
+      "needUntil": "2026-07-10T15:00:00.000Z",
+      "status": "open",
+      "author": "user_ananyasingh",
+      "replies": [],
+      "createdAt": "2026-07-08T09:30:00.000Z",
+      "updatedAt": "2026-07-08T09:30:00.000Z"
+    }
+  ]
+}
