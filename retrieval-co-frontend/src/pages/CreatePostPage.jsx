@@ -74,6 +74,7 @@ export default function CreatePostPage() {
         selectedClass: "",
         isAnonymous: false,
         isUrgent: false,
+        forProject: false,
     };
 
     const [tabData, setTabData] = useState({
@@ -416,8 +417,13 @@ export default function CreatePostPage() {
             if (!payload.description) payload.description = null;
 
             if (type === "borrow") {
-                payload.location = `Targeted: Section ${matchedSection || 'F'}`;
-                payload.description = `Targeted request: Needed for ${formData.selectedClass}`;
+                if (formData.forProject) {
+                    payload.location = "Project Use";
+                    payload.description = formData.description;
+                } else {
+                    payload.location = `Targeted: Section ${matchedSection || 'F'}`;
+                    payload.description = `Targeted request: Needed for ${formData.selectedClass}`;
+                }
                 payload.category = "Others";
             }
 
@@ -633,6 +639,42 @@ export default function CreatePostPage() {
                         required
                     />
 
+                    {type === "borrow" && (
+                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-surface/50">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-text font-semibold text-[13px]">
+                                    Borrow for a project?
+                                </span>
+                                <span className="text-text-muted text-[11px]">
+                                    If enabled, this request won't target a specific class's timetable.
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                role="switch"
+                                aria-checked={formData.forProject || false}
+                                onClick={() => {
+                                    const nextVal = !formData.forProject;
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        forProject: nextVal,
+                                        selectedClass: nextVal ? "" : prev.selectedClass,
+                                        description: nextVal ? "" : prev.description
+                                    }));
+                                    if (nextVal) {
+                                        setMatchedClass("");
+                                        setMatchedSection("");
+                                    }
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${formData.forProject ? "bg-success" : "bg-border"}`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${formData.forProject ? "translate-x-6" : "translate-x-1"}`}
+                                />
+                            </button>
+                        </div>
+                    )}
+
                     {type !== "borrow" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
@@ -691,7 +733,7 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type === "borrow" && (
+                    {type === "borrow" && !formData.forProject && (
                         <div>
                             <label className="form-label">
                                 Upcoming Class Session{" "}
@@ -744,10 +786,10 @@ export default function CreatePostPage() {
                         </div>
                     )}
 
-                    {type !== "borrow" && (
+                    {(type !== "borrow" || formData.forProject) && (
                         <div>
                             <label className="form-label">
-                                Description <span className="text-primary">*</span>
+                                {formData.forProject ? "Project Details / Description" : "Description"} <span className="text-primary">*</span>
                             </label>
                             <textarea
                                 name="description"
@@ -755,7 +797,11 @@ export default function CreatePostPage() {
                                 onChange={handleChange}
                                 rows={4}
                                 className="form-input"
-                                placeholder="Provide details like color, brand, recognizable marks..."
+                                placeholder={
+                                    formData.forProject 
+                                        ? "Describe your project or what you need the item for..." 
+                                        : "Provide details like color, brand, recognizable marks..."
+                                }
                                 required
                             ></textarea>
                         </div>
